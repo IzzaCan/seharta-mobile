@@ -1,5 +1,7 @@
 import 'package:get/get.dart';
 
+import '../modules/family_hub/bindings/family_hub_binding.dart';
+import '../modules/family_hub/views/family_hub_view.dart';
 import '../modules/home/bindings/home_binding.dart';
 import '../modules/home/views/home_view.dart';
 import '../modules/login/bindings/login_binding.dart';
@@ -58,5 +60,9 @@ class AppPages {
       page: () => const SplashView(),
       binding: SplashBinding(),
     ),
+    GetPage(
+      name: _Paths.FAMILY_HUB,
+      page: () => const FamilyHubView(),
+      binding: FamilyHubBinding(),)
   ];
 }

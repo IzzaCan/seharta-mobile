@@ -10,6 +10,7 @@ abstract class Routes {
   static const CREATE_GROUP = _Paths.CREATE_GROUP;
   static const JOIN_GROUP = _Paths.JOIN_GROUP;
   static const SPLASH = _Paths.SPLASH;
+  static const FAMILY_HUB = _Paths.FAMILY_HUB;
 }
 
 abstract class _Paths {
@@ -21,4 +22,5 @@ abstract class _Paths {
   static const CREATE_GROUP = '/create-group';
   static const JOIN_GROUP = '/join-group';
   static const SPLASH = '/splash';
+  static const FAMILY_HUB = '/family-hub';
 }

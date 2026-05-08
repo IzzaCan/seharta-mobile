@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:seharta/app/routes/app_pages.dart';
 import '../controllers/login_controller.dart';
 
 class LoginView extends GetView<LoginController> {
@@ -75,7 +76,11 @@ class LoginView extends GetView<LoginController> {
                 height: 50,
                 child: OutlinedButton.icon(
                   onPressed: () {},
-                  icon: const Icon(Icons.g_mobiledata, size: 30, color: Colors.blue), // Placeholder ikon Google
+                  icon: const Icon(
+                    Icons.g_mobiledata,
+                    size: 30,
+                    color: Colors.blue,
+                  ), // Placeholder ikon Google
                   label: Text(
                     'Lanjutkan dengan Google',
                     style: TextStyle(
@@ -169,24 +174,26 @@ class LoginView extends GetView<LoginController> {
                 ],
               ),
               const SizedBox(height: 8),
-              Obx(() => TextFormField(
-                    controller: controller.passwordController,
-                    obscureText: controller.isPasswordHidden.value,
-                    decoration: InputDecoration(
-                      hintText: '••••••••',
-                      hintStyle: TextStyle(color: textHintColor),
-                      prefixIcon: Icon(Icons.lock_outline, color: textHintColor),
-                      contentPadding: const EdgeInsets.symmetric(vertical: 16),
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8),
-                        borderSide: BorderSide(color: borderColor),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8),
-                        borderSide: BorderSide(color: primaryColor),
-                      ),
+              Obx(
+                () => TextFormField(
+                  controller: controller.passwordController,
+                  obscureText: controller.isPasswordHidden.value,
+                  decoration: InputDecoration(
+                    hintText: '••••••••',
+                    hintStyle: TextStyle(color: textHintColor),
+                    prefixIcon: Icon(Icons.lock_outline, color: textHintColor),
+                    contentPadding: const EdgeInsets.symmetric(vertical: 16),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      borderSide: BorderSide(color: borderColor),
                     ),
-                  )),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      borderSide: BorderSide(color: primaryColor),
+                    ),
+                  ),
+                ),
+              ),
               const SizedBox(height: 32),
 
               // 7. Tombol Masuk Sekarang
@@ -194,7 +201,9 @@ class LoginView extends GetView<LoginController> {
                 width: double.infinity,
                 height: 50,
                 child: ElevatedButton(
-                  onPressed: controller.login,
+                  onPressed: () {
+                    Get.toNamed(Routes.FAMILY_HUB);
+                  },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: primaryColor,
                     shape: RoundedRectangleBorder(
@@ -239,7 +248,10 @@ class LoginView extends GetView<LoginController> {
 
               // 9. Banner Testimoni/Proof
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 12,
+                ),
                 decoration: BoxDecoration(
                   color: const Color(0xFFF3F6FF), // Biru sangat pudar
                   borderRadius: BorderRadius.circular(12),
@@ -254,7 +266,9 @@ class LoginView extends GetView<LoginController> {
                           const CircleAvatar(
                             radius: 14,
                             backgroundColor: Colors.grey,
-                            backgroundImage: NetworkImage('https://i.pravatar.cc/100?img=11'),
+                            backgroundImage: NetworkImage(
+                              'https://i.pravatar.cc/100?img=11',
+                            ),
                           ),
                           Positioned(
                             left: 18,
@@ -264,7 +278,9 @@ class LoginView extends GetView<LoginController> {
                               child: const CircleAvatar(
                                 radius: 12,
                                 backgroundColor: Colors.blueGrey,
-                                backgroundImage: NetworkImage('https://i.pravatar.cc/100?img=33'),
+                                backgroundImage: NetworkImage(
+                                  'https://i.pravatar.cc/100?img=33',
+                                ),
                               ),
                             ),
                           ),
@@ -276,11 +292,18 @@ class LoginView extends GetView<LoginController> {
                       child: RichText(
                         text: TextSpan(
                           text: '5.000+ pasangan telah mencapai\n',
-                          style: TextStyle(color: Colors.grey[700], fontSize: 10, height: 1.5),
+                          style: TextStyle(
+                            color: Colors.grey[700],
+                            fontSize: 10,
+                            height: 1.5,
+                          ),
                           children: [
                             TextSpan(
                               text: 'Financial Freedom ',
-                              style: TextStyle(color: accentColor, fontWeight: FontWeight.bold),
+                              style: TextStyle(
+                                color: accentColor,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
                             const TextSpan(text: 'bersama.'),
                           ],
