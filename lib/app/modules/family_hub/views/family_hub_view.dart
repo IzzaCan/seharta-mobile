@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:seharta/app/routes/app_pages.dart';
 
 import '../controllers/family_hub_controller.dart';
 
@@ -80,7 +81,7 @@ class FamilyHubView extends GetView<FamilyHubController> {
                   bottomIcons: [Icons.person, Icons.add],
                   bottomText: 'Gunakan sebagai Admin',
                   onTap: () {
-                    // TODO: Navigate to create family
+                    Get.toNamed(Routes.CREATE_GROUP);
                   },
                 ),
                 const SizedBox(height: 24),
@@ -92,7 +93,7 @@ class FamilyHubView extends GetView<FamilyHubController> {
                   bottomIcons: [Icons.group],
                   bottomText: 'Hubungkan Akun Aktif',
                   onTap: () {
-                    // TODO: Navigate to join family
+                    Get.toNamed(Routes.JOIN_GROUP);
                   },
                 ),
                 
