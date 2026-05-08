@@ -1,20 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../controllers/login_controller.dart';
+import '../controllers/register_controller.dart';
+import 'package:seharta/app/routes/app_pages.dart';
 
-class LoginView extends GetView<LoginController> {
-  const LoginView({Key? key}) : super(key: key);
+class RegisterView extends GetView<RegisterController> {
+  const RegisterView({Key? key}) : super(key: key);
 
-  // Definisi warna sesuai desain
-  final Color primaryColor = const Color(0xFF0F2C36); // Biru gelap
-  final Color accentColor = const Color(0xFF1F9975); // Hijau
+  // Definisi warna sesuai desain Stitch (Seharta: AI Joint Finance)
+  final Color primaryColor = const Color(0xFF0D2B33); // Deep Teal
+  final Color accentColor = const Color(0xFF2ECC71); // Mint Green
   final Color borderColor = const Color(0xFFE0E5E9);
   final Color textHintColor = const Color(0xFF9098B1);
+  final Color backgroundColor = const Color(0xFFF8F9FF);
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: backgroundColor,
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 32.0),
@@ -31,7 +33,7 @@ class LoginView extends GetView<LoginController> {
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: const Icon(
-                      Icons.wallet, // Ganti dengan asset logo Anda jika ada
+                      Icons.wallet,
                       color: Colors.white,
                       size: 20,
                     ),
@@ -49,18 +51,19 @@ class LoginView extends GetView<LoginController> {
               ),
               const SizedBox(height: 40),
 
-              // 2. Teks Sambutan
+              // 2. Teks Header
               Text(
-                'Selamat Datang',
+                'Mulai langkah finansial transparan bersama pasangan',
                 style: TextStyle(
                   fontSize: 28,
                   fontWeight: FontWeight.bold,
                   color: primaryColor,
+                  height: 1.2,
                 ),
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: 12),
               Text(
-                'Masuk ke akun Anda untuk mengelola\nrencana bersama.',
+                'Seharta membantu Anda dan pasangan merencanakan masa depan dengan kejujuran dan keteraturan finansial yang kokoh.',
                 style: TextStyle(
                   fontSize: 14,
                   color: Colors.grey[600],
@@ -69,49 +72,40 @@ class LoginView extends GetView<LoginController> {
               ),
               const SizedBox(height: 32),
 
-              // 3. Tombol Login Google
-              SizedBox(
-                width: double.infinity,
-                height: 50,
-                child: OutlinedButton.icon(
-                  onPressed: () {},
-                  icon: const Icon(Icons.g_mobiledata, size: 30, color: Colors.blue), // Placeholder ikon Google
-                  label: Text(
-                    'Lanjutkan dengan Google',
-                    style: TextStyle(
-                      color: primaryColor,
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                    ),
+              // 3. Input Nama Lengkap
+              Text(
+                'NAMA LENGKAP',
+                style: TextStyle(
+                  fontSize: 10,
+                  fontWeight: FontWeight.bold,
+                  color: primaryColor,
+                  letterSpacing: 1.2,
+                ),
+              ),
+              const SizedBox(height: 8),
+              TextFormField(
+                controller: controller.nameController,
+                keyboardType: TextInputType.name,
+                decoration: InputDecoration(
+                  hintText: 'John Doe',
+                  hintStyle: TextStyle(color: textHintColor),
+                  prefixIcon: Icon(Icons.person_outline, color: textHintColor),
+                  contentPadding: const EdgeInsets.symmetric(vertical: 16),
+                  fillColor: Colors.white,
+                  filled: true,
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: BorderSide(color: borderColor),
                   ),
-                  style: OutlinedButton.styleFrom(
-                    backgroundColor: const Color(0xFFF8F9FB),
-                    side: BorderSide(color: borderColor),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: BorderSide(color: primaryColor),
                   ),
                 ),
               ),
-              const SizedBox(height: 24),
+              const SizedBox(height: 20),
 
-              // 4. Divider "Atau Email"
-              Row(
-                children: [
-                  Expanded(child: Divider(color: borderColor)),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: Text(
-                      'Atau Email',
-                      style: TextStyle(fontSize: 12, color: Colors.grey[500]),
-                    ),
-                  ),
-                  Expanded(child: Divider(color: borderColor)),
-                ],
-              ),
-              const SizedBox(height: 24),
-
-              // 5. Input Email
+              // 4. Input Email
               Text(
                 'ALAMAT EMAIL',
                 style: TextStyle(
@@ -130,6 +124,8 @@ class LoginView extends GetView<LoginController> {
                   hintStyle: TextStyle(color: textHintColor),
                   prefixIcon: Icon(Icons.mail_outline, color: textHintColor),
                   contentPadding: const EdgeInsets.symmetric(vertical: 16),
+                  fillColor: Colors.white,
+                  filled: true,
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
                     borderSide: BorderSide(color: borderColor),
@@ -142,31 +138,15 @@ class LoginView extends GetView<LoginController> {
               ),
               const SizedBox(height: 20),
 
-              // 6. Input Password & Lupa Sandi
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    'KATA SANDI',
-                    style: TextStyle(
-                      fontSize: 10,
-                      fontWeight: FontWeight.bold,
-                      color: primaryColor,
-                      letterSpacing: 1.2,
-                    ),
-                  ),
-                  GestureDetector(
-                    onTap: () {},
-                    child: Text(
-                      'Lupa Sandi?',
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.bold,
-                        color: accentColor,
-                      ),
-                    ),
-                  ),
-                ],
+              // 5. Input Password
+              Text(
+                'KATA SANDI',
+                style: TextStyle(
+                  fontSize: 10,
+                  fontWeight: FontWeight.bold,
+                  color: primaryColor,
+                  letterSpacing: 1.2,
+                ),
               ),
               const SizedBox(height: 8),
               Obx(() => TextFormField(
@@ -176,7 +156,60 @@ class LoginView extends GetView<LoginController> {
                       hintText: '••••••••',
                       hintStyle: TextStyle(color: textHintColor),
                       prefixIcon: Icon(Icons.lock_outline, color: textHintColor),
+                      suffixIcon: IconButton(
+                        icon: Icon(
+                          controller.isPasswordHidden.value
+                              ? Icons.visibility_off
+                              : Icons.visibility,
+                          color: textHintColor,
+                        ),
+                        onPressed: controller.togglePasswordVisibility,
+                      ),
                       contentPadding: const EdgeInsets.symmetric(vertical: 16),
+                      fillColor: Colors.white,
+                      filled: true,
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: BorderSide(color: borderColor),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: BorderSide(color: primaryColor),
+                      ),
+                    ),
+                  )),
+              const SizedBox(height: 20),
+
+              // 6. Input Confirm Password
+              Text(
+                'KONFIRMASI KATA SANDI',
+                style: TextStyle(
+                  fontSize: 10,
+                  fontWeight: FontWeight.bold,
+                  color: primaryColor,
+                  letterSpacing: 1.2,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Obx(() => TextFormField(
+                    controller: controller.confirmPasswordController,
+                    obscureText: controller.isConfirmPasswordHidden.value,
+                    decoration: InputDecoration(
+                      hintText: '••••••••',
+                      hintStyle: TextStyle(color: textHintColor),
+                      prefixIcon: Icon(Icons.lock_outline, color: textHintColor),
+                      suffixIcon: IconButton(
+                        icon: Icon(
+                          controller.isConfirmPasswordHidden.value
+                              ? Icons.visibility_off
+                              : Icons.visibility,
+                          color: textHintColor,
+                        ),
+                        onPressed: controller.toggleConfirmPasswordVisibility,
+                      ),
+                      contentPadding: const EdgeInsets.symmetric(vertical: 16),
+                      fillColor: Colors.white,
+                      filled: true,
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8),
                         borderSide: BorderSide(color: borderColor),
@@ -189,12 +222,12 @@ class LoginView extends GetView<LoginController> {
                   )),
               const SizedBox(height: 32),
 
-              // 7. Tombol Masuk Sekarang
+              // 7. Tombol Daftar Sekarang
               SizedBox(
                 width: double.infinity,
                 height: 50,
                 child: ElevatedButton(
-                  onPressed: controller.login,
+                  onPressed: controller.register,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: primaryColor,
                     shape: RoundedRectangleBorder(
@@ -203,7 +236,7 @@ class LoginView extends GetView<LoginController> {
                     elevation: 0,
                   ),
                   child: const Text(
-                    'Masuk Sekarang',
+                    'Daftar Sekarang',
                     style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.bold,
@@ -214,17 +247,17 @@ class LoginView extends GetView<LoginController> {
               ),
               const SizedBox(height: 24),
 
-              // 8. Teks Daftar
+              // 8. Teks Kembali ke Login
               Center(
                 child: GestureDetector(
-                  onTap: () => Get.toNamed('/register'),
+                  onTap: () => Get.back(),
                   child: RichText(
                     text: TextSpan(
-                      text: 'Belum punya akun? ',
+                      text: 'Sudah punya akun? ',
                       style: TextStyle(color: Colors.grey[600], fontSize: 13),
                       children: [
                         TextSpan(
-                          text: 'Daftar Gratis',
+                          text: 'Masuk',
                           style: TextStyle(
                             color: accentColor,
                             fontWeight: FontWeight.bold,
@@ -236,60 +269,6 @@ class LoginView extends GetView<LoginController> {
                 ),
               ),
               const SizedBox(height: 40),
-
-              // 9. Banner Testimoni/Proof
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFF3F6FF), // Biru sangat pudar
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Row(
-                  children: [
-                    // Avatar stack (mockup)
-                    SizedBox(
-                      width: 50,
-                      child: Stack(
-                        children: [
-                          const CircleAvatar(
-                            radius: 14,
-                            backgroundColor: Colors.grey,
-                            backgroundImage: NetworkImage('https://i.pravatar.cc/100?img=11'),
-                          ),
-                          Positioned(
-                            left: 18,
-                            child: CircleAvatar(
-                              radius: 14,
-                              backgroundColor: Colors.white,
-                              child: const CircleAvatar(
-                                radius: 12,
-                                backgroundColor: Colors.blueGrey,
-                                backgroundImage: NetworkImage('https://i.pravatar.cc/100?img=33'),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: RichText(
-                        text: TextSpan(
-                          text: '5.000+ pasangan telah mencapai\n',
-                          style: TextStyle(color: Colors.grey[700], fontSize: 10, height: 1.5),
-                          children: [
-                            TextSpan(
-                              text: 'Financial Freedom ',
-                              style: TextStyle(color: accentColor, fontWeight: FontWeight.bold),
-                            ),
-                            const TextSpan(text: 'bersama.'),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
             ],
           ),
         ),
