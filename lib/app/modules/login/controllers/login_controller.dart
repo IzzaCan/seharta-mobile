@@ -31,6 +31,6 @@ class LoginController extends GetxController {
   void login() {
     // Logika login Anda di sini
     print("Login ditekan dengan email: ${emailController.text}");
-    Get.toNamed('/select-status');
+    Get.offNamed('/select-status');
   }
 }

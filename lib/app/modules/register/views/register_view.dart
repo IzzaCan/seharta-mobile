@@ -149,35 +149,37 @@ class RegisterView extends GetView<RegisterController> {
                 ),
               ),
               const SizedBox(height: 8),
-              Obx(() => TextFormField(
-                    controller: controller.passwordController,
-                    obscureText: controller.isPasswordHidden.value,
-                    decoration: InputDecoration(
-                      hintText: '••••••••',
-                      hintStyle: TextStyle(color: textHintColor),
-                      prefixIcon: Icon(Icons.lock_outline, color: textHintColor),
-                      suffixIcon: IconButton(
-                        icon: Icon(
-                          controller.isPasswordHidden.value
-                              ? Icons.visibility_off
-                              : Icons.visibility,
-                          color: textHintColor,
-                        ),
-                        onPressed: controller.togglePasswordVisibility,
+              Obx(
+                () => TextFormField(
+                  controller: controller.passwordController,
+                  obscureText: controller.isPasswordHidden.value,
+                  decoration: InputDecoration(
+                    hintText: '••••••••',
+                    hintStyle: TextStyle(color: textHintColor),
+                    prefixIcon: Icon(Icons.lock_outline, color: textHintColor),
+                    suffixIcon: IconButton(
+                      icon: Icon(
+                        controller.isPasswordHidden.value
+                            ? Icons.visibility_off
+                            : Icons.visibility,
+                        color: textHintColor,
                       ),
-                      contentPadding: const EdgeInsets.symmetric(vertical: 16),
-                      fillColor: Colors.white,
-                      filled: true,
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8),
-                        borderSide: BorderSide(color: borderColor),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8),
-                        borderSide: BorderSide(color: primaryColor),
-                      ),
+                      onPressed: controller.togglePasswordVisibility,
                     ),
-                  )),
+                    contentPadding: const EdgeInsets.symmetric(vertical: 16),
+                    fillColor: Colors.white,
+                    filled: true,
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      borderSide: BorderSide(color: borderColor),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      borderSide: BorderSide(color: primaryColor),
+                    ),
+                  ),
+                ),
+              ),
               const SizedBox(height: 20),
 
               // 6. Input Confirm Password
@@ -191,35 +193,37 @@ class RegisterView extends GetView<RegisterController> {
                 ),
               ),
               const SizedBox(height: 8),
-              Obx(() => TextFormField(
-                    controller: controller.confirmPasswordController,
-                    obscureText: controller.isConfirmPasswordHidden.value,
-                    decoration: InputDecoration(
-                      hintText: '••••••••',
-                      hintStyle: TextStyle(color: textHintColor),
-                      prefixIcon: Icon(Icons.lock_outline, color: textHintColor),
-                      suffixIcon: IconButton(
-                        icon: Icon(
-                          controller.isConfirmPasswordHidden.value
-                              ? Icons.visibility_off
-                              : Icons.visibility,
-                          color: textHintColor,
-                        ),
-                        onPressed: controller.toggleConfirmPasswordVisibility,
+              Obx(
+                () => TextFormField(
+                  controller: controller.confirmPasswordController,
+                  obscureText: controller.isConfirmPasswordHidden.value,
+                  decoration: InputDecoration(
+                    hintText: '••••••••',
+                    hintStyle: TextStyle(color: textHintColor),
+                    prefixIcon: Icon(Icons.lock_outline, color: textHintColor),
+                    suffixIcon: IconButton(
+                      icon: Icon(
+                        controller.isConfirmPasswordHidden.value
+                            ? Icons.visibility_off
+                            : Icons.visibility,
+                        color: textHintColor,
                       ),
-                      contentPadding: const EdgeInsets.symmetric(vertical: 16),
-                      fillColor: Colors.white,
-                      filled: true,
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8),
-                        borderSide: BorderSide(color: borderColor),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8),
-                        borderSide: BorderSide(color: primaryColor),
-                      ),
+                      onPressed: controller.toggleConfirmPasswordVisibility,
                     ),
-                  )),
+                    contentPadding: const EdgeInsets.symmetric(vertical: 16),
+                    fillColor: Colors.white,
+                    filled: true,
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      borderSide: BorderSide(color: borderColor),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      borderSide: BorderSide(color: primaryColor),
+                    ),
+                  ),
+                ),
+              ),
               const SizedBox(height: 32),
 
               // 7. Tombol Daftar Sekarang
