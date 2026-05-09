@@ -16,8 +16,11 @@ class SelectStatusView extends GetView<SelectStatusController> {
     return Scaffold(
       backgroundColor: bgColor,
       body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 32.0),
+        child: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 600), // Batasi lebar maksimum
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 32.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
@@ -36,13 +39,16 @@ class SelectStatusView extends GetView<SelectStatusController> {
                   children: [
                     Icon(Icons.spa, size: 14, color: greenAccent),
                     const SizedBox(width: 6),
-                    Text(
-                      'SELAMAT DATANG DI SEHARTA',
-                      style: TextStyle(
-                        fontSize: 10,
-                        fontWeight: FontWeight.bold,
-                        color: greenAccent,
-                        letterSpacing: 1.0,
+                    Flexible(
+                      child: Text(
+                        'SELAMAT DATANG DI SEHARTA',
+                        style: TextStyle(
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                          color: greenAccent,
+                          letterSpacing: 1.0,
+                        ),
+                        textAlign: TextAlign.center,
                       ),
                     ),
                   ],
@@ -107,9 +113,12 @@ class SelectStatusView extends GetView<SelectStatusController> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Text(
-                      'Butuh bantuan? Pelajari cara kerja Seharta ',
-                      style: TextStyle(fontSize: 12, color: Colors.grey[700]),
+                    Flexible(
+                      child: Text(
+                        'Butuh bantuan? Pelajari cara kerja Seharta ',
+                        style: TextStyle(fontSize: 12, color: Colors.grey[700]),
+                        textAlign: TextAlign.center,
+                      ),
                     ),
                     Icon(Icons.help_outline, size: 14, color: Colors.grey[700]),
                   ],
@@ -119,8 +128,9 @@ class SelectStatusView extends GetView<SelectStatusController> {
 
               const Divider(),
               const SizedBox(height: 16),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
+              Wrap(
+                alignment: WrapAlignment.center,
+                crossAxisAlignment: WrapCrossAlignment.center,
                 children: [
                   Text(
                     'Seharta',
@@ -140,18 +150,19 @@ class SelectStatusView extends GetView<SelectStatusController> {
                       color: Colors.grey[500],
                       letterSpacing: 1,
                     ),
+                    textAlign: TextAlign.center,
                   ),
                 ],
               ),
               const SizedBox(height: 12),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
+              Wrap(
+                alignment: WrapAlignment.center,
+                spacing: 16,
                 children: [
                   Text(
                     'Kebijakan Privasi',
                     style: TextStyle(fontSize: 10, color: Colors.grey[600]),
                   ),
-                  const SizedBox(width: 16),
                   Text(
                     'Syarat & Ketentuan',
                     style: TextStyle(fontSize: 10, color: Colors.grey[600]),
@@ -160,6 +171,8 @@ class SelectStatusView extends GetView<SelectStatusController> {
               ),
               const SizedBox(height: 20),
             ],
+          ),
+        ),
           ),
         ),
       ),
@@ -276,12 +289,14 @@ class SelectStatusView extends GetView<SelectStatusController> {
                     child: Icon(footerIcon, size: 14, color: primaryColor),
                   ),
                   const SizedBox(width: 8),
-                  Text(
-                    footerText,
-                    style: TextStyle(
-                      fontSize: 11,
-                      color: Colors.grey[700],
-                      fontWeight: FontWeight.w600,
+                  Expanded(
+                    child: Text(
+                      footerText,
+                      style: TextStyle(
+                        fontSize: 11,
+                        color: Colors.grey[700],
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                   ),
                 ],
