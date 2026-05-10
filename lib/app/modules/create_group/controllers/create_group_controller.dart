@@ -1,5 +1,6 @@
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import '../../../routes/app_pages.dart';
 
 class CreateGroupController extends GetxController {
   // Mock pairing code
@@ -15,6 +16,7 @@ class CreateGroupController extends GetxController {
   }
 
   void goToHome() {
-    Get.offAllNamed('/home');
+    print("Navigating to Home...");
+    Get.offAllNamed(Routes.HOME);
   }
 }

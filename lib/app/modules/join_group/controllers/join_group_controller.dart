@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import '../../../routes/app_pages.dart';
+import '../views/scan_qr_view.dart';
 
 class JoinGroupController extends GetxController {
   late TextEditingController codeController;
@@ -25,7 +27,7 @@ class JoinGroupController extends GetxController {
       );
       // Navigate to home after brief delay
       Future.delayed(const Duration(seconds: 1), () {
-        Get.offAllNamed('/home');
+        Get.offAllNamed(Routes.HOME);
       });
     } else {
       Get.snackbar(
@@ -34,6 +36,20 @@ class JoinGroupController extends GetxController {
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: Colors.red[100],
         colorText: Colors.red[900],
+      );
+    }
+  }
+
+  void scanQR() async {
+    final result = await Get.to(() => const ScanQrView());
+    if (result != null && result is String) {
+      codeController.text = result;
+      Get.snackbar(
+        'Berhasil',
+        'Kode QR berhasil di-scan',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.green[100],
+        colorText: Colors.green[900],
       );
     }
   }

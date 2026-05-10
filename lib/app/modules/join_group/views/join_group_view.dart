@@ -85,7 +85,10 @@ class JoinGroupView extends GetView<JoinGroupController> {
                     color: textHintColor.withOpacity(0.5),
                     letterSpacing: 8,
                   ),
-                  contentPadding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
+                  contentPadding: const EdgeInsets.symmetric(
+                    vertical: 20,
+                    horizontal: 16,
+                  ),
                   fillColor: Colors.white,
                   filled: true,
                   counterText: "", // Hide character counter
@@ -131,7 +134,7 @@ class JoinGroupView extends GetView<JoinGroupController> {
                   ],
                 ),
               ),
-              
+
               const SizedBox(height: 48),
 
               // Submit Button
@@ -177,14 +180,7 @@ class JoinGroupView extends GetView<JoinGroupController> {
                 width: double.infinity,
                 height: 50,
                 child: OutlinedButton.icon(
-                  onPressed: () {
-                    // Navigate to scan QR page
-                    Get.snackbar(
-                      'Scan QR',
-                      'Membuka kamera untuk scan QR...',
-                      snackPosition: SnackPosition.BOTTOM,
-                    );
-                  },
+                  onPressed: controller.scanQR,
                   icon: Icon(Icons.qr_code_scanner, color: primaryColor),
                   label: Text(
                     'Scan QR Code',

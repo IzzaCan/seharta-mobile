@@ -10,6 +10,16 @@ abstract class Routes {
   static const CREATE_GROUP = _Paths.CREATE_GROUP;
   static const JOIN_GROUP = _Paths.JOIN_GROUP;
   static const SPLASH = _Paths.SPLASH;
+  static const PROFILE = _Paths.PROFILE;
+  static const ADD_TRANSACTION = _Paths.ADD_TRANSACTION;
+  static const SCAN_RECEIPT = _Paths.SCAN_RECEIPT;
+  static const LOADING_OCR = _Paths.LOADING_OCR;
+  static const ANALYTICS = _Paths.ANALYTICS;
+  static const HARTA = _Paths.HARTA;
+  static const EDIT_FAMILY_NAME = _Paths.EDIT_FAMILY_NAME;
+  static const MANAGE_CATEGORIES = _Paths.MANAGE_CATEGORIES;
+  static const MANAGE_WALLETS = _Paths.MANAGE_WALLETS;
+  static const CHANGE_PIN = _Paths.CHANGE_PIN;
 }
 
 abstract class _Paths {
@@ -21,4 +31,14 @@ abstract class _Paths {
   static const CREATE_GROUP = '/create-group';
   static const JOIN_GROUP = '/join-group';
   static const SPLASH = '/splash';
+  static const PROFILE = '/profile';
+  static const ADD_TRANSACTION = '/add-transaction';
+  static const SCAN_RECEIPT = '/scan-receipt';
+  static const LOADING_OCR = '/loading-ocr';
+  static const ANALYTICS = '/analytics';
+  static const HARTA = '/harta';
+  static const EDIT_FAMILY_NAME = '/edit-family-name';
+  static const MANAGE_CATEGORIES = '/manage-categories';
+  static const MANAGE_WALLETS = '/manage-wallets';
+  static const CHANGE_PIN = '/change-pin';
 }

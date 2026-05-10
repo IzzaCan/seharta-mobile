@@ -83,7 +83,7 @@ class SelectStatusView extends GetView<SelectStatusController> {
               // PASTIKAN path string di bawah ini sesuai dengan folder proyek Anda
               _buildStatusCard(
                 onTap: controller.createNewGroup,
-                imageUrl: 'images/buatkeluarga.png', // <--- Gunakan local asset
+                imageUrl: 'assets/images/buatkeluarga.png', // <--- Gunakan local asset
                 floatingIcon: Icons.home_outlined,
                 title: 'Buat Keluarga Baru',
                 description:
@@ -98,7 +98,7 @@ class SelectStatusView extends GetView<SelectStatusController> {
               _buildStatusCard(
                 onTap: controller.joinGroup,
                 imageUrl:
-                    'images/gabungkeluarga.png', // <--- Gunakan local asset
+                    'assets/images/gabungkeluarga.png', // <--- Gunakan local asset
                 floatingIcon: Icons.qr_code_scanner,
                 title: 'Gabung Keluarga',
                 description:
