@@ -28,8 +28,8 @@ import '../modules/profile/bindings/profile_binding.dart';
 import '../modules/profile/views/profile_view.dart';
 import '../modules/register/bindings/register_binding.dart';
 import '../modules/register/views/register_view.dart';
-import '../modules/scan_receipt/bindings/scan_receipt_binding.dart';
-import '../modules/scan_receipt/views/scan_receipt_view.dart';
+import '../modules/ocr/bindings/ocr_binding.dart';
+import '../modules/ocr/views/ocr_view.dart';
 import '../modules/select_status/bindings/select_status_binding.dart';
 import '../modules/select_status/views/select_status_view.dart';
 import '../modules/splash/bindings/splash_binding.dart';
@@ -89,9 +89,9 @@ class AppPages {
       binding: AddTransactionBinding(),
     ),
     GetPage(
-      name: _Paths.SCAN_RECEIPT,
-      page: () => const ScanReceiptView(),
-      binding: ScanReceiptBinding(),
+      name: _Paths.OCR,
+      page: () => const OcrView(),
+      binding: OcrBinding(),
     ),
     GetPage(
       name: _Paths.LOADING_OCR,

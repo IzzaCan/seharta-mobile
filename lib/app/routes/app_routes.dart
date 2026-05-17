@@ -12,7 +12,7 @@ abstract class Routes {
   static const SPLASH = _Paths.SPLASH;
   static const PROFILE = _Paths.PROFILE;
   static const ADD_TRANSACTION = _Paths.ADD_TRANSACTION;
-  static const SCAN_RECEIPT = _Paths.SCAN_RECEIPT;
+  static const OCR = _Paths.OCR;
   static const LOADING_OCR = _Paths.LOADING_OCR;
   static const ANALYTICS = _Paths.ANALYTICS;
   static const HARTA = _Paths.HARTA;
@@ -33,7 +33,7 @@ abstract class _Paths {
   static const SPLASH = '/splash';
   static const PROFILE = '/profile';
   static const ADD_TRANSACTION = '/add-transaction';
-  static const SCAN_RECEIPT = '/scan-receipt';
+  static const OCR = '/ocr';
   static const LOADING_OCR = '/loading-ocr';
   static const ANALYTICS = '/analytics';
   static const HARTA = '/harta';

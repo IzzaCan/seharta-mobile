@@ -11,15 +11,15 @@ class AddTransactionController extends GetxController {
   final noteController = TextEditingController();
 
   // State untuk Dropdown/Pilihan (Bisa diubah nantinya sesuai model database)
-  var selectedCategory = 'Makanan'.obs;
-  var selectedWallet = 'Utama'.obs;
+  var selectedCategory = 'Makan'.obs;
+  var selectedWallet = 'BCA Keluarga'.obs;
 
   void toggleTransactionType(bool isExpenseType) {
     isExpense.value = isExpenseType;
   }
 
-  void openOcrScanner() {
-    Get.toNamed(Routes.SCAN_RECEIPT);
+  Future<void> openOcrScanner() async {
+    await Get.toNamed(Routes.OCR);
   }
 
   void saveTransaction() {

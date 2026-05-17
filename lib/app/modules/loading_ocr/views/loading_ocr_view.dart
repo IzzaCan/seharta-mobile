@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controllers/loading_ocr_controller.dart';
@@ -19,7 +20,6 @@ class LoadingOcrView extends GetView<LoadingOcrController> {
       backgroundColor: backgroundColor,
       
       // APP BAR Sederhana
-      
       appBar: AppBar(
         backgroundColor: cardColor,
         elevation: 0,
@@ -28,7 +28,7 @@ class LoadingOcrView extends GetView<LoadingOcrController> {
           onPressed: controller.cancelProcess,
         ),
         title: Text(
-          'Tambah Transaksi',
+          'Analisis Struk Belanja',
           style: TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.bold,
@@ -38,16 +38,14 @@ class LoadingOcrView extends GetView<LoadingOcrController> {
         centerTitle: false,
       ),
 
-      
-      // FLAT BOTTOM NAVIGATION (Sesuai mockup spesifik ini)
-      
+      // FLAT BOTTOM NAVIGATION (Sesuai mockup)
       bottomNavigationBar: Container(
         height: 60,
         decoration: BoxDecoration(
           color: Colors.white,
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.05),
+              color: Colors.black.withOpacity(0.05),
               blurRadius: 10,
               offset: const Offset(0, -2),
             ),
@@ -62,7 +60,6 @@ class LoadingOcrView extends GetView<LoadingOcrController> {
               color: Colors.grey[400],
               size: 24,
             ),
-            // Tombol Add di tengah yang flat (tanpa notch/mengambang)
             Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
@@ -81,31 +78,30 @@ class LoadingOcrView extends GetView<LoadingOcrController> {
         ),
       ),
 
-      
       // BODY UTAMA
-      
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 32.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              // 1. Ilustrasi Animasi Struk (Dibuat murni dengan Widget)
-              _buildReceiptIllustration(),
+              // 1. Ilustrasi dengan live preview gambar asli
+              _buildReceiptPreview(),
               const SizedBox(height: 32),
 
-              // 2. Teks Status
-              Text(
-                'Sedang Membaca Struk...',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  color: primaryColor,
-                ),
-              ),
+              // 2. Teks Status Dinamis
+              Obx(() => Text(
+                    controller.progressStatus.value,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: primaryColor,
+                    ),
+                  )),
               const SizedBox(height: 8),
               Text(
-                'Tunggu sebentar, Seharta sedang\nmengekstraksi data Anda.',
+                'Tunggu sebentar, Seharta sedang\nmengekstraksi data transaksi Anda.',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 12,
@@ -121,30 +117,30 @@ class LoadingOcrView extends GetView<LoadingOcrController> {
                 strokeWidth: 3,
               ),
               const SizedBox(height: 16),
-              // Dots loading tambahan (Simulasi visual)
+              // Dots loading tambahan
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   _buildDot(greenAccent),
                   const SizedBox(width: 4),
-                  _buildDot(greenAccent.withValues(alpha: 0.5)),
+                  _buildDot(greenAccent.withOpacity(0.5)),
                   const SizedBox(width: 4),
-                  _buildDot(greenAccent.withValues(alpha: 0.2)),
+                  _buildDot(greenAccent.withOpacity(0.2)),
                 ],
               ),
               const SizedBox(height: 48),
 
-              // 4. Kartu Informasi File & Model
+              // 4. Kartu Informasi File & Model Dinamis
               _buildInfoCard(
                 icon: Icons.insert_drive_file_outlined,
                 title: 'NAMA FILE',
-                value: 'receipt_2023_10.jpg',
+                value: controller.imagePath.split(Platform.pathSeparator).last,
               ),
               const SizedBox(height: 12),
               _buildInfoCard(
                 icon: Icons.memory_outlined,
-                title: 'MODEL AI',
-                value: 'Seharta OCR v2.4',
+                title: 'MODEL AI OCR',
+                value: 'Gemini 2.5 Flash',
               ),
             ],
           ),
@@ -157,72 +153,67 @@ class LoadingOcrView extends GetView<LoadingOcrController> {
   // WIDGET REUSABLE
   
 
-  // Widget untuk menggambar ilustrasi struk secara manual (tanpa aset gambar)
-  Widget _buildReceiptIllustration() {
+  // Widget untuk menampilkan preview gambar struk asli dengan neon scanning line
+  Widget _buildReceiptPreview() {
     return Stack(
       clipBehavior: Clip.none,
       alignment: Alignment.center,
       children: [
-        // Kertas Struk
+        // Live Receipt Image Preview dengan border dan shadow premium
         Container(
-          width: 140,
-          height: 180,
-          padding: const EdgeInsets.all(16),
+          width: 150,
+          height: 200,
           decoration: BoxDecoration(
             color: cardColor,
-            borderRadius: BorderRadius.circular(8),
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: borderColor, width: 2),
             boxShadow: [
               BoxShadow(
-                color: primaryColor.withValues(alpha: 0.05),
+                color: primaryColor.withOpacity(0.1),
                 blurRadius: 20,
                 offset: const Offset(0, 10),
               ),
             ],
           ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(
-                height: 6,
-                width: double.infinity,
-                color: Colors.grey[100],
-              ),
-              const SizedBox(height: 8),
-              // Efek garis hijau scanning
-              Container(
-                height: 2,
-                width: double.infinity,
-                decoration: BoxDecoration(
-                  color: greenAccent.withValues(alpha: 0.5),
-                  boxShadow: [
-                    BoxShadow(
-                      color: greenAccent.withValues(alpha: 0.3),
-                      blurRadius: 4,
-                      spreadRadius: 1,
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 16),
-              Container(height: 4, width: 80, color: Colors.grey[100]),
-              const SizedBox(height: 8),
-              Container(height: 4, width: 100, color: Colors.grey[100]),
-              const SizedBox(height: 8),
-              Container(height: 4, width: 90, color: Colors.grey[100]),
-              const SizedBox(height: 8),
-              Container(height: 4, width: 60, color: Colors.grey[100]),
-              const Spacer(),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Container(height: 8, width: 40, color: bgLightGreen),
-                  Container(height: 8, width: 20, color: bgLightGreen),
-                ],
-              ),
-            ],
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(10),
+            child: Image.file(
+              File(controller.imagePath),
+              fit: BoxFit.cover,
+              errorBuilder: (context, error, stackTrace) {
+                return Center(
+                  child: Icon(
+                    Icons.broken_image_outlined,
+                    color: Colors.grey[400],
+                    size: 40,
+                  ),
+                );
+              },
+            ),
           ),
         ),
-        // Badge Bintang / AI (Pojok Kanan Atas)
+        
+        // Efek garis hijau scanning (neon)
+        Positioned(
+          top: 25,
+          left: -10,
+          right: -10,
+          child: Container(
+            height: 3,
+            decoration: BoxDecoration(
+              color: greenAccent,
+              boxShadow: [
+                BoxShadow(
+                  color: greenAccent.withOpacity(0.6),
+                  blurRadius: 8,
+                  spreadRadius: 2,
+                ),
+              ],
+            ),
+          ),
+        ),
+        
+        // Badge AI/Star (Pojok Kanan Atas)
         Positioned(
           top: -10,
           right: -10,
@@ -277,28 +268,32 @@ class LoadingOcrView extends GetView<LoadingOcrController> {
             child: Icon(icon, color: Colors.blueGrey, size: 18),
           ),
           const SizedBox(width: 16),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                title,
-                style: TextStyle(
-                  fontSize: 9,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.grey[500],
-                  letterSpacing: 0.5,
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: TextStyle(
+                    fontSize: 9,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.grey[500],
+                    letterSpacing: 0.5,
+                  ),
                 ),
-              ),
-              const SizedBox(height: 2),
-              Text(
-                value,
-                style: TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w600,
-                  color: primaryColor,
+                const SizedBox(height: 2),
+                Text(
+                  value,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                    color: primaryColor,
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ],
       ),

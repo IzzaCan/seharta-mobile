@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controllers/add_transaction_controller.dart';
 import '../../../routes/app_pages.dart';
+import '../../manage_categories/controllers/manage_categories_controller.dart';
+import '../../manage_wallets/controllers/manage_wallets_controller.dart';
 
 class AddTransactionView extends GetView<AddTransactionController> {
   const AddTransactionView({Key? key}) : super(key: key);
@@ -262,73 +264,79 @@ class AddTransactionView extends GetView<AddTransactionController> {
               const SizedBox(height: 16),
 
               // 6. Input Card: KATEGORI
-              _buildInputContainer(
-                label: 'KATEGORI',
-                child: Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(6),
-                      decoration: BoxDecoration(
-                        color: bgLightGreen,
-                        shape: BoxShape.circle,
-                      ),
-                      child: Icon(
-                        Icons.restaurant,
-                        color: greenAccent,
-                        size: 16,
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Obx(
-                      () => Expanded(
-                        child: Text(
-                          controller.selectedCategory.value,
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.bold,
-                            color: primaryColor,
+              GestureDetector(
+                onTap: () => _showCategoryPicker(context),
+                child: _buildInputContainer(
+                  label: 'KATEGORI',
+                  child: Row(
+                    children: [
+                      Obx(() => Container(
+                        padding: const EdgeInsets.all(6),
+                        decoration: BoxDecoration(
+                          color: bgLightGreen,
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(
+                          _getSelectedCategoryIcon(controller.selectedCategory.value),
+                          color: greenAccent,
+                          size: 16,
+                        ),
+                      )),
+                      const SizedBox(width: 12),
+                      Obx(
+                        () => Expanded(
+                          child: Text(
+                            controller.selectedCategory.value,
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                              color: primaryColor,
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                    Icon(Icons.keyboard_arrow_down, color: Colors.grey[400]),
-                  ],
+                      Icon(Icons.keyboard_arrow_down, color: Colors.grey[400]),
+                    ],
+                  ),
                 ),
               ),
               const SizedBox(height: 16),
 
               // 7. Input Card: DOMPET
-              _buildInputContainer(
-                label: 'DOMPET',
-                child: Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(6),
-                      decoration: BoxDecoration(
-                        color: Colors.blue[50],
-                        shape: BoxShape.circle,
-                      ),
-                      child: Icon(
-                        Icons.account_balance_wallet_outlined,
-                        color: Colors.blueGrey,
-                        size: 16,
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Obx(
-                      () => Expanded(
-                        child: Text(
-                          controller.selectedWallet.value,
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.bold,
-                            color: primaryColor,
+              GestureDetector(
+                onTap: () => _showWalletPicker(context),
+                child: _buildInputContainer(
+                  label: 'DOMPET',
+                  child: Row(
+                    children: [
+                      Obx(() => Container(
+                        padding: const EdgeInsets.all(6),
+                        decoration: BoxDecoration(
+                          color: Colors.blue[50],
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(
+                          _getSelectedWalletIcon(controller.selectedWallet.value),
+                          color: Colors.blueGrey,
+                          size: 16,
+                        ),
+                      )),
+                      const SizedBox(width: 12),
+                      Obx(
+                        () => Expanded(
+                          child: Text(
+                            controller.selectedWallet.value,
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                              color: primaryColor,
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                    Icon(Icons.keyboard_arrow_down, color: Colors.grey[400]),
-                  ],
+                      Icon(Icons.keyboard_arrow_down, color: Colors.grey[400]),
+                    ],
+                  ),
                 ),
               ),
               const SizedBox(height: 16),
@@ -336,28 +344,22 @@ class AddTransactionView extends GetView<AddTransactionController> {
               // 8. Input Card: CATATAN
               _buildInputContainer(
                 label: 'CATATAN (OPSIONAL)',
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Icon(Icons.notes, color: Colors.grey[400], size: 20),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: TextFormField(
-                        controller: controller.noteController,
-                        style: TextStyle(fontSize: 14, color: primaryColor),
-                        decoration: InputDecoration(
-                          hintText: 'Tulis keterangan di sini...',
-                          hintStyle: TextStyle(
-                            fontSize: 14,
-                            color: Colors.grey[400],
-                          ),
-                          border: InputBorder.none,
-                          isDense: true,
-                          contentPadding: EdgeInsets.zero,
-                        ),
-                      ),
+                child: TextFormField(
+                  controller: controller.noteController,
+                  maxLines: 8,
+                  minLines: 5,
+                  keyboardType: TextInputType.multiline,
+                  style: TextStyle(fontSize: 14, color: primaryColor),
+                  decoration: InputDecoration(
+                    hintText: 'Tulis keterangan di sini...',
+                    hintStyle: TextStyle(
+                      fontSize: 14,
+                      color: Colors.grey[400],
                     ),
-                  ],
+                    border: InputBorder.none,
+                    isDense: true,
+                    contentPadding: EdgeInsets.zero,
+                  ),
                 ),
               ),
               const SizedBox(height: 24),
@@ -518,6 +520,213 @@ class AddTransactionView extends GetView<AddTransactionController> {
           const SizedBox(height: 12),
           child,
         ],
+      ),
+    );
+  }
+
+  // Helper untuk mencari dan mengambil ikon kategori yang dibuat user secara dinamis
+  IconData _getSelectedCategoryIcon(String selectedTitle) {
+    final categoryController = Get.put(ManageCategoriesController());
+    final cat = categoryController.categories.firstWhere(
+      (c) => c['title'] == selectedTitle,
+      orElse: () => <String, dynamic>{},
+    );
+    if (cat.isNotEmpty && cat['icon'] is IconData) {
+      return cat['icon'] as IconData;
+    }
+    return Icons.category_outlined;
+  }
+
+  // Helper untuk mencari dan mengambil ikon dompet yang dibuat user secara dinamis
+  IconData _getSelectedWalletIcon(String selectedTitle) {
+    final walletController = Get.put(ManageWalletsController());
+    final w = walletController.wallets.firstWhere(
+      (wallet) => wallet['title'] == selectedTitle,
+      orElse: () => <String, dynamic>{},
+    );
+    if (w.isNotEmpty && w['icon'] is IconData) {
+      return w['icon'] as IconData;
+    }
+    return Icons.account_balance_wallet_outlined;
+  }
+
+  // Menampilkan Bottom Sheet pilihan kategori belanja (mengambil data kategori dinamis buatan user)
+  void _showCategoryPicker(BuildContext context) {
+    final categoryController = Get.put(ManageCategoriesController());
+    
+    Get.bottomSheet(
+      Container(
+        decoration: BoxDecoration(
+          color: cardColor,
+          borderRadius: const BorderRadius.only(
+            topLeft: Radius.circular(20),
+            topRight: Radius.circular(20),
+          ),
+        ),
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Pilih Kategori',
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: primaryColor,
+              ),
+            ),
+            const SizedBox(height: 16),
+            Flexible(
+              child: Obx(() {
+                // Filter kategori berdasarkan tipe transaksi pengeluaran vs pemasukan
+                final list = categoryController.categories.where((cat) {
+                  return cat['isExpense'] == controller.isExpense.value;
+                }).toList();
+                
+                if (list.isEmpty) {
+                  return const Center(
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(vertical: 20.0),
+                      child: Text('Belum ada kategori. Silakan buat di menu Profile.'),
+                    ),
+                  );
+                }
+                
+                return ListView.builder(
+                  shrinkWrap: true,
+                  itemCount: list.length,
+                  itemBuilder: (context, index) {
+                    final cat = list[index];
+                    final String title = cat['title'] ?? '';
+                    final IconData icon = cat['icon'] is IconData ? cat['icon'] : Icons.category;
+                    
+                    return ListTile(
+                      leading: Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: bgLightGreen,
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(
+                          icon,
+                          color: greenAccent,
+                          size: 18,
+                        ),
+                      ),
+                      title: Text(
+                        title,
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                          color: primaryColor,
+                        ),
+                      ),
+                      trailing: controller.selectedCategory.value == title
+                          ? Icon(Icons.check_circle, color: greenAccent)
+                          : const SizedBox.shrink(),
+                      onTap: () {
+                        controller.selectedCategory.value = title;
+                        Get.back();
+                      },
+                    );
+                  },
+                );
+              }),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // Menampilkan Bottom Sheet pilihan dompet (mengambil data dompet dinamis buatan user)
+  void _showWalletPicker(BuildContext context) {
+    final walletController = Get.put(ManageWalletsController());
+    
+    Get.bottomSheet(
+      Container(
+        decoration: BoxDecoration(
+          color: cardColor,
+          borderRadius: const BorderRadius.only(
+            topLeft: Radius.circular(20),
+            topRight: Radius.circular(20),
+          ),
+        ),
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Pilih Dompet',
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: primaryColor,
+              ),
+            ),
+            const SizedBox(height: 16),
+            Flexible(
+              child: Obx(() {
+                final list = walletController.wallets;
+                
+                if (list.isEmpty) {
+                  return const Center(
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(vertical: 20.0),
+                      child: Text('Belum ada dompet. Silakan buat di menu Profile.'),
+                    ),
+                  );
+                }
+                
+                return ListView.builder(
+                  shrinkWrap: true,
+                  itemCount: list.length,
+                  itemBuilder: (context, index) {
+                    final w = list[index];
+                    final String title = w['title'] ?? '';
+                    final IconData icon = w['icon'] is IconData ? w['icon'] : Icons.account_balance_wallet;
+                    
+                    return ListTile(
+                      leading: Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: Colors.blue[50],
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(
+                          icon,
+                          color: Colors.blueGrey,
+                          size: 18,
+                        ),
+                      ),
+                      title: Text(
+                        title,
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                          color: primaryColor,
+                        ),
+                      ),
+                      subtitle: Text(
+                        w['balance'] ?? '',
+                        style: TextStyle(fontSize: 11, color: Colors.grey[500]),
+                      ),
+                      trailing: controller.selectedWallet.value == title
+                          ? const Icon(Icons.check_circle, color: Colors.blue)
+                          : const SizedBox.shrink(),
+                      onTap: () {
+                        controller.selectedWallet.value = title;
+                        Get.back();
+                      },
+                    );
+                  },
+                );
+              }),
+            ),
+          ],
+        ),
       ),
     );
   }

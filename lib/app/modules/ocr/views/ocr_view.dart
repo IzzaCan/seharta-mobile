@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../controllers/scan_receipt_controller.dart';
+import 'package:camera/camera.dart';
+import '../controllers/ocr_controller.dart';
 
-class ScanReceiptView extends GetView<ScanReceiptController> {
-  const ScanReceiptView({Key? key}) : super(key: key);
+class OcrView extends GetView<OcrController> {
+  const OcrView({Key? key}) : super(key: key);
 
   final Color primaryDark = const Color(0xFF0A1A1F); // Warna background gelap
   final Color greenNeon = const Color(0xFF4CFF8B); // Hijau neon untuk scanner
@@ -15,53 +16,96 @@ class ScanReceiptView extends GetView<ScanReceiptController> {
       body: Stack(
         children: [
           
-          // 1. BACKGROUND GAMBAR (SIMULASI KAMERA)
-          
+          // 1. LIVE CAMERA PREVIEW FEED (PENGGANTI SIMULATOR GAMBAR ASSET)
           Positioned.fill(
-            child: Image.asset(
-              'assets/images/struk.jpg', // Gambar struk Indomaret Anda
-              fit: BoxFit.cover,
-              errorBuilder: (context, error, stackTrace) {
-                // Tampilan darurat jika gambar belum terdaftar di pubspec.yaml
+            child: Obx(() {
+              if (!controller.isCameraInitialized.value || controller.cameraController == null) {
                 return Container(
-                  color: Colors.grey[800],
+                  color: primaryDark,
                   child: const Center(
-                    child: Text(
-                      'Simulasi Kamera Berjalan',
-                      style: TextStyle(color: Colors.white),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        CircularProgressIndicator(
+                          valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF4CFF8B)),
+                        ),
+                        SizedBox(height: 16),
+                        Text(
+                          'Membuka Kamera...',
+                          style: TextStyle(color: Colors.white70, fontSize: 13),
+                        ),
+                      ],
                     ),
                   ),
                 );
-              },
-            ),
+              }
+              
+              final cameraValue = controller.cameraController!.value;
+              final previewSize = cameraValue.previewSize;
+              
+              if (previewSize == null) {
+                return Container(
+                  color: primaryDark,
+                  child: const Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        CircularProgressIndicator(
+                          valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF4CFF8B)),
+                        ),
+                        SizedBox(height: 16),
+                        Text(
+                          'Menyiapkan Preview...',
+                          style: TextStyle(color: Colors.white70, fontSize: 13),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              }
+              
+              return FittedBox(
+                fit: BoxFit.cover,
+                child: SizedBox(
+                  width: previewSize.height,
+                  height: previewSize.width,
+                  child: CameraPreview(controller.cameraController!),
+                ),
+              );
+            }),
           ),
 
-          
           // 2. OVERLAY GELAP & BOUNDING BOX (KOTAK SCAN)
-          
           Positioned.fill(
             child: Column(
               children: [
+                // Area atas transparan gelap
                 Expanded(
-                  child: Center(
-                    child: Stack(
+                  child: Container(color: Colors.black.withOpacity(0.55)),
+                ),
+                
+                // Area tengah: Kiri (Gelap), Tengah (Viewfinder Terang), Kanan (Gelap)
+                Row(
+                  children: [
+                    // Sisi Kiri
+                    Container(
+                      width: Get.width * 0.075,
+                      height: Get.height * 0.46,
+                      color: Colors.black.withOpacity(0.55),
+                    ),
+                    
+                    // Kotak Viewfinder Utama
+                    Stack(
                       clipBehavior: Clip.none,
                       alignment: Alignment.center,
                       children: [
-                        // Kotak Utama (Viewfinder)
+                        // Bingkai Viewfinder Neon
                         Container(
                           width: Get.width * 0.85,
-                          height: Get.height * 0.55,
+                          height: Get.height * 0.46,
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(16),
                             border: Border.all(color: greenNeon, width: 2.5),
-                            // Trik membuat area luar kotak menjadi gelap transparan
-                            boxShadow: [
-                              BoxShadow(
-                                color: primaryDark.withValues(alpha: 0.85),
-                                spreadRadius: 2000,
-                              ),
-                            ],
                           ),
                         ),
 
@@ -74,7 +118,7 @@ class ScanReceiptView extends GetView<ScanReceiptController> {
                               vertical: 10,
                             ),
                             decoration: BoxDecoration(
-                              color: Colors.black.withValues(alpha: 0.6),
+                              color: Colors.black.withOpacity(0.6),
                               borderRadius: BorderRadius.circular(20),
                             ),
                             child: const Text(
@@ -87,59 +131,27 @@ class ScanReceiptView extends GetView<ScanReceiptController> {
                             ),
                           ),
                         ),
-
-                        // Badge Bawah: Auto-fokus Aktif
-                        Positioned(
-                          bottom:
-                              -15, // Dibuat menabrak garis bawah sesuai desain
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 16,
-                              vertical: 8,
-                            ),
-                            decoration: BoxDecoration(
-                              color: greenNeon,
-                              borderRadius: BorderRadius.circular(20),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: greenNeon.withValues(alpha: 0.4),
-                                  blurRadius: 10,
-                                  offset: const Offset(0, 4),
-                                ),
-                              ],
-                            ),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Icon(
-                                  Icons.document_scanner,
-                                  color: primaryDark,
-                                  size: 14,
-                                ),
-                                const SizedBox(width: 6),
-                                Text(
-                                  'Auto-fokus aktif',
-                                  style: TextStyle(
-                                    color: primaryDark,
-                                    fontSize: 11,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
                       ],
                     ),
-                  ),
+                    
+                    // Sisi Kanan
+                    Container(
+                      width: Get.width * 0.075,
+                      height: Get.height * 0.46,
+                      color: Colors.black.withOpacity(0.55),
+                    ),
+                  ],
+                ),
+                
+                // Area bawah transparan gelap
+                Expanded(
+                  child: Container(color: Colors.black.withOpacity(0.55)),
                 ),
               ],
             ),
           ),
 
-          
           // 3. TOP BAR (HEADER & IKON)
-          
           Positioned(
             top: 0,
             left: 0,
@@ -197,9 +209,7 @@ class ScanReceiptView extends GetView<ScanReceiptController> {
             ),
           ),
 
-          
           // 4. BOTTOM BAR (TOMBOL ACTION)
-          
           Positioned(
             bottom: 0,
             left: 0,
