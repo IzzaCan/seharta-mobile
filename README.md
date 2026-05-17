@@ -59,7 +59,7 @@ lib/
 ### Langkah-langkah Instalasi
 1. Lakukan *Clone* repositori ini:
    ```bash
-   git clone [https://github.com/username-anda/seharta-app.git](https://github.com/IzzaCan/seharta-app.git)
+   git clone https://github.com/IzzaCan/seharta-mobile.git
    ```
 2. Masuk ke direktori proyek:
 ```Bash
