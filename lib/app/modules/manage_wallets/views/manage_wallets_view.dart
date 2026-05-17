@@ -6,11 +6,12 @@ class ManageWalletsView extends GetView<ManageWalletsController> {
   const ManageWalletsView({Key? key}) : super(key: key);
 
   // Palet Warna
-  final Color primaryDark = const Color(0xFF0D2B33); // Dark Teal
-  final Color greenAccent = const Color(0xFF1F9975); // Emerald Green
+  final Color primaryDark = const Color(0xFF0D2B33);
+  final Color greenAccent = const Color(0xFF1F9975);
   final Color backgroundColor = const Color(0xFFF8F9FF);
   final Color cardColor = Colors.white;
   final Color borderColor = const Color(0xFFE0E5E9);
+  final Color dangerRed = const Color(0xFFD32F2F);
   final Color bgLightGreen = const Color(0xFFE8F5EE);
 
   @override
@@ -60,7 +61,7 @@ class ManageWalletsView extends GetView<ManageWalletsController> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // 1. Header Card: Ringkasan Aset (Dengan Watermark Icon)
+              // 1. Header Card: Ringkasan Aset
               Container(
                 width: double.infinity,
                 height: 120,
@@ -77,12 +78,11 @@ class ManageWalletsView extends GetView<ManageWalletsController> {
                 ),
                 child: Stack(
                   children: [
-                    // Watermark Ikon Dompet di Kanan
                     Positioned(
                       right: -15,
                       bottom: -20,
                       child: Transform.rotate(
-                        angle: -0.2, // Sedikit dimiringkan
+                        angle: -0.2,
                         child: Icon(
                           Icons.account_balance_wallet_outlined,
                           size: 100,
@@ -90,7 +90,6 @@ class ManageWalletsView extends GetView<ManageWalletsController> {
                         ),
                       ),
                     ),
-                    // Teks Konten
                     Padding(
                       padding: const EdgeInsets.all(20.0),
                       child: Column(
@@ -123,46 +122,66 @@ class ManageWalletsView extends GetView<ManageWalletsController> {
               const SizedBox(height: 32),
 
               // 2. Section Title
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    'DOMPET AKTIF',
-                    style: TextStyle(
-                      fontSize: 10,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.grey[600],
-                      letterSpacing: 1,
+              Obx(
+                () => Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'DOMPET AKTIF',
+                      style: TextStyle(
+                        fontSize: 10,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.grey[600],
+                        letterSpacing: 1,
+                      ),
                     ),
-                  ),
-                  Text(
-                    '2 Terdaftar',
-                    style: TextStyle(
-                      fontSize: 10,
-                      fontWeight: FontWeight.bold,
-                      color: greenAccent,
+                    Text(
+                      '${controller.wallets.length} Terdaftar',
+                      style: TextStyle(
+                        fontSize: 10,
+                        fontWeight: FontWeight.bold,
+                        color: greenAccent,
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
               const SizedBox(height: 12),
 
-              // 3. List Dompet
-              _buildWalletItem(
-                icon: Icons.credit_card,
-                title: 'BCA Keluarga',
-                balance: 'Rp5.000.000',
-                onEdit: () => controller.editWallet('BCA Keluarga'),
-              ),
-              const SizedBox(height: 12),
-              _buildWalletItem(
-                icon: Icons.money,
-                iconBgColor: const Color(0xFFE3F2FD), // Biru sangat muda
-                iconColor: Colors.blueGrey,
-                title: 'Kas Tunai',
-                balance: 'Rp500.000',
-                onEdit: () => controller.editWallet('Kas Tunai'),
-              ),
+              // 3. List Dompet Dinamis Obx (Slide Actions Built-In)
+              Obx(() {
+                if (controller.wallets.isEmpty) {
+                  return Center(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 24),
+                      child: Text(
+                        'Belum ada dompet terdaftar.',
+                        style: TextStyle(color: Colors.grey[500], fontSize: 12),
+                      ),
+                    ),
+                  );
+                }
+
+                return Column(
+                  children: controller.wallets.map((wallet) {
+                    final isSelected =
+                        controller.selectedWallet.value == wallet['title'];
+
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 12.0),
+                      child: _buildDynamicWalletItem(
+                        icon: wallet['icon'],
+                        iconBgColor: wallet['iconBgColor'],
+                        iconColor: wallet['iconColor'],
+                        title: wallet['title'],
+                        balance: wallet['balance'],
+                        isSelected: isSelected,
+                        onTap: () => controller.selectWallet(wallet['title']),
+                      ),
+                    );
+                  }).toList(),
+                );
+              }),
               const SizedBox(height: 24),
 
               // 4. Info Card Bawah
@@ -191,9 +210,7 @@ class ManageWalletsView extends GetView<ManageWalletsController> {
                   ],
                 ),
               ),
-              const SizedBox(
-                height: 80,
-              ), // Ruang ekstra agar list tidak tertutup FAB
+              const SizedBox(height: 80),
             ],
           ),
         ),
@@ -201,74 +218,166 @@ class ManageWalletsView extends GetView<ManageWalletsController> {
     );
   }
 
-  // WIDGET REUSABLE
+  // WIDGET REUSABLE DINAMIS WITH SLIDE ACTION
 
-  Widget _buildWalletItem({
+  Widget _buildDynamicWalletItem({
     required IconData icon,
     required String title,
     required String balance,
     Color? iconBgColor,
     Color? iconColor,
-    required VoidCallback onEdit,
+    required bool isSelected,
+    required VoidCallback onTap,
   }) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: cardColor,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: borderColor),
-        boxShadow: [
-          BoxShadow(
-            color: primaryDark.withOpacity(0.02),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
+    double itemHeight = 72.0;
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        double width = constraints.maxWidth;
+        double actionsWidth =
+            width * 0.4; // Lebar porsi tombol aksi di sisi kanan
+
+        return Container(
+          height: itemHeight,
+          decoration: BoxDecoration(
+            color: const Color(0xFFE2E8F0), // Latar belakang tombol aksi
+            borderRadius: BorderRadius.circular(12),
           ),
-        ],
-      ),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              color: iconBgColor ?? const Color(0xFFF0F4F8),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Icon(icon, color: iconColor ?? primaryDark, size: 20),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.bold,
-                    color: primaryDark,
+          child: Stack(
+            clipBehavior: Clip.antiAlias,
+            children: [
+              // LAPISAN BELAKANG: Tombol Opsi Edit & Hapus
+              Positioned(
+                right: 0,
+                top: 0,
+                bottom: 0,
+                width: actionsWidth,
+                child: Row(
+                  children: [
+                    // Tombol Edit
+                    Expanded(
+                      child: GestureDetector(
+                        onTap: () => controller.editWallet(title),
+                        behavior: HitTestBehavior.opaque,
+                        child: Container(
+                          color: const Color(0xFFE2E8F0),
+                          child: const Center(
+                            child: Icon(
+                              Icons.edit_outlined,
+                              color: Color(0xFF4A5568),
+                              size: 20,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    // Tombol Hapus
+                    Expanded(
+                      child: GestureDetector(
+                        onTap: () => controller.deleteWallet(title),
+                        behavior: HitTestBehavior.opaque,
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: dangerRed,
+                            borderRadius: const BorderRadius.only(
+                              topRight: Radius.circular(12),
+                              bottomRight: Radius.circular(12),
+                            ),
+                          ),
+                          child: const Center(
+                            child: Icon(
+                              Icons.delete_outline,
+                              color: Colors.white,
+                              size: 20,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              // LAPISAN DEPAN: Card Informasi Utama (Bergeser Mulus)
+              AnimatedPositioned(
+                duration: const Duration(milliseconds: 200),
+                curve: Curves.easeOutCubic,
+                left: isSelected ? -actionsWidth : 0,
+                width: width,
+                top: 0,
+                bottom: 0,
+                child: GestureDetector(
+                  onTap: onTap,
+                  behavior: HitTestBehavior.opaque,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    decoration: BoxDecoration(
+                      color: cardColor,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: isSelected
+                            ? primaryDark.withOpacity(0.3)
+                            : borderColor,
+                      ),
+                    ),
+                    child: Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(10),
+                          decoration: BoxDecoration(
+                            color: iconBgColor ?? const Color(0xFFF0F4F8),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Icon(
+                            icon,
+                            color: iconColor ?? primaryDark,
+                            size: 20,
+                          ),
+                        ),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                title,
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.bold,
+                                  color: primaryDark,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                balance,
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.bold,
+                                  color: greenAccent,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        AnimatedRotation(
+                          turns: isSelected ? 0.5 : 0,
+                          duration: const Duration(milliseconds: 200),
+                          child: Icon(
+                            Icons.chevron_right,
+                            color: isSelected ? primaryDark : Colors.grey[400],
+                            size: 20,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
-                const SizedBox(height: 4),
-                Text(
-                  balance,
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.bold,
-                    color: greenAccent,
-                  ),
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
-          IconButton(
-            icon: Icon(Icons.edit_outlined, color: Colors.grey[400], size: 20),
-            onPressed: onEdit,
-            constraints:
-                const BoxConstraints(), // Mengurangi padding bawaan IconButton
-            padding: EdgeInsets.zero,
-          ),
-        ],
-      ),
+        );
+      },
     );
   }
 }
