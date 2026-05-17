@@ -20,9 +20,8 @@ class HartaView extends GetView<HartaController> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: backgroundColor,
-      
+
       // BOTTOM NAVIGATION BAR
-      
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           Get.toNamed(Routes.ADD_TRANSACTION);
@@ -72,9 +71,7 @@ class HartaView extends GetView<HartaController> {
         ),
       ),
 
-      
       // BODY / KONTEN UTAMA
-      
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
@@ -212,373 +209,406 @@ class HartaView extends GetView<HartaController> {
               ),
               const SizedBox(height: 24),
 
-              // Berdasarkan Mockup, seluruh section ditampilkan memanjang ke bawah.
-              // 4. Section: Aset Tetap
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    'Aset Tetap',
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold,
-                      color: primaryDark,
-                    ),
-                  ),
-                  GestureDetector(
-                    onTap: controller.addAsset,
-                    child: Row(
-                      children: [
-                        Icon(
-                          Icons.add_circle_outline,
-                          color: greenAccent,
-                          size: 16,
-                        ),
-                        const SizedBox(width: 4),
-                        Text(
-                          'Tambah Aset',
-                          style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.bold,
-                            color: greenAccent,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 12),
-
-              _buildAssetItem(
-                icon: Icons.directions_car_outlined,
-                title: 'Honda Brio 2020',
-                subtitle: 'Transportasi • Diperbarui 2 hari yang lalu',
-                amount: 'Rp 120.000.000',
-                status: 'STABIL',
-                statusColor: Colors.grey[600]!,
-              ),
-              const SizedBox(height: 12),
-              _buildAssetItem(
-                icon: Icons.hexagon_outlined, // Polygon icon placeholder
-                title: 'Emas Antam 10g',
-                subtitle: 'Komoditas • Diperbarui hari ini',
-                amount: 'Rp 10.000.000',
-                status: 'NAIK',
-                statusColor: greenAccent,
-              ),
-              const SizedBox(height: 32),
-
-              // 5. Section: Financial Goals
-              Text(
-                'Financial Goals',
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.bold,
-                  color: primaryDark,
-                ),
-              ),
-              const SizedBox(height: 12),
-              Container(
-                padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  color: cardColor,
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: borderColor),
-                ),
-                child: Column(
-                  children: [
-                    // Header Goal
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.all(8),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFF0F4F8),
-                            shape: BoxShape.circle,
-                          ),
-                          child: Icon(
-                            Icons.school_outlined,
-                            color: Colors.blueGrey,
-                            size: 24,
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Dana Pendidikan Anak',
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.bold,
-                                  color: primaryDark,
-                                ),
-                              ),
-                              const SizedBox(height: 4),
-                              Text(
-                                'Target: Desember 2028',
-                                style: TextStyle(
-                                  fontSize: 11,
-                                  color: Colors.grey[500],
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.end,
-                          children: [
-                            Text(
-                              'STATUS',
-                              style: TextStyle(
-                                fontSize: 9,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.grey[400],
-                              ),
-                            ),
-                            Text(
-                              'Sesuai\nJalur',
-                              textAlign: TextAlign.right,
-                              style: TextStyle(
-                                fontSize: 11,
-                                fontWeight: FontWeight.bold,
-                                color: greenAccent,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 20),
-
-                    // Progress Bar
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          'Progres Tabungan',
-                          style: TextStyle(
-                            fontSize: 11,
-                            color: Colors.grey[600],
-                          ),
-                        ),
-                        Text(
-                          '20%',
-                          style: TextStyle(
-                            fontSize: 11,
-                            fontWeight: FontWeight.bold,
-                            color: primaryDark,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 8),
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(4),
-                      child: LinearProgressIndicator(
-                        value: 0.2, // 20%
-                        backgroundColor: Colors.grey[200],
-                        valueColor: AlwaysStoppedAnimation<Color>(greenBright),
-                        minHeight: 6,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          'Rp 10.000.000',
-                          style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.bold,
-                            color: primaryDark,
-                          ),
-                        ),
-                        Text(
-                          'dari Rp 50.000.000',
-                          style: TextStyle(
-                            fontSize: 10,
-                            color: Colors.grey[400],
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 20),
-
-                    // AI Suggestion Banner
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 12,
-                      ),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFF5F8FF),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Row(
+              // KONTEN DINAMIS BERDASARKAN TAB YANG DIPILIH
+              Obx(() {
+                if (controller.activeTab.value == 0) {
+                  // TAMPILAN TAB ASET TETAP
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // 4. Section: Aset Tetap
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Icon(
-                            Icons.auto_awesome,
-                            color: greenAccent,
-                            size: 20,
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: Text(
-                              'Butuh strategi untuk mencapai target lebih cepat?',
-                              style: TextStyle(
-                                fontSize: 11,
-                                color: Colors.grey[700],
-                              ),
+                          Text(
+                            'Aset Tetap',
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                              color: primaryDark,
                             ),
                           ),
-                          const SizedBox(width: 8),
-                          ElevatedButton(
-                            onPressed: controller.askAISuggestion,
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: primaryDark,
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 16,
-                                vertical: 0,
-                              ),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                            ),
-                            child: const Text(
-                              'Minta\nSaran AI',
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                fontSize: 10,
-                                color: Colors.white,
-                              ),
+                          GestureDetector(
+                            onTap: controller.addAsset,
+                            child: Row(
+                              children: [
+                                Icon(
+                                  Icons.add_circle_outline,
+                                  color: greenAccent,
+                                  size: 16,
+                                ),
+                                const SizedBox(width: 4),
+                                Text(
+                                  'Tambah Aset',
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.bold,
+                                    color: greenAccent,
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
                         ],
                       ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 32),
-
-              // 6. Section: Analisis Aset
-              Container(
-                padding: const EdgeInsets.all(24),
-                decoration: BoxDecoration(
-                  color: cardColor,
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: borderColor),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Analisis Aset',
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold,
-                        color: primaryDark,
+                      const SizedBox(height: 12),
+                      _buildAssetItem(
+                        icon: Icons.directions_car_outlined,
+                        title: 'Honda Brio 2020',
+                        subtitle: 'Transportasi • Diperbarui 2 hari yang lalu',
+                        amount: 'Rp 120.000.000',
+                        status: 'STABIL',
+                        statusColor: Colors.grey[600]!,
                       ),
-                    ),
-                    const SizedBox(height: 32),
+                      const SizedBox(height: 12),
+                      _buildAssetItem(
+                        icon: Icons.hexagon_outlined,
+                        title: 'Emas Antam 10g',
+                        subtitle: 'Komoditas • Diperbarui hari ini',
+                        amount: 'Rp 10.000.000',
+                        status: 'NAIK',
+                        statusColor: greenAccent,
+                      ),
+                      const SizedBox(height: 32),
 
-                    // Donut Chart Custom
-                    Center(
-                      child: SizedBox(
-                        height: 180,
-                        width: 180,
-                        child: Stack(
-                          alignment: Alignment.center,
+                      // 6. Section: Analisis Aset
+                      Container(
+                        padding: const EdgeInsets.all(24),
+                        decoration: BoxDecoration(
+                          color: cardColor,
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(color: borderColor),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            CustomPaint(
-                              size: const Size(180, 180),
-                              painter: AssetDonutPainter(
-                                colors: [greenBright, primaryDark],
-                                percentages: [
-                                  0.923,
-                                  0.077,
-                                ], // 92.3% Kendaraan, 7.7% Emas
+                            Text(
+                              'Analisis Aset',
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.bold,
+                                color: primaryDark,
                               ),
                             ),
-                            Column(
-                              mainAxisSize: MainAxisSize.min,
+                            const SizedBox(height: 32),
+                            Center(
+                              child: SizedBox(
+                                height: 180,
+                                width: 180,
+                                child: Stack(
+                                  alignment: Alignment.center,
+                                  children: [
+                                    CustomPaint(
+                                      size: const Size(180, 180),
+                                      painter: AssetDonutPainter(
+                                        colors: [greenBright, primaryDark],
+                                        percentages: [0.923, 0.077],
+                                      ),
+                                    ),
+                                    Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Text(
+                                          'KOMPOSISI',
+                                          style: TextStyle(
+                                            fontSize: 9,
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.grey[400],
+                                            letterSpacing: 1,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 4),
+                                        Text(
+                                          '92%',
+                                          style: TextStyle(
+                                            fontSize: 24,
+                                            fontWeight: FontWeight.bold,
+                                            color: primaryDark,
+                                          ),
+                                        ),
+                                        Text(
+                                          'Kendaraan',
+                                          style: TextStyle(
+                                            fontSize: 10,
+                                            color: Colors.grey[500],
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 32),
+                            _buildChartLegend(
+                              color: greenBright,
+                              title: 'Kendaraan',
+                              percentage: '92.3%',
+                            ),
+                            const SizedBox(height: 12),
+                            _buildChartLegend(
+                              color: primaryDark,
+                              title: 'Emas',
+                              percentage: '7.7%',
+                            ),
+                            const SizedBox(height: 24),
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(8),
+                              child: Image.network(
+                                'https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?auto=format&fit=crop&q=80&w=600',
+                                height: 80,
+                                width: double.infinity,
+                                fit: BoxFit.cover,
+                                errorBuilder: (context, error, stackTrace) =>
+                                    Container(
+                                      height: 80,
+                                      color: Colors.grey[200],
+                                    ),
+                              ),
+                            ),
+                            const SizedBox(height: 12),
+                            Text(
+                              '"Cara terbaik untuk memprediksi masa depan adalah dengan menciptakannya."',
+                              style: TextStyle(
+                                fontSize: 11,
+                                fontStyle: FontStyle.italic,
+                                color: Colors.grey[500],
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  );
+                } else {
+                  // TAMPILAN TAB GOALS
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // 5. Section: Financial Goals
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'Financial Goals',
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                              color: primaryDark,
+                            ),
+                          ),
+                          GestureDetector(
+                            onTap: controller
+                                .addGoal, // Memanggil fungsi addGoal di controller
+                            child: Row(
                               children: [
+                                Icon(
+                                  Icons.add_circle_outline,
+                                  color: greenAccent,
+                                  size: 16,
+                                ),
+                                const SizedBox(width: 4),
                                 Text(
-                                  'KOMPOSISI',
+                                  'Tambah Goals',
                                   style: TextStyle(
-                                    fontSize: 9,
+                                    fontSize: 12,
                                     fontWeight: FontWeight.bold,
-                                    color: Colors.grey[400],
-                                    letterSpacing: 1,
+                                    color: greenAccent,
                                   ),
                                 ),
-                                const SizedBox(height: 4),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 12),
+                      Container(
+                        padding: const EdgeInsets.all(20),
+                        decoration: BoxDecoration(
+                          color: cardColor,
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(color: borderColor),
+                        ),
+                        child: Column(
+                          children: [
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.all(8),
+                                  decoration: const BoxDecoration(
+                                    color: Color(0xFFF0F4F8),
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: const Icon(
+                                    Icons.school_outlined,
+                                    color: Colors.blueGrey,
+                                    size: 24,
+                                  ),
+                                ),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        'Dana Pendidikan Anak',
+                                        style: TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.bold,
+                                          color: primaryDark,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 4),
+                                      Text(
+                                        'Target: Desember 2028',
+                                        style: TextStyle(
+                                          fontSize: 11,
+                                          color: Colors.grey[500],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.end,
+                                  children: [
+                                    Text(
+                                      'STATUS',
+                                      style: TextStyle(
+                                        fontSize: 9,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.grey[400],
+                                      ),
+                                    ),
+                                    Text(
+                                      'Sesuai\nJalur',
+                                      textAlign: TextAlign.right,
+                                      style: TextStyle(
+                                        fontSize: 11,
+                                        fontWeight: FontWeight.bold,
+                                        color: greenAccent,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 20),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
                                 Text(
-                                  '92%',
+                                  'Progres Tabungan',
                                   style: TextStyle(
-                                    fontSize: 24,
+                                    fontSize: 11,
+                                    color: Colors.grey[600],
+                                  ),
+                                ),
+                                Text(
+                                  '20%',
+                                  style: TextStyle(
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.bold,
+                                    color: primaryDark,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 8),
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(4),
+                              child: LinearProgressIndicator(
+                                value: 0.2,
+                                backgroundColor: Colors.grey[200],
+                                valueColor: AlwaysStoppedAnimation<Color>(
+                                  greenBright,
+                                ),
+                                minHeight: 6,
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  'Rp 10.000.000',
+                                  style: TextStyle(
+                                    fontSize: 12,
                                     fontWeight: FontWeight.bold,
                                     color: primaryDark,
                                   ),
                                 ),
                                 Text(
-                                  'Kendaraan',
+                                  'dari Rp 50.000.000',
                                   style: TextStyle(
                                     fontSize: 10,
-                                    color: Colors.grey[500],
+                                    color: Colors.grey[400],
                                   ),
                                 ),
                               ],
                             ),
+                            const SizedBox(height: 20),
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                                vertical: 12,
+                              ),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFF5F8FF),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Row(
+                                children: [
+                                  Icon(
+                                    Icons.auto_awesome,
+                                    color: greenAccent,
+                                    size: 20,
+                                  ),
+                                  const SizedBox(width: 12),
+                                  Expanded(
+                                    child: Text(
+                                      'Butuh strategi untuk mencapai target lebih cepat?',
+                                      style: TextStyle(
+                                        fontSize: 11,
+                                        color: Colors.grey[700],
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  ElevatedButton(
+                                    onPressed: controller.askAISuggestion,
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: primaryDark,
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 16,
+                                        vertical: 0,
+                                      ),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                    ),
+                                    child: const Text(
+                                      'Minta\nSaran AI',
+                                      textAlign: TextAlign.center,
+                                      style: TextStyle(
+                                        fontSize: 10,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
                           ],
                         ),
                       ),
-                    ),
-                    const SizedBox(height: 32),
-
-                    // Legend
-                    _buildChartLegend(
-                      color: greenBright,
-                      title: 'Kendaraan',
-                      percentage: '92.3%',
-                    ),
-                    const SizedBox(height: 12),
-                    _buildChartLegend(
-                      color: primaryDark,
-                      title: 'Emas',
-                      percentage: '7.7%',
-                    ),
-                    const SizedBox(height: 24),
-
-                    // Image Placeholder & Quote
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(8),
-                      child: Image.network(
-                        'https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?auto=format&fit=crop&q=80&w=600', // Gambar Koin/Investasi
-                        height: 80,
-                        width: double.infinity,
-                        fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) =>
-                            Container(height: 80, color: Colors.grey[200]),
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    Text(
-                      '"Cara terbaik untuk memprediksi masa depan adalah dengan menciptakannya."',
-                      style: TextStyle(
-                        fontSize: 11,
-                        fontStyle: FontStyle.italic,
-                        color: Colors.grey[500],
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                  ],
-                ),
-              ),
+                    ],
+                  );
+                }
+              }),
               const SizedBox(height: 40), // Padding ekstra untuk Bottom Nav
             ],
           ),
@@ -587,10 +617,7 @@ class HartaView extends GetView<HartaController> {
     );
   }
 
-  
   // WIDGET REUSABLE
-  
-
   Widget _buildNavItem({
     required IconData icon,
     required String label,
@@ -697,7 +724,11 @@ class HartaView extends GetView<HartaController> {
               color: backgroundColor,
               borderRadius: BorderRadius.circular(12),
             ),
-            child: Icon(icon, color: Colors.blueGrey, size: 24),
+            child: const Icon(
+              Icons.attach_money,
+              color: Colors.blueGrey,
+              size: 24,
+            ),
           ),
           const SizedBox(width: 16),
           Expanded(
@@ -787,9 +818,7 @@ class HartaView extends GetView<HartaController> {
   }
 }
 
-
 // CUSTOM PAINTER UNTUK DONUT CHART (HARTA)
-
 class AssetDonutPainter extends CustomPainter {
   final List<Color> colors;
   final List<double> percentages;
@@ -798,7 +827,7 @@ class AssetDonutPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    double strokeWidth = 20.0; // Lebar cincin grafik
+    double strokeWidth = 20.0;
     Rect rect = Rect.fromLTWH(
       strokeWidth / 2,
       strokeWidth / 2,
@@ -806,7 +835,7 @@ class AssetDonutPainter extends CustomPainter {
       size.height - strokeWidth,
     );
 
-    double startAngle = -pi / 2; // Mulai dari jam 12 atas
+    double startAngle = -pi / 2;
 
     for (int i = 0; i < percentages.length; i++) {
       double sweepAngle = percentages[i] * 2 * pi;

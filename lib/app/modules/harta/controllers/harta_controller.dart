@@ -12,6 +12,11 @@ class HartaController extends GetxController {
     print("Membuka form tambah aset...");
   }
 
+  // Tambahkan fungsi baru ini
+  void addGoal() {
+    print("Membuka form tambah goals...");
+  }
+
   void askAISuggestion() {
     print("Minta saran AI untuk Dana Pendidikan Anak...");
   }
