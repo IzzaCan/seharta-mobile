@@ -11,16 +11,15 @@ class ManageCategoriesView extends GetView<ManageCategoriesController> {
   final Color backgroundColor = const Color(0xFFF8F9FF);
   final Color cardColor = Colors.white;
   final Color borderColor = const Color(0xFFE0E5E9);
-  final Color dangerRed = const Color(0xFFD32F2F); // Merah untuk tombol hapus
+  final Color dangerRed = const Color(0xFFD32F2F);
   final Color bgLightGreen = const Color(0xFFE8F5EE);
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: backgroundColor,
-      
+
       // APP BAR
-      
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
@@ -39,9 +38,7 @@ class ManageCategoriesView extends GetView<ManageCategoriesController> {
         centerTitle: false,
       ),
 
-      
       // BODY UTAMA
-      
       body: SafeArea(
         child: Stack(
           children: [
@@ -86,7 +83,7 @@ class ManageCategoriesView extends GetView<ManageCategoriesController> {
 
                   // 2. Judul Section
                   Text(
-                    'Kategori Default',
+                    'Daftar Kategori',
                     style: TextStyle(
                       fontSize: 12,
                       color: Colors.grey[500],
@@ -95,33 +92,49 @@ class ManageCategoriesView extends GetView<ManageCategoriesController> {
                   ),
                   const SizedBox(height: 12),
 
-                  // 3. List Kategori
+// 3. List Kategori Dinamis Obx (Diperbarui menggunakan Column Mapping)
+                  Obx(() {
+                    // Menyaring kategori berdasarkan tipe yang dipilih (Expense/Income)
+                    final filteredCategories = controller.categories
+                        .where((c) => c['isExpense'] == controller.isExpense.value)
+                        .toList();
 
-                  // Item 1: Simulasi Sedang Di-Swipe (Sesuai Desain)
-                  _buildSwipedItemMockup(
-                    title: 'Makan',
-                    subtitle: '12 Transaksi bulan ini',
-                  ),
-                  const SizedBox(height: 12),
+                    if (filteredCategories.isEmpty) {
+                      return Center(
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 20),
+                          child: Text(
+                            'Belum ada kategori.',
+                            style: TextStyle(
+                              color: Colors.grey[500],
+                              fontSize: 12,
+                            ),
+                          ),
+                        ),
+                      );
+                    }
 
-                  // Item 2: Normal
-                  _buildCategoryItem(
-                    icon: Icons.lightbulb,
-                    iconColor: Colors.amber,
-                    iconBgColor: Colors.amber.withValues(alpha: 0.1),
-                    title: 'Tagihan',
-                    subtitle: '4 Transaksi bulan ini',
-                  ),
-                  const SizedBox(height: 12),
+                    // Menggunakan Column + Map untuk menjamin kelancaran sistem Gesture/Tap Detector
+                    return Column(
+                      children: filteredCategories.map((category) {
+                        final isSelected = controller.selectedCategory.value == category['title'];
 
-                  // Item 3: Normal
-                  _buildCategoryItem(
-                    icon: Icons.school,
-                    iconColor: Colors.black87,
-                    iconBgColor: Colors.grey[200]!,
-                    title: 'Pendidikan',
-                    subtitle: '1 Transaksi bulan ini',
-                  ),
+                        return Padding(
+                          padding: const EdgeInsets.only(bottom: 12.0), // Sebagai pengganti separatorBuilder
+                          child: _buildDynamicCategoryItem(
+                            icon: category['icon'],
+                            iconColor: category['color'],
+                            title: category['title'],
+                            subtitle: category['subtitle'],
+                            isSelected: isSelected,
+                            onTap: () {
+                              controller.selectCategory(category['title']);
+                            },
+                          ),
+                        );
+                      }).toList(),
+                    );
+                  }),
                   const SizedBox(height: 32),
 
                   // 4. Info Card: Tips Kelola Kategori
@@ -161,7 +174,7 @@ class ManageCategoriesView extends GetView<ManageCategoriesController> {
                               ),
                               const SizedBox(height: 6),
                               Text(
-                                'Geser kategori ke kiri untuk mengedit atau menghapus. Urutkan kategori dengan menekan lama (long press) lalu drag.',
+                                'Tekan salah satu kategori di atas untuk memunculkan opsi Edit dan Hapus dengan cepat.',
                                 style: TextStyle(
                                   fontSize: 10,
                                   color: Colors.grey[400],
@@ -174,12 +187,12 @@ class ManageCategoriesView extends GetView<ManageCategoriesController> {
                       ],
                     ),
                   ),
-                  const SizedBox(height: 100), // Padding untuk Floating Button
+                  const SizedBox(height: 100),
                 ],
               ),
             ),
 
-            // 5. Floating Action Button (Tambah Kategori Baru) di tengah bawah
+            // 5. Floating Action Button (Tambah Kategori Baru)
             Positioned(
               bottom: 24,
               left: 0,
@@ -216,9 +229,7 @@ class ManageCategoriesView extends GetView<ManageCategoriesController> {
     );
   }
 
-  
   // WIDGET REUSABLE
-  
 
   // Item Toggle (Pemasukan/Pengeluaran)
   Widget _buildToggleItem({
@@ -231,9 +242,7 @@ class ManageCategoriesView extends GetView<ManageCategoriesController> {
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 12),
         decoration: BoxDecoration(
-          color: isActive
-              ? bgLightGreen
-              : Colors.transparent, // Warna hijau sangat pudar jika aktif
+          color: isActive ? bgLightGreen : Colors.transparent,
           borderRadius: BorderRadius.circular(8),
         ),
         child: Center(
@@ -250,179 +259,166 @@ class ManageCategoriesView extends GetView<ManageCategoriesController> {
     );
   }
 
-  // Item Kategori Normal
-  Widget _buildCategoryItem({
+  Widget _buildDynamicCategoryItem({
     required IconData icon,
     required Color iconColor,
-    required Color iconBgColor,
     required String title,
     required String subtitle,
+    required bool isSelected,
+    required VoidCallback onTap,
   }) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: cardColor,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: borderColor),
-        boxShadow: [
-          BoxShadow(
-            color: primaryDark.withOpacity(0.02),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              color: iconBgColor,
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Icon(icon, color: iconColor, size: 20),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.bold,
-                    color: primaryDark,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  subtitle,
-                  style: TextStyle(fontSize: 10, color: Colors.grey[500]),
-                ),
-              ],
-            ),
-          ),
-          Icon(Icons.chevron_right, color: Colors.grey[400], size: 20),
-        ],
-      ),
-    );
-  }
+    double itemHeight = 72.0;
 
-  // Simulasi UI Item yang Sedang Di-Swipe (Hanya Visual)
-  Widget _buildSwipedItemMockup({
-    required String title,
-    required String subtitle,
-  }) {
-    return Container(
-      height: 72,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: primaryDark.withOpacity(0.02),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        double width = constraints.maxWidth;
+        double actionsWidth = width * 0.4; // Lebar area tombol Edit + Hapus
+
+        return Container(
+          height: itemHeight,
+          decoration: BoxDecoration(
+            color: const Color(
+              0xFFE2E8F0,
+            ), // Background dasar tombol di belakang
+            borderRadius: BorderRadius.circular(12),
           ),
-        ],
-      ),
-      child: Row(
-        children: [
-          // Bagian Kiri (Item Tergeser)
-          Expanded(
-            flex: 6,
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              decoration: BoxDecoration(
-                color: cardColor,
-                borderRadius: const BorderRadius.only(
-                  topLeft: Radius.circular(12),
-                  bottomLeft: Radius.circular(12),
-                ),
-                border: Border.all(color: borderColor),
-              ),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          title,
-                          style: TextStyle(
-                            fontSize: 13,
-                            fontWeight: FontWeight.bold,
-                            color: primaryDark,
+          child: Stack(
+            clipBehavior: Clip.antiAlias,
+            children: [
+              // 1. LAPISAN BELAKANG: Tombol Aksi (Edit & Hapus)
+              Positioned(
+                right: 0,
+                top: 0,
+                bottom: 0,
+                width: actionsWidth,
+                child: Row(
+                  children: [
+                    // Tombol Edit
+                    Expanded(
+                      child: GestureDetector(
+                        onTap: () {
+                          controller.editCategory(title);
+                        },
+                        behavior: HitTestBehavior.opaque,
+                        child: Container(
+                          color: const Color(0xFFE2E8F0),
+                          child: const Center(
+                            child: Icon(
+                              Icons.edit_outlined,
+                              color: Color(0xFF4A5568),
+                              size: 20,
+                            ),
                           ),
                         ),
-                        const SizedBox(height: 4),
-                        Text(
-                          subtitle,
-                          style: TextStyle(
-                            fontSize: 10,
-                            color: Colors.grey[400],
+                      ),
+                    ),
+                    // Tombol Hapus
+                    Expanded(
+                      child: GestureDetector(
+                        onTap: () {
+                          controller.deleteCategory(title);
+                        },
+                        behavior: HitTestBehavior.opaque,
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: dangerRed,
+                            borderRadius: const BorderRadius.only(
+                              topRight: Radius.circular(12),
+                              bottomRight: Radius.circular(12),
+                            ),
                           ),
-                        ), // Warna sedikit lebih pudar
+                          child: const Center(
+                            child: Icon(
+                              Icons.delete_outline,
+                              color: Colors.white,
+                              size: 20,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              // 2. LAPISAN DEPAN: Konten Utama (Bisa Bergeser)
+              // Kita ganti AnimatedPositioned menjadi menggunakan Width yang pasti agar deteksi gesture tidak hilang saat bergeser
+              AnimatedPositioned(
+                duration: const Duration(milliseconds: 200),
+                curve: Curves.easeOutCubic,
+                left: isSelected ? -actionsWidth : 0,
+                width: width, // Lebarnya dikunci sesuai lebar maksimal layar
+                top: 0,
+                bottom: 0,
+                child: GestureDetector(
+                  onTap:
+                      onTap, // Menekan bagian mana saja pada card akan membuka/menutup menu
+                  behavior: HitTestBehavior
+                      .opaque, // Memastikan area kosong di card tetap bisa di-tap
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    decoration: BoxDecoration(
+                      color: cardColor,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: isSelected
+                            ? primaryDark.withOpacity(0.3)
+                            : borderColor,
+                      ),
+                    ),
+                    child: Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(10),
+                          decoration: BoxDecoration(
+                            color: iconColor.withValues(alpha: 0.1),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Icon(icon, color: iconColor, size: 20),
+                        ),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                title,
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.bold,
+                                  color: primaryDark,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                subtitle,
+                                style: TextStyle(
+                                  fontSize: 10,
+                                  color: Colors.grey[500],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        AnimatedRotation(
+                          turns: isSelected ? 0.5 : 0,
+                          duration: const Duration(milliseconds: 200),
+                          child: Icon(
+                            Icons.chevron_right,
+                            color: isSelected ? primaryDark : Colors.grey[400],
+                            size: 20,
+                          ),
+                        ),
                       ],
                     ),
                   ),
-                  Icon(
-                    Icons.drag_indicator,
-                    color: Colors.grey[300],
-                    size: 20,
-                  ), // Drag handle
-                ],
-              ),
-            ),
-          ),
-          // Tombol Edit (Abu-abu)
-          Expanded(
-            flex: 2,
-            child: GestureDetector(
-              onTap: controller.editCategory,
-              child: Container(
-                decoration: BoxDecoration(
-                  color: const Color(0xFFE2E8F0), // Abu-abu terang
-                  border: const Border.symmetric(
-                    horizontal: BorderSide(color: Color(0xFFE0E5E9)),
-                  ),
-                ),
-                child: const Center(
-                  child: Icon(
-                    Icons.edit_outlined,
-                    color: Color(0xFF4A5568),
-                    size: 20,
-                  ),
                 ),
               ),
-            ),
+            ],
           ),
-          // Tombol Hapus (Merah)
-          Expanded(
-            flex: 2,
-            child: GestureDetector(
-              onTap: controller.deleteCategory,
-              child: Container(
-                decoration: BoxDecoration(
-                  color: dangerRed,
-                  borderRadius: const BorderRadius.only(
-                    topRight: Radius.circular(12),
-                    bottomRight: Radius.circular(12),
-                  ),
-                ),
-                child: const Center(
-                  child: Icon(
-                    Icons.delete_outline,
-                    color: Colors.white,
-                    size: 20,
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
+        );
+      },
     );
   }
 }
