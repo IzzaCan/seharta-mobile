@@ -14,7 +14,11 @@ class SplashController extends GetxController {
     await Future.delayed(const Duration(milliseconds: 2500));
     
     if (_authService.isLoggedIn) {
-      Get.offNamed('/select-status');
+      if (_authService.currentUser.value?.familyId != null) {
+        Get.offNamed('/home');
+      } else {
+        Get.offNamed('/select-status');
+      }
     } else {
       Get.offNamed('/login');
     }

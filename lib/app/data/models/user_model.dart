@@ -5,6 +5,7 @@ class UserModel {
   final String fullName;
   final String email;
   final String? avatarUrl;
+  final String? familyId;
   final bool isActive;
   final bool isVerified;
   final DateTime createdAt;
@@ -15,6 +16,7 @@ class UserModel {
     required this.fullName,
     required this.email,
     this.avatarUrl,
+    this.familyId,
     required this.isActive,
     required this.isVerified,
     required this.createdAt,
@@ -27,6 +29,7 @@ class UserModel {
       fullName: json['full_name'] as String,
       email: json['email'] as String,
       avatarUrl: json['avatar_url'] as String?,
+      familyId: json['family_id'] as String?,
       isActive: json['is_active'] as bool,
       isVerified: json['is_verified'] as bool,
       createdAt: DateTime.parse(json['created_at'] as String),
@@ -40,6 +43,7 @@ class UserModel {
       'full_name': fullName,
       'email': email,
       'avatar_url': avatarUrl,
+      'family_id': familyId,
       'is_active': isActive,
       'is_verified': isVerified,
       'created_at': createdAt.toIso8601String(),
