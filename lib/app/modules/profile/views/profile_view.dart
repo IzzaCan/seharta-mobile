@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controllers/profile_controller.dart';
 import '../../../routes/app_pages.dart';
+import '../../../data/providers/api_provider.dart';
 
 class ProfileView extends GetView<ProfileController> {
   const ProfileView({Key? key}) : super(key: key);
@@ -91,66 +92,68 @@ class ProfileView extends GetView<ProfileController> {
                       color: primaryColor,
                     ),
                   ),
-                  Stack(
-                    children: [
-                      const CircleAvatar(
-                        radius: 16,
-                        backgroundImage: NetworkImage(
-                          'https://i.pravatar.cc/100?img=11',
-                        ),
-                      ),
-                      Positioned(
-                        bottom: 0,
-                        right: 0,
-                        child: Container(
-                          width: 10,
-                          height: 10,
-                          decoration: BoxDecoration(
-                            color: greenAccent,
-                            shape: BoxShape.circle,
-                            border: Border.all(color: Colors.white, width: 2),
-                          ),
-                        ),
-                      ),
-                    ],
+                  IconButton(
+                    icon: Icon(Icons.settings, color: primaryColor),
+                    onPressed: () => controller.showSettingsBottomSheet(),
                   ),
                 ],
               ),
               const SizedBox(height: 32),
 
               // 2. Foto Profil & Identitas Utama
-              Container(
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  boxShadow: [
-                    BoxShadow(
-                      color: primaryColor.withValues(alpha: 0.2),
-                      blurRadius: 15,
-                      offset: const Offset(0, 5),
+              Obx(() => Stack(
+                alignment: Alignment.bottomRight,
+                children: [
+                  Container(
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      boxShadow: [
+                        BoxShadow(
+                          color: primaryColor.withValues(alpha: 0.2),
+                          blurRadius: 15,
+                          offset: const Offset(0, 5),
+                        ),
+                      ],
                     ),
-                  ],
-                ),
-                child: const CircleAvatar(
-                  radius: 40,
-                  backgroundImage: NetworkImage(
-                    'https://i.pravatar.cc/150?img=11',
+                    child: CircleAvatar(
+                      radius: 40,
+                      backgroundImage: controller.avatarUrl != null
+                          ? NetworkImage('${ApiProvider.baseDomain}${controller.avatarUrl!}')
+                          : const NetworkImage('https://ui-avatars.com/api/?name=Anda&background=0D2B33&color=fff&size=150'),
+                    ),
                   ),
-                ),
-              ),
+                  Positioned(
+                    bottom: 0,
+                    right: 0,
+                    child: GestureDetector(
+                      onTap: () => controller.pickProfilePicture(),
+                      child: Container(
+                        padding: const EdgeInsets.all(4),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF1F9975),
+                          shape: BoxShape.circle,
+                          border: Border.all(color: Colors.white, width: 2),
+                        ),
+                        child: const Icon(Icons.camera_alt, color: Colors.white, size: 16),
+                      ),
+                    ),
+                  ),
+                ],
+              )),
               const SizedBox(height: 16),
-              Text(
-                'Adit Pratama',
+              Obx(() => Text(
+                controller.currentUser.value?.fullName ?? 'Pengguna',
                 style: TextStyle(
                   fontSize: 22,
                   fontWeight: FontWeight.bold,
                   color: primaryColor,
                 ),
-              ),
+              )),
               const SizedBox(height: 4),
-              Text(
-                'adit.pratama@email.com',
+              Obx(() => Text(
+                controller.currentUser.value?.email ?? 'email@domain.com',
                 style: TextStyle(fontSize: 12, color: Colors.grey[500]),
-              ),
+              )),
               const SizedBox(height: 16),
 
               // 3. Badge Status Tautan Pasangan
@@ -185,7 +188,7 @@ class ProfileView extends GetView<ProfileController> {
                       child: const CircleAvatar(
                         radius: 8,
                         backgroundImage: NetworkImage(
-                          'https://i.pravatar.cc/100?img=5',
+                          'https://ui-avatars.com/api/?name=Pasangan&background=1F9975&color=fff',
                         ),
                       ),
                     ),
@@ -199,11 +202,14 @@ class ProfileView extends GetView<ProfileController> {
                 icon: Icons.people_outline,
                 title: 'Pengaturan Keluarga',
                 children: [
-                  _buildListTile(
-                    title: 'Ubah Nama Keluarga',
-                    subtitle: 'Keluarga Adit & Sarah',
-                    onTap: () => Get.toNamed(Routes.EDIT_FAMILY_NAME),
-                  ),
+                  Obx(() {
+                    final name = controller.familyName.value;
+                    return _buildListTile(
+                      title: 'Ubah Nama Keluarga',
+                      subtitle: name.isEmpty ? 'Belum ada nama keluarga' : name,
+                      onTap: () => Get.toNamed(Routes.EDIT_FAMILY_NAME),
+                    );
+                  }),
                   _buildSwitchTile(
                     title: 'Notifikasi Pasangan',
                     value: controller.isNotificationOn,

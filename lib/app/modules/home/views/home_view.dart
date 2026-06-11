@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controllers/home_controller.dart';
 import '../../../routes/app_pages.dart';
+import '../../../data/providers/api_provider.dart';
 
 class HomeView extends GetView<HomeController> {
   const HomeView({Key? key}) : super(key: key);
@@ -115,12 +116,12 @@ class HomeView extends GetView<HomeController> {
                         width: 45,
                         child: Stack(
                           children: [
-                            const CircleAvatar(
+                            Obx(() => CircleAvatar(
                               radius: 14,
-                              backgroundImage: NetworkImage(
-                                'https://i.pravatar.cc/100?img=11',
-                              ),
-                            ),
+                              backgroundImage: controller.avatarUrl != null
+                                  ? NetworkImage('${ApiProvider.baseDomain}${controller.avatarUrl!}')
+                                  : const NetworkImage('https://ui-avatars.com/api/?name=Anda&background=0D2B33&color=fff'),
+                            )),
                             Positioned(
                               left: 16,
                               child: CircleAvatar(
@@ -129,7 +130,7 @@ class HomeView extends GetView<HomeController> {
                                 child: const CircleAvatar(
                                   radius: 12,
                                   backgroundImage: NetworkImage(
-                                    'https://i.pravatar.cc/100?img=5',
+                                    'https://ui-avatars.com/api/?name=Pasangan&background=1F9975&color=fff',
                                   ),
                                 ),
                               ),
@@ -154,15 +155,18 @@ class HomeView extends GetView<HomeController> {
                 ),
               ),
               const SizedBox(height: 4),
-              Text(
-                'Halo, Keluarga Adit &\nSarah',
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                  color: primaryColor,
-                  height: 1.2,
-                ),
-              ),
+              Obx(() {
+                final name = controller.familyName.value;
+                return Text(
+                  'Halo, ${name.isEmpty ? "Keluarga Anda" : name}',
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    color: primaryColor,
+                    height: 1.2,
+                  ),
+                );
+              }),
               const SizedBox(height: 20),
 
               // 3. Card Total Aset
@@ -361,7 +365,7 @@ class HomeView extends GetView<HomeController> {
                 amount: '- Rp 450.000',
                 wallet: 'OVO Bersama',
                 avatarUrl:
-                    'https://i.pravatar.cc/100?img=11', // Avatar Suami/Istri
+                    'https://ui-avatars.com/api/?name=Suami&background=0D2B33&color=fff', // Avatar Suami/Istri
               ),
               const SizedBox(height: 12),
               _buildTransactionItem(
@@ -370,7 +374,7 @@ class HomeView extends GetView<HomeController> {
                 category: 'Transportasi • Kemarin',
                 amount: '- Rp 300.000',
                 wallet: 'BCA Keluarga',
-                avatarUrl: 'https://i.pravatar.cc/100?img=5',
+                avatarUrl: 'https://ui-avatars.com/api/?name=Sarah&background=1F9975&color=fff',
               ),
               const SizedBox(height: 12),
               _buildTransactionItem(
@@ -379,7 +383,7 @@ class HomeView extends GetView<HomeController> {
                 category: 'Makan & Minum • Kemarin',
                 amount: '- Rp 85.000',
                 wallet: 'OVO Bersama',
-                avatarUrl: 'https://i.pravatar.cc/100?img=11',
+                avatarUrl: 'https://ui-avatars.com/api/?name=Adit&background=0D2B33&color=fff',
               ),
               const SizedBox(
                 height: 80,

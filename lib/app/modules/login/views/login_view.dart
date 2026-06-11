@@ -273,7 +273,7 @@ class LoginView extends GetView<LoginController> {
                           const CircleAvatar(
                             radius: 14,
                             backgroundColor: Colors.grey,
-                            backgroundImage: NetworkImage('https://i.pravatar.cc/100?img=11'),
+                            backgroundImage: NetworkImage('https://ui-avatars.com/api/?name=Suami&background=0D2B33&color=fff'),
                           ),
                           Positioned(
                             left: 18,
@@ -283,7 +283,7 @@ class LoginView extends GetView<LoginController> {
                               child: const CircleAvatar(
                                 radius: 12,
                                 backgroundColor: Colors.blueGrey,
-                                backgroundImage: NetworkImage('https://i.pravatar.cc/100?img=33'),
+                                backgroundImage: NetworkImage('https://ui-avatars.com/api/?name=Istri&background=1F9975&color=fff'),
                               ),
                             ),
                           ),

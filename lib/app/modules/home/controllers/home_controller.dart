@@ -1,7 +1,15 @@
 import 'package:get/get.dart';
 import '../../../routes/app_pages.dart';
+import '../../../data/services/family_service.dart';
+import '../../../data/services/auth_service.dart';
 
 class HomeController extends GetxController {
+  final FamilyService _familyService = Get.find<FamilyService>();
+  final AuthService _authService = Get.find<AuthService>();
+  
+  RxString get familyName => _familyService.familyName;
+  String? get avatarUrl => _authService.currentUser.value?.avatarUrl;
+
   // State untuk Bottom Navigation Bar
   var currentIndex = 0.obs;
 

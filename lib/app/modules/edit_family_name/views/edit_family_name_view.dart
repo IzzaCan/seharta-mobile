@@ -198,19 +198,28 @@ class EditFamilyNameView extends GetView<EditFamilyNameController> {
 
                   const Spacer(), // Menekan tombol ke paling bawah
                   // 4. Tombol Simpan Perubahan
-                  SizedBox(
+                  Obx(() => SizedBox(
                     width: double.infinity,
                     height: 54,
                     child: ElevatedButton.icon(
-                      onPressed: controller.saveChanges,
-                      icon: const Icon(
-                        Icons.check_circle_outline,
-                        color: Colors.white,
-                        size: 18,
-                      ),
-                      label: const Text(
-                        'Simpan Perubahan',
-                        style: TextStyle(
+                      onPressed: controller.isLoading.value ? null : controller.saveChanges,
+                      icon: controller.isLoading.value
+                          ? const SizedBox(
+                              width: 18,
+                              height: 18,
+                              child: CircularProgressIndicator(
+                                color: Colors.white,
+                                strokeWidth: 2,
+                              ),
+                            )
+                          : const Icon(
+                              Icons.check_circle_outline,
+                              color: Colors.white,
+                              size: 18,
+                            ),
+                      label: Text(
+                        controller.isLoading.value ? 'Menyimpan...' : 'Simpan Perubahan',
+                        style: const TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.bold,
                           color: Colors.white,
@@ -224,7 +233,7 @@ class EditFamilyNameView extends GetView<EditFamilyNameController> {
                         elevation: 0,
                       ),
                     ),
-                  ),
+                  )),
                 ],
               ),
             ),

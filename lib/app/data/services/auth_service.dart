@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -113,6 +114,49 @@ class AuthService extends GetxService {
       final tokenResponse = TokenResponseModel.fromJson(responseMap);
 
       await saveAuthSession(tokenResponse);
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  // UPDATE PROFILE Action
+  Future<void> updateProfile(String fullName) async {
+    try {
+      final payload = {'full_name': fullName};
+      final response = await _apiProvider.put('/auth/profile', payload, token: accessToken.value);
+      final updatedUser = UserModel.fromJson(response);
+      currentUser.value = updatedUser;
+      await _prefs.setString(_keyUser, jsonEncode(updatedUser.toJson()));
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  // UPDATE PASSWORD Action
+  Future<void> updatePassword(String oldPassword, String newPassword) async {
+    try {
+      final payload = {'old_password': oldPassword, 'new_password': newPassword};
+      final response = await _apiProvider.put('/auth/password', payload, token: accessToken.value);
+      final updatedUser = UserModel.fromJson(response);
+      currentUser.value = updatedUser;
+      await _prefs.setString(_keyUser, jsonEncode(updatedUser.toJson()));
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  // UPLOAD AVATAR Action
+  Future<void> uploadAvatar(List<int> imageBytes, String fileName) async {
+    try {
+      final response = await _apiProvider.postMultipart(
+        '/auth/avatar',
+        fileBytes: imageBytes,
+        fileName: fileName,
+        token: accessToken.value,
+      );
+      final updatedUser = UserModel.fromJson(response);
+      currentUser.value = updatedUser;
+      await _prefs.setString(_keyUser, jsonEncode(updatedUser.toJson()));
     } catch (e) {
       rethrow;
     }

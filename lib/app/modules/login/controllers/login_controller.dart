@@ -110,8 +110,12 @@ class LoginController extends GetxController {
         margin: const EdgeInsets.all(16),
       );
 
-      // Arahkan ke select-status
-      Get.offNamed('/select-status');
+      // Arahkan ke /home jika sudah memiliki familyId, atau ke /select-status jika belum
+      if (_authService.currentUser.value?.familyId != null) {
+        Get.offNamed('/home');
+      } else {
+        Get.offNamed('/select-status');
+      }
     } catch (e) {
       Get.snackbar(
         'Login Gagal',
