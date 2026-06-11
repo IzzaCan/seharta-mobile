@@ -36,4 +36,22 @@ class FamilyProvider {
   }) async {
     return await _apiProvider.get('/family/pairing-status/$code', token: token);
   }
+
+  /// Mengambil informasi detail keluarga saat ini.
+  Future<Map<String, dynamic>> getFamilyInfo({
+    required String token,
+  }) async {
+    return await _apiProvider.get('/family/info', token: token);
+  }
+
+  /// Mengubah nama keluarga saat ini.
+  Future<Map<String, dynamic>> updateFamilyName({
+    required String newName,
+    required String token,
+  }) async {
+    final payload = {
+      'family_name': newName,
+    };
+    return await _apiProvider.put('/family/name', payload, token: token);
+  }
 }

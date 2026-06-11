@@ -94,7 +94,7 @@ class AnalyticsView extends GetView<AnalyticsController> {
                             const CircleAvatar(
                               radius: 12,
                               backgroundImage: NetworkImage(
-                                'https://i.pravatar.cc/100?img=11',
+                                'https://ui-avatars.com/api/?name=Anda&background=0D2B33&color=fff',
                               ),
                             ),
                             Positioned(
@@ -105,7 +105,7 @@ class AnalyticsView extends GetView<AnalyticsController> {
                                 child: const CircleAvatar(
                                   radius: 10,
                                   backgroundImage: NetworkImage(
-                                    'https://i.pravatar.cc/100?img=5',
+                                    'https://ui-avatars.com/api/?name=Pasangan&background=1F9975&color=fff',
                                   ),
                                 ),
                               ),
