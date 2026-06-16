@@ -124,16 +124,18 @@ class HomeView extends GetView<HomeController> {
                             )),
                             Positioned(
                               left: 16,
-                              child: CircleAvatar(
+                              child: Obx(() => CircleAvatar(
                                 radius: 14,
                                 backgroundColor: Colors.white,
-                                child: const CircleAvatar(
+                                child: CircleAvatar(
                                   radius: 12,
-                                  backgroundImage: NetworkImage(
-                                    'https://ui-avatars.com/api/?name=Pasangan&background=1F9975&color=fff',
-                                  ),
+                                  backgroundImage: controller.partnerAvatarUrl != null
+                                      ? NetworkImage('${ApiProvider.baseDomain}${controller.partnerAvatarUrl!}')
+                                      : NetworkImage(
+                                          'https://ui-avatars.com/api/?name=${controller.partnerName ?? "Pasangan"}&background=1F9975&color=fff',
+                                        ),
                                 ),
-                              ),
+                              )),
                             ),
                           ],
                         ),
@@ -326,65 +328,88 @@ class HomeView extends GetView<HomeController> {
               _buildSectionHeader(
                 title: 'Dompet Bersama',
                 actionText: 'Lihat Semua',
+                onTap: () => Get.toNamed(Routes.WALLET),
               ),
               const SizedBox(height: 12),
               SizedBox(
                 height: 110,
-                child: ListView(
-                  scrollDirection: Axis.horizontal,
-                  physics: const BouncingScrollPhysics(),
-                  children: [
-                    _buildWalletCard(
-                      icon: Icons.account_balance,
-                      title: 'BCA Keluarga',
-                      balance: 'Rp 10.000.000',
-                    ),
-                    const SizedBox(width: 12),
-                    _buildWalletCard(
-                      icon: Icons.payments_outlined,
-                      title: 'Kas Tunai',
-                      balance: 'Rp 1.000.000',
-                    ),
-                  ],
-                ),
+                child: Obx(() {
+                  if (controller.isLoadingWallets.value) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+                  if (controller.wallets.isEmpty) {
+                    return Center(
+                      child: Text(
+                        'Belum ada dompet bersama terdaftar.',
+                        style: TextStyle(color: Colors.grey[500], fontSize: 12),
+                      ),
+                    );
+                  }
+                  return ListView.separated(
+                    scrollDirection: Axis.horizontal,
+                    physics: const BouncingScrollPhysics(),
+                    itemCount: controller.wallets.length,
+                    separatorBuilder: (_, __) => const SizedBox(width: 12),
+                    itemBuilder: (context, index) {
+                      final wallet = controller.wallets[index];
+                      return _buildWalletCard(
+                        icon: Icons.account_balance_wallet,
+                        title: wallet.walletName,
+                        balance: controller.formatRupiah(wallet.balance),
+                        onTap: () => Get.toNamed(Routes.WALLET),
+                      );
+                    },
+                  );
+                }),
               ),
               const SizedBox(height: 24),
 
-              // 6. Section: Transaksi Terkini
+              // 6. Section: Riwayat Transaksi
               _buildSectionHeader(
-                title: 'Transaksi Terkini',
+                title: 'Riwayat Transaksi',
                 actionText: 'Filter',
               ),
               const SizedBox(height: 12),
 
-              // List Transaksi (Gunakan ListView.builder di implementasi asli)
-              _buildTransactionItem(
-                icon: Icons.shopping_basket_outlined,
-                title: 'Supermarket Jaya',
-                category: 'Belanja Dapur • Hari ini',
-                amount: '- Rp 450.000',
-                wallet: 'OVO Bersama',
-                avatarUrl:
-                    'https://ui-avatars.com/api/?name=Suami&background=0D2B33&color=fff', // Avatar Suami/Istri
-              ),
-              const SizedBox(height: 12),
-              _buildTransactionItem(
-                icon: Icons.directions_car_outlined,
-                title: 'Pertamina Kuningan',
-                category: 'Transportasi • Kemarin',
-                amount: '- Rp 300.000',
-                wallet: 'BCA Keluarga',
-                avatarUrl: 'https://ui-avatars.com/api/?name=Sarah&background=1F9975&color=fff',
-              ),
-              const SizedBox(height: 12),
-              _buildTransactionItem(
-                icon: Icons.restaurant_outlined,
-                title: 'Kopi Kenangan',
-                category: 'Makan & Minum • Kemarin',
-                amount: '- Rp 85.000',
-                wallet: 'OVO Bersama',
-                avatarUrl: 'https://ui-avatars.com/api/?name=Adit&background=0D2B33&color=fff',
-              ),
+              Obx(() {
+                if (controller.isLoadingTransactions.value) {
+                  return const Center(child: Padding(
+                    padding: EdgeInsets.all(20.0),
+                    child: CircularProgressIndicator(),
+                  ));
+                }
+                if (controller.transactions.isEmpty) {
+                  return Center(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 20.0),
+                      child: Text(
+                        'Belum ada riwayat transaksi.',
+                        style: TextStyle(color: Colors.grey[500], fontSize: 12),
+                      ),
+                    ),
+                  );
+                }
+                return ListView.separated(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: controller.transactions.length,
+                  separatorBuilder: (_, __) => const SizedBox(height: 12),
+                  itemBuilder: (context, index) {
+                    final tx = controller.transactions[index];
+                    final isExpense = tx.transactionType == 'EXPENSE';
+                    return _buildTransactionItem(
+                      icon: isExpense ? Icons.shopping_basket_outlined : Icons.account_balance_wallet_outlined,
+                      title: tx.notes != null && tx.notes!.isNotEmpty ? tx.notes! : (isExpense ? 'Pengeluaran' : 'Pemasukan'),
+                      category: isExpense ? 'Pengeluaran' : 'Pemasukan',
+                      amount: '${isExpense ? "- " : "+ "}Rp ${tx.amount.toStringAsFixed(0).replaceAllMapped(RegExp(r"(\d{1,3})(?=(\d{3})+(?!\d))"), (Match m) => "${m[1]}.")}',
+                      wallet: 'Dompet',
+                      avatarUrl: tx.creatorAvatarUrl != null
+                          ? '${ApiProvider.baseDomain}${tx.creatorAvatarUrl}'
+                          : 'https://ui-avatars.com/api/?name=${tx.creatorName ?? "User"}&background=1F9975&color=fff',
+                    );
+                  },
+                );
+              }),
               const SizedBox(
                 height: 80,
               ), // Padding ekstra di bawah agar tidak tertutup BottomNav
@@ -444,6 +469,7 @@ class HomeView extends GetView<HomeController> {
   Widget _buildSectionHeader({
     required String title,
     required String actionText,
+    VoidCallback? onTap,
   }) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -456,12 +482,15 @@ class HomeView extends GetView<HomeController> {
             color: primaryColor,
           ),
         ),
-        Text(
-          actionText,
-          style: TextStyle(
-            fontSize: 12,
-            fontWeight: FontWeight.bold,
-            color: greenAccent,
+        GestureDetector(
+          onTap: onTap,
+          child: Text(
+            actionText,
+            style: TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.bold,
+              color: greenAccent,
+            ),
           ),
         ),
       ],
@@ -472,38 +501,42 @@ class HomeView extends GetView<HomeController> {
     required IconData icon,
     required String title,
     required String balance,
+    VoidCallback? onTap,
   }) {
-    return Container(
-      width: 150,
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: cardBackgroundColor,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: borderColor),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            padding: const EdgeInsets.all(6),
-            decoration: BoxDecoration(
-              color: backgroundColor,
-              borderRadius: BorderRadius.circular(8),
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: 150,
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: cardBackgroundColor,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: borderColor),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(6),
+              decoration: BoxDecoration(
+                color: backgroundColor,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Icon(icon, color: primaryColor, size: 20),
             ),
-            child: Icon(icon, color: primaryColor, size: 20),
-          ),
-          const Spacer(),
-          Text(title, style: TextStyle(fontSize: 11, color: Colors.grey[600])),
-          const SizedBox(height: 4),
-          Text(
-            balance,
-            style: TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.bold,
-              color: primaryColor,
+            const Spacer(),
+            Text(title, style: TextStyle(fontSize: 11, color: Colors.grey[600])),
+            const SizedBox(height: 4),
+            Text(
+              balance,
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.bold,
+                color: primaryColor,
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

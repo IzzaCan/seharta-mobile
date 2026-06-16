@@ -171,26 +171,28 @@ class ProfileView extends GetView<ProfileController> {
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Text(
-                      'Tertaut dengan Sarah 💍',
-                      style: TextStyle(
+                    Obx(() => Text(
+                      'Tertaut dengan ${controller.partnerName ?? "Pasangan"} 💍',
+                      style: const TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.bold,
                         color: Color(0xFF0D2B33),
                       ),
-                    ),
+                    )),
                     const SizedBox(width: 8),
                     Container(
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
                         border: Border.all(color: Colors.white, width: 1.5),
                       ),
-                      child: const CircleAvatar(
+                      child: Obx(() => CircleAvatar(
                         radius: 8,
-                        backgroundImage: NetworkImage(
-                          'https://ui-avatars.com/api/?name=Pasangan&background=1F9975&color=fff',
-                        ),
-                      ),
+                        backgroundImage: controller.partnerAvatarUrl != null
+                            ? NetworkImage('${ApiProvider.baseDomain}${controller.partnerAvatarUrl!}')
+                            : NetworkImage(
+                                'https://ui-avatars.com/api/?name=${controller.partnerName ?? "Pasangan"}&background=1F9975&color=fff',
+                              ),
+                      )),
                     ),
                   ],
                 ),

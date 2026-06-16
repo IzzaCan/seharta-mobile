@@ -4,6 +4,7 @@ import '../controllers/add_transaction_controller.dart';
 import '../../../routes/app_pages.dart';
 import '../../manage_categories/controllers/manage_categories_controller.dart';
 import '../../manage_wallets/controllers/manage_wallets_controller.dart';
+import '../../wallet/models/wallet_model.dart';
 
 class AddTransactionView extends GetView<AddTransactionController> {
   const AddTransactionView({Key? key}) : super(key: key);
@@ -541,11 +542,11 @@ class AddTransactionView extends GetView<AddTransactionController> {
   IconData _getSelectedWalletIcon(String selectedTitle) {
     final walletController = Get.put(ManageWalletsController());
     final w = walletController.wallets.firstWhere(
-      (wallet) => wallet['title'] == selectedTitle,
-      orElse: () => <String, dynamic>{},
+      (wallet) => wallet.walletName == selectedTitle,
+      orElse: () => WalletModel(id: '', walletName: '', balance: 0.0, isActive: false),
     );
-    if (w.isNotEmpty && w['icon'] is IconData) {
-      return w['icon'] as IconData;
+    if (w.id.isNotEmpty) {
+      return Icons.account_balance_wallet;
     }
     return Icons.account_balance_wallet_outlined;
   }
@@ -685,8 +686,8 @@ class AddTransactionView extends GetView<AddTransactionController> {
                   itemCount: list.length,
                   itemBuilder: (context, index) {
                     final w = list[index];
-                    final String title = w['title'] ?? '';
-                    final IconData icon = w['icon'] is IconData ? w['icon'] : Icons.account_balance_wallet;
+                    final String title = w.walletName;
+                    final IconData icon = Icons.account_balance_wallet;
                     
                     return ListTile(
                       leading: Container(
@@ -710,7 +711,7 @@ class AddTransactionView extends GetView<AddTransactionController> {
                         ),
                       ),
                       subtitle: Text(
-                        w['balance'] ?? '',
+                        'Rp${w.balance.toStringAsFixed(0).replaceAllMapped(RegExp(r"(\d{1,3})(?=(\d{3})+(?!\d))"), (Match m) => "${m[1]}.")}',
                         style: TextStyle(fontSize: 11, color: Colors.grey[500]),
                       ),
                       trailing: controller.selectedWallet.value == title

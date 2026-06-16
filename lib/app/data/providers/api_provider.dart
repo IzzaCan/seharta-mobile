@@ -10,14 +10,14 @@ class ApiProvider {
       return 'http://localhost:8000/api/v1';
     }
     return Platform.isAndroid
-        ? 'http://192.168.137.1:8000/api/v1'
+        ? 'http://192.168.1.3:8000/api/v1'
         : 'http://localhost:8000/api/v1';
   }
 
   // Domain utama untuk load static files (seperti avatar)
   static String get baseDomain {
     if (kIsWeb) return 'http://localhost:8000';
-    return Platform.isAndroid ? 'http://192.168.137.1:8000' : 'http://localhost:8000';
+    return Platform.isAndroid ? 'http://192.168.1.3:8000' : 'http://localhost:8000';
   }
 
   // Helper headers
@@ -91,6 +91,21 @@ class ApiProvider {
       return _processResponse(response);
     } catch (e) {
       if (kDebugMode) print('API PUT Error: $e');
+      throw _handleException(e);
+    }
+  }
+
+  // DELETE Request
+  Future<Map<String, dynamic>> delete(String endpoint, {String? token}) async {
+    final uri = Uri.parse('$baseUrl$endpoint');
+    try {
+      if (kDebugMode) {
+        print('API DELETE -> $uri');
+      }
+      final response = await http.delete(uri, headers: _headers(token));
+      return _processResponse(response);
+    } catch (e) {
+      if (kDebugMode) print('API DELETE Error: $e');
       throw _handleException(e);
     }
   }

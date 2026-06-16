@@ -1,12 +1,18 @@
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
+import '../../wallet/models/wallet_model.dart';
+import '../../wallet/providers/wallet_provider.dart';
+import '../../wallet/controllers/wallet_controller.dart';
 
 class ManageWalletsController extends GetxController {
-  // Menyimpan judul dompet yang sedang di-tap untuk memunculkan tombol aksi geser
-  var selectedWallet = ''.obs;
+  final WalletProvider _walletProvider = WalletProvider();
 
-  // List data dompet simulasi reaktif
-  var wallets = <Map<String, dynamic>>[].obs;
+  // Menyimpan ID dompet yang sedang di-tap untuk memunculkan tombol aksi geser
+  var selectedWalletId = ''.obs;
+
+  // List data dompet reaktif
+  var wallets = <WalletModel>[].obs;
+  var isLoading = false.obs;
 
   // Controller untuk Form Input di Bottom Sheet
   final walletNameController = TextEditingController();
@@ -15,30 +21,27 @@ class ManageWalletsController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    // Data awal dummy
-    wallets.assignAll([
-      {
-        'title': 'BCA Keluarga',
-        'balance': 'Rp5.000.000',
-        'icon': Icons.credit_card,
-        'iconColor': const Color(0xFF0D2B33),
-        'iconBgColor': const Color(0xFFF0F4F8),
-      },
-      {
-        'title': 'Kas Tunai',
-        'balance': 'Rp500.000',
-        'icon': Icons.money,
-        'iconColor': Colors.blueGrey,
-        'iconBgColor': const Color(0xFFE3F2FD),
-      },
-    ]);
+    fetchWallets();
   }
 
-  void selectWallet(String title) {
-    if (selectedWallet.value == title) {
-      selectedWallet.value = '';
+  Future<void> fetchWallets() async {
+    try {
+      isLoading.value = true;
+      final data = await _walletProvider.fetchWallets();
+      wallets.assignAll(data);
+    } catch (e) {
+      Get.snackbar('Error', 'Gagal memuat dompet: $e',
+          backgroundColor: const Color(0xFFFFEBEE), colorText: const Color(0xFFD32F2F));
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  void selectWallet(String id) {
+    if (selectedWalletId.value == id) {
+      selectedWalletId.value = '';
     } else {
-      selectedWallet.value = title;
+      selectedWalletId.value = id;
     }
   }
 
@@ -159,49 +162,68 @@ class ManageWalletsController extends GetxController {
     );
   }
 
-  void submitNewWallet() {
+  Future<void> submitNewWallet() async {
     String name = walletNameController.text.trim();
-    String balance = walletBalanceController.text.trim();
+    String balanceText = walletBalanceController.text.trim();
 
-    if (name.isNotEmpty && balance.isNotEmpty) {
-      // Formatting sederhana ke mata uang lokal
-      double? balanceVal = double.tryParse(balance);
-      String formattedBalance = balanceVal != null
-          ? 'Rp${balanceVal.toStringAsFixed(0).replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]}.')}'
-          : 'Rp$balance';
+    if (name.isNotEmpty && balanceText.isNotEmpty) {
+      double? balance = double.tryParse(balanceText);
+      if (balance == null) {
+        Get.snackbar('Error', 'Saldo harus berupa angka valid',
+            backgroundColor: const Color(0xFFFFEBEE), colorText: const Color(0xFFD32F2F));
+        return;
+      }
 
-      wallets.add({
-        'title': name,
-        'balance': formattedBalance,
-        'icon': Icons.account_balance_wallet,
-        'iconColor': const Color(0xFF1F9975),
-        'iconBgColor': const Color(0xFFE8F5EE),
-      });
-
-      Get.back();
-      Get.snackbar(
-        'Sukses',
-        'Dompet $name berhasil ditambahkan!',
-        backgroundColor: const Color(0xFFE8F5EE),
-        colorText: const Color(0xFF0D2B33),
-      );
+      try {
+        Get.back(); // Tutup bottom sheet
+        await _walletProvider.createWallet(name, balance);
+        
+        Get.snackbar(
+          'Sukses',
+          'Dompet $name berhasil ditambahkan!',
+          backgroundColor: const Color(0xFFE8F5EE),
+          colorText: const Color(0xFF0D2B33),
+        );
+        
+        await fetchWallets(); // Refresh data diri sendiri
+        
+        // Refresh WalletController agar UI utama ikut terupdate
+        if (Get.isRegistered<WalletController>()) {
+          Get.find<WalletController>().loadWalletData();
+        }
+      } catch (e) {
+        Get.snackbar('Error', 'Gagal menambahkan dompet: $e',
+            backgroundColor: const Color(0xFFFFEBEE), colorText: const Color(0xFFD32F2F));
+      }
     }
   }
 
-  void editWallet(String title) {
-    print("Mengedit dompet: $title");
+  void editWallet(String id, String currentName) {
+    print("Mengedit dompet: $currentName");
     // TODO: Implementasi form dialog atau bottom sheet edit dompet
   }
 
-  void deleteWallet(String title) {
-    wallets.removeWhere((w) => w['title'] == title);
-    selectedWallet.value = '';
-    Get.snackbar(
-      'Hapus',
-      'Dompet $title berhasil dihapus.',
-      backgroundColor: const Color(0xFFFFEBEE),
-      colorText: const Color(0xFFD32F2F),
-    );
+  Future<void> deleteWallet(String id, String name) async {
+    try {
+      await _walletProvider.deleteWallet(id);
+      wallets.removeWhere((w) => w.id == id);
+      selectedWalletId.value = '';
+      
+      Get.snackbar(
+        'Hapus',
+        'Dompet $name berhasil dihapus/dinonaktifkan.',
+        backgroundColor: const Color(0xFFFFEBEE),
+        colorText: const Color(0xFFD32F2F),
+      );
+      
+      // Refresh WalletController
+      if (Get.isRegistered<WalletController>()) {
+        Get.find<WalletController>().loadWalletData();
+      }
+    } catch (e) {
+      Get.snackbar('Error', 'Gagal menghapus dompet: $e',
+          backgroundColor: const Color(0xFFFFEBEE), colorText: const Color(0xFFD32F2F));
+    }
   }
 
   @override
