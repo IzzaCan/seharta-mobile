@@ -34,6 +34,8 @@ import '../modules/select_status/bindings/select_status_binding.dart';
 import '../modules/select_status/views/select_status_view.dart';
 import '../modules/splash/bindings/splash_binding.dart';
 import '../modules/splash/views/splash_view.dart';
+import '../modules/wallet/bindings/wallet_binding.dart';
+import '../modules/wallet/views/wallet_view.dart';
 
 part 'app_routes.dart';
 
@@ -127,6 +129,11 @@ class AppPages {
       name: _Paths.CHANGE_PIN,
       page: () => const ChangePinView(),
       binding: ChangePinBinding(),
+    ),
+    GetPage(
+      name: _Paths.WALLET,
+      page: () => const WalletView(),
+      binding: WalletBinding(),
     ),
   ];
 }

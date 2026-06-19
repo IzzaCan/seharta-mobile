@@ -18,6 +18,9 @@ class ProfileController extends GetxController {
   RxString get familyName => _familyService.familyName;
   Rx<UserModel?> get currentUser => _authService.currentUser;
   String? get avatarUrl => currentUser.value?.avatarUrl;
+  
+  String? get partnerName => _familyService.partner?.fullName;
+  String? get partnerAvatarUrl => _familyService.partner?.avatarUrl;
 
   Future<void> pickProfilePicture() async {
     final picker = ImagePicker();

@@ -20,6 +20,7 @@ abstract class Routes {
   static const MANAGE_CATEGORIES = _Paths.MANAGE_CATEGORIES;
   static const MANAGE_WALLETS = _Paths.MANAGE_WALLETS;
   static const CHANGE_PIN = _Paths.CHANGE_PIN;
+  static const WALLET = _Paths.WALLET;
 }
 
 abstract class _Paths {
@@ -41,4 +42,5 @@ abstract class _Paths {
   static const MANAGE_CATEGORIES = '/manage-categories';
   static const MANAGE_WALLETS = '/manage-wallets';
   static const CHANGE_PIN = '/change-pin';
+  static const WALLET = '/wallet';
 }

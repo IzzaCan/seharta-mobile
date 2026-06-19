@@ -150,6 +150,15 @@ class ManageWalletsView extends GetView<ManageWalletsController> {
 
               // 3. List Dompet Dinamis Obx (Slide Actions Built-In)
               Obx(() {
+                if (controller.isLoading.value) {
+                  return const Center(
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(vertical: 24),
+                      child: CircularProgressIndicator(),
+                    ),
+                  );
+                }
+
                 if (controller.wallets.isEmpty) {
                   return Center(
                     child: Padding(
@@ -165,18 +174,22 @@ class ManageWalletsView extends GetView<ManageWalletsController> {
                 return Column(
                   children: controller.wallets.map((wallet) {
                     final isSelected =
-                        controller.selectedWallet.value == wallet['title'];
+                        controller.selectedWalletId.value == wallet.id;
+
+                    // Format balance
+                    String formattedBalance = 'Rp${wallet.balance.toStringAsFixed(0).replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]}.')}';
 
                     return Padding(
                       padding: const EdgeInsets.only(bottom: 12.0),
                       child: _buildDynamicWalletItem(
-                        icon: wallet['icon'],
-                        iconBgColor: wallet['iconBgColor'],
-                        iconColor: wallet['iconColor'],
-                        title: wallet['title'],
-                        balance: wallet['balance'],
+                        id: wallet.id,
+                        icon: Icons.account_balance_wallet,
+                        iconBgColor: const Color(0xFFE8F5EE),
+                        iconColor: const Color(0xFF1F9975),
+                        title: wallet.walletName,
+                        balance: formattedBalance,
                         isSelected: isSelected,
-                        onTap: () => controller.selectWallet(wallet['title']),
+                        onTap: () => controller.selectWallet(wallet.id),
                       ),
                     );
                   }).toList(),
@@ -221,6 +234,7 @@ class ManageWalletsView extends GetView<ManageWalletsController> {
   // WIDGET REUSABLE DINAMIS WITH SLIDE ACTION
 
   Widget _buildDynamicWalletItem({
+    required String id,
     required IconData icon,
     required String title,
     required String balance,
@@ -257,7 +271,7 @@ class ManageWalletsView extends GetView<ManageWalletsController> {
                     // Tombol Edit
                     Expanded(
                       child: GestureDetector(
-                        onTap: () => controller.editWallet(title),
+                        onTap: () => controller.editWallet(id, title),
                         behavior: HitTestBehavior.opaque,
                         child: Container(
                           color: const Color(0xFFE2E8F0),
@@ -274,7 +288,7 @@ class ManageWalletsView extends GetView<ManageWalletsController> {
                     // Tombol Hapus
                     Expanded(
                       child: GestureDetector(
-                        onTap: () => controller.deleteWallet(title),
+                        onTap: () => controller.deleteWallet(id, title),
                         behavior: HitTestBehavior.opaque,
                         child: Container(
                           decoration: BoxDecoration(
