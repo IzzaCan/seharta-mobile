@@ -75,8 +75,11 @@ class ProfileView extends GetView<ProfileController> {
       // BODY / KONTEN UTAMA
       
       body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
+        child: RefreshIndicator(
+          onRefresh: controller.refreshProfile,
+          child: SingleChildScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
@@ -318,8 +321,9 @@ class ProfileView extends GetView<ProfileController> {
           ),
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 
   
   // REUSABLE WIDGETS

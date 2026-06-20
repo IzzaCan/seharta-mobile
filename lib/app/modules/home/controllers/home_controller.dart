@@ -74,6 +74,13 @@ class HomeController extends GetxController {
     }
   }
 
+  Future<void> refreshData() async {
+    await Future.wait([
+      fetchWallets(),
+      fetchTransactionHistory(),
+    ]);
+  }
+
   void changePage(int index) {
     currentIndex.value = index;
     switch (index) {

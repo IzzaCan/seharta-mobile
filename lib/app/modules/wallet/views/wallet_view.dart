@@ -34,7 +34,7 @@ class WalletView extends GetView<WalletController> {
         }
 
         return RefreshIndicator(
-          onRefresh: controller.loadWalletData,
+          onRefresh: controller.refreshWallets,
           child: SingleChildScrollView(
             physics: const AlwaysScrollableScrollPhysics(),
             child: Column(

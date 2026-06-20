@@ -21,6 +21,7 @@ abstract class Routes {
   static const MANAGE_WALLETS = _Paths.MANAGE_WALLETS;
   static const CHANGE_PIN = _Paths.CHANGE_PIN;
   static const WALLET = _Paths.WALLET;
+  static const OTP_VERIFICATION = _Paths.OTP_VERIFICATION;
 }
 
 abstract class _Paths {
@@ -43,4 +44,5 @@ abstract class _Paths {
   static const MANAGE_WALLETS = '/manage-wallets';
   static const CHANGE_PIN = '/change-pin';
   static const WALLET = '/wallet';
+  static const OTP_VERIFICATION = '/otp-verification';
 }

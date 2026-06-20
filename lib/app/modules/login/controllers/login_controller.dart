@@ -103,7 +103,7 @@ class LoginController extends GetxController {
 
       Get.snackbar(
         'Berhasil',
-        'Selamat Datang Kembali, ${_authService.currentUser.value?.fullName ?? "Pengguna"}!',
+        'Selamat Datang, ${_authService.currentUser.value?.fullName ?? "Pengguna"}!',
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: const Color(0xFFDEF7EC),
         colorText: const Color(0xFF03543F),
@@ -117,6 +117,17 @@ class LoginController extends GetxController {
         Get.offNamed('/select-status');
       }
     } catch (e) {
+      if (e.toString() == 'Email belum diverifikasi') {
+        Get.snackbar(
+          'Perhatian',
+          'Akun Anda belum diverifikasi. Silakan masukkan kode OTP.',
+          backgroundColor: const Color(0xFFFCE8B2),
+          colorText: const Color(0xFFE65100),
+        );
+        Get.offAllNamed('/otp-verification', arguments: emailController.text.trim());
+        return;
+      }
+
       Get.snackbar(
         'Login Gagal',
         e.toString(),
