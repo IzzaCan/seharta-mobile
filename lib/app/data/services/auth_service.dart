@@ -162,6 +162,26 @@ class AuthService extends GetxService {
     }
   }
 
+  // VERIFY EMAIL Action
+  Future<void> verifyEmail(String email, String otp) async {
+    try {
+      final payload = {'email': email, 'otp': otp};
+      await _apiProvider.post('/auth/verify-email', payload);
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  // RESEND VERIFICATION Action
+  Future<void> resendVerification(String email) async {
+    try {
+      final payload = {'email': email};
+      await _apiProvider.post('/auth/resend-verification', payload);
+    } catch (e) {
+      rethrow;
+    }
+  }
+
   // LOGOUT Action
   Future<void> logout() async {
     try {

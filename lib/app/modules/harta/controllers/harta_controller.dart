@@ -17,6 +17,10 @@ class HartaController extends GetxController {
     print("Membuka form tambah goals...");
   }
 
+  Future<void> refreshHarta() async {
+    await Future.delayed(const Duration(seconds: 1));
+  }
+
   void askAISuggestion() {
     print("Minta saran AI untuk Dana Pendidikan Anak...");
   }

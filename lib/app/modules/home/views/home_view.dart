@@ -86,8 +86,11 @@ class HomeView extends GetView<HomeController> {
       // BODY / KONTEN UTAMA
       
       body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(20.0),
+        child: RefreshIndicator(
+          onRefresh: controller.refreshData,
+          child: SingleChildScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            padding: const EdgeInsets.all(20.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -417,8 +420,9 @@ class HomeView extends GetView<HomeController> {
           ),
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 
   
   // REUSABLE WIDGETS

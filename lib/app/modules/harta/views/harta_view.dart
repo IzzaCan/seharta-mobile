@@ -73,8 +73,11 @@ class HartaView extends GetView<HartaController> {
 
       // BODY / KONTEN UTAMA
       body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
+        child: RefreshIndicator(
+          onRefresh: controller.refreshHarta,
+          child: SingleChildScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -614,8 +617,9 @@ class HartaView extends GetView<HartaController> {
           ),
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 
   // WIDGET REUSABLE
   Widget _buildNavItem({

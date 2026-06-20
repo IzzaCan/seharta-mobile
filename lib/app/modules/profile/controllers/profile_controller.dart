@@ -174,4 +174,11 @@ class ProfileController extends GetxController {
     // Navigasi ke Login dan hapus seluruh history navigasi
     Get.offAllNamed(Routes.LOGIN);
   }
+
+  Future<void> refreshProfile() async {
+    await Future.wait([
+      _authService.checkCurrentSession(),
+      _familyService.fetchFamilyInfo(),
+    ]);
+  }
 }

@@ -76,8 +76,11 @@ class AnalyticsView extends GetView<AnalyticsController> {
       // BODY / KONTEN UTAMA
       
       body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
+        child: RefreshIndicator(
+          onRefresh: controller.refreshAnalytics,
+          child: SingleChildScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -530,8 +533,9 @@ class AnalyticsView extends GetView<AnalyticsController> {
           ),
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 
   
   // WIDGET REUSABLE

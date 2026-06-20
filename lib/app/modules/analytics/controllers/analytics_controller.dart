@@ -23,4 +23,8 @@ class AnalyticsController extends GetxController {
   void viewCategoryDetails() {
     print("Membuka detail kategori...");
   }
+
+  Future<void> refreshAnalytics() async {
+    await Future.delayed(const Duration(seconds: 1));
+  }
 }

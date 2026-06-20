@@ -149,8 +149,8 @@ class RegisterController extends GetxController {
         duration: const Duration(seconds: 4),
       );
 
-      // Setelah berhasil mendaftar, langsung arahkan ke select-status karena token login sudah didapatkan
-      Get.offAllNamed('/select-status');
+      // Setelah berhasil mendaftar, arahkan ke OTP Verification membawa argument email
+      Get.offAllNamed('/otp-verification', arguments: emailController.text.trim());
     } catch (e) {
       Get.snackbar(
         'Pendaftaran Gagal',
