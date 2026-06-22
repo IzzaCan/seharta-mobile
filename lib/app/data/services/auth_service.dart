@@ -101,6 +101,22 @@ class AuthService extends GetxService {
     }
   }
 
+  // GOOGLE LOGIN Action
+  Future<void> loginWithGoogle(String idToken) async {
+    try {
+      final payload = {
+        'id_token': idToken,
+      };
+
+      final responseMap = await _apiProvider.post('/auth/google', payload);
+      final tokenResponse = TokenResponseModel.fromJson(responseMap);
+
+      await saveAuthSession(tokenResponse);
+    } catch (e) {
+      rethrow;
+    }
+  }
+
   // REGISTER Action
   Future<void> register(String fullName, String email, String password) async {
     try {
