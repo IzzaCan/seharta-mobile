@@ -162,7 +162,7 @@ class LoginView extends GetView<LoginController> {
                     ),
                   ),
                   GestureDetector(
-                    onTap: () {},
+                    onTap: () => Get.toNamed('/forgot-password'),
                     child: Text(
                       'Lupa Sandi?',
                       style: TextStyle(

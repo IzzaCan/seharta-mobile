@@ -198,6 +198,30 @@ class AuthService extends GetxService {
     }
   }
 
+  // FORGOT PASSWORD Action
+  Future<void> forgotPassword(String email) async {
+    try {
+      final payload = {'email': email};
+      await _apiProvider.post('/auth/forgot-password', payload);
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  // RESET PASSWORD Action
+  Future<void> resetPassword(String email, String otp, String newPassword) async {
+    try {
+      final payload = {
+        'email': email,
+        'otp': otp,
+        'new_password': newPassword
+      };
+      await _apiProvider.post('/auth/reset-password', payload);
+    } catch (e) {
+      rethrow;
+    }
+  }
+
   // LOGOUT Action
   Future<void> logout() async {
     try {
