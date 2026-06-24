@@ -18,7 +18,7 @@ class OtpVerificationView extends GetView<OtpVerificationController> {
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: primaryColor),
-          onPressed: () => Get.back(),
+          onPressed: () => Get.offAllNamed('/login'),
         ),
       ),
       body: SafeArea(

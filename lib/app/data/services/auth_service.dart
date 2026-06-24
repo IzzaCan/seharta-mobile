@@ -101,6 +101,22 @@ class AuthService extends GetxService {
     }
   }
 
+  // GOOGLE LOGIN Action
+  Future<void> loginWithGoogle(String idToken) async {
+    try {
+      final payload = {
+        'id_token': idToken,
+      };
+
+      final responseMap = await _apiProvider.post('/auth/google', payload);
+      final tokenResponse = TokenResponseModel.fromJson(responseMap);
+
+      await saveAuthSession(tokenResponse);
+    } catch (e) {
+      rethrow;
+    }
+  }
+
   // REGISTER Action
   Future<void> register(String fullName, String email, String password) async {
     try {
@@ -177,6 +193,30 @@ class AuthService extends GetxService {
     try {
       final payload = {'email': email};
       await _apiProvider.post('/auth/resend-verification', payload);
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  // FORGOT PASSWORD Action
+  Future<void> forgotPassword(String email) async {
+    try {
+      final payload = {'email': email};
+      await _apiProvider.post('/auth/forgot-password', payload);
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  // RESET PASSWORD Action
+  Future<void> resetPassword(String email, String otp, String newPassword) async {
+    try {
+      final payload = {
+        'email': email,
+        'otp': otp,
+        'new_password': newPassword
+      };
+      await _apiProvider.post('/auth/reset-password', payload);
     } catch (e) {
       rethrow;
     }

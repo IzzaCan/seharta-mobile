@@ -70,14 +70,20 @@ class LoginView extends GetView<LoginController> {
               const SizedBox(height: 32),
 
               // 3. Tombol Login Google
-              SizedBox(
+              Obx(() => SizedBox(
                 width: double.infinity,
                 height: 50,
                 child: OutlinedButton.icon(
-                  onPressed: () {},
-                  icon: const Icon(Icons.g_mobiledata, size: 30, color: Colors.blue), // Placeholder ikon Google
+                  onPressed: controller.isGoogleLoading.value ? null : controller.loginWithGoogle,
+                  icon: controller.isGoogleLoading.value 
+                      ? const SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : const Icon(Icons.g_mobiledata, size: 30, color: Colors.blue), // Placeholder ikon Google
                   label: Text(
-                    'Lanjutkan dengan Google',
+                    controller.isGoogleLoading.value ? 'Memproses...' : 'Lanjutkan dengan Google',
                     style: TextStyle(
                       color: primaryColor,
                       fontSize: 14,
@@ -92,7 +98,7 @@ class LoginView extends GetView<LoginController> {
                     ),
                   ),
                 ),
-              ),
+              )),
               const SizedBox(height: 24),
 
               // 4. Divider "Atau Email"
@@ -156,7 +162,7 @@ class LoginView extends GetView<LoginController> {
                     ),
                   ),
                   GestureDetector(
-                    onTap: () {},
+                    onTap: () => Get.toNamed('/forgot-password'),
                     child: Text(
                       'Lupa Sandi?',
                       style: TextStyle(
