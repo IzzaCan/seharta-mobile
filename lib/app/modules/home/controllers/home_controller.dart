@@ -5,6 +5,7 @@ import '../../../data/services/family_service.dart';
 import '../../../data/services/auth_service.dart';
 import '../../wallet/models/wallet_model.dart';
 import '../../wallet/providers/wallet_provider.dart';
+import '../../../data/providers/api_provider.dart';
 
 class HomeController extends GetxController {
   final FamilyService _familyService = Get.find<FamilyService>();
@@ -27,15 +28,31 @@ class HomeController extends GetxController {
   var wallets = <WalletModel>[].obs;
   var isLoadingWallets = true.obs;
 
+  double get totalSaldoBersama {
+    return wallets.fold(0.0, (sum, wallet) => sum + wallet.balance);
+  }
+
+  // State untuk AI Insight
+  var aiInsightText = ''.obs;
+  var isLoadingInsight = true.obs;
+  final ApiProvider _apiProvider = ApiProvider();
+
   // State untuk riwayat transaksi
   var transactions = <TransactionModel>[].obs;
   var isLoadingTransactions = true.obs;
+
+  // State untuk Balance Summary
+  var percentageChange = 0.0.obs;
+  var isPositiveChange = true.obs;
+  var isLoadingSummary = true.obs;
 
   @override
   void onInit() {
     super.onInit();
     fetchWallets();
     fetchTransactionHistory();
+    fetchAiInsight();
+    fetchAnalyticsSummary();
   }
 
   Future<void> fetchWallets() async {
@@ -74,10 +91,50 @@ class HomeController extends GetxController {
     }
   }
 
+  Future<void> fetchAiInsight() async {
+    try {
+      isLoadingInsight(true);
+      final token = _authService.accessToken.value;
+      if (token.isEmpty) return;
+
+      final response = await _apiProvider.get('/analytics/insight', token: token);
+      if (response != null && response['insight'] != null) {
+        aiInsightText.value = response['insight'];
+      } else {
+        aiInsightText.value = "Pengeluaran Anda bulan ini stabil. Terus pertahankan pengelolaan keuangan yang baik!";
+      }
+    } catch (e) {
+      aiInsightText.value = "Tetap semangat mengatur keuangan keluarga Anda minggu ini!";
+    } finally {
+      isLoadingInsight(false);
+    }
+  }
+
+  Future<void> fetchAnalyticsSummary() async {
+    try {
+      isLoadingSummary(true);
+      final token = _authService.accessToken.value;
+      if (token.isEmpty) return;
+
+      final response = await _apiProvider.get('/analytics/summary', token: token);
+      if (response != null) {
+        percentageChange.value = response['percentage_change']?.toDouble() ?? 0.0;
+        isPositiveChange.value = response['is_positive'] ?? true;
+      }
+    } catch (e) {
+      percentageChange.value = 0.0;
+      isPositiveChange.value = true;
+    } finally {
+      isLoadingSummary(false);
+    }
+  }
+
   Future<void> refreshData() async {
     await Future.wait([
       fetchWallets(),
       fetchTransactionHistory(),
+      fetchAiInsight(),
+      fetchAnalyticsSummary(),
     ]);
   }
 

@@ -18,6 +18,7 @@ class WalletView extends GetView<WalletController> {
       appBar: AppBar(
         backgroundColor: primaryDark,
         elevation: 0,
+        iconTheme: const IconThemeData(color: Colors.white),
         title: const Text(
           'Dompet Bersama',
           style: TextStyle(
@@ -40,7 +41,6 @@ class WalletView extends GetView<WalletController> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                _buildHeaderBalance(),
                 const SizedBox(height: 24),
                 _buildWalletList(),
               ],
@@ -51,38 +51,7 @@ class WalletView extends GetView<WalletController> {
     );
   }
 
-  Widget _buildHeaderBalance() {
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 32, horizontal: 24),
-      decoration: BoxDecoration(
-        color: primaryDark,
-        borderRadius: const BorderRadius.only(
-          bottomLeft: Radius.circular(24),
-          bottomRight: Radius.circular(24),
-        ),
-      ),
-      child: Column(
-        children: [
-          Text(
-            'Total Saldo Keluarga',
-            style: TextStyle(
-              fontSize: 14,
-              color: Colors.grey[400],
-            ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            controller.formatRupiah(controller.totalBalance.value),
-            style: const TextStyle(
-              fontSize: 32,
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+
 
   Widget _buildWalletList() {
     return Padding(
