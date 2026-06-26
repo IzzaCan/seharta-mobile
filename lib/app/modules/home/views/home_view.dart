@@ -3,7 +3,7 @@ import 'package:get/get.dart';
 import '../controllers/home_controller.dart';
 import '../../../routes/app_pages.dart';
 import '../../../data/providers/api_provider.dart';
-
+import '../../wallet/models/wallet_model.dart';
 class HomeView extends GetView<HomeController> {
   const HomeView({Key? key}) : super(key: key);
 
@@ -196,7 +196,7 @@ class HomeView extends GetView<HomeController> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          'TOTAL ASET KELUARGA',
+                          'TOTAL SALDO BERSAMA',
                           style: TextStyle(
                             color: Colors.white.withOpacity(0.7),
                             fontSize: 10,
@@ -222,7 +222,7 @@ class HomeView extends GetView<HomeController> {
                     Obx(
                       () => Text(
                         controller.isAssetVisible.value
-                            ? 'Rp\n150.000.000'
+                            ? controller.formatRupiah(controller.totalSaldoBersama).replaceAll('Rp ', 'Rp\n')
                             : 'Rp\n••••••••',
                         style: const TextStyle(
                           color: Colors.white,
@@ -233,20 +233,47 @@ class HomeView extends GetView<HomeController> {
                       ),
                     ),
                     const SizedBox(height: 16),
-                    Row(
-                      children: [
-                        Icon(Icons.trending_up, color: greenAccent, size: 14),
-                        const SizedBox(width: 4),
-                        Text(
-                          '+4.2% dari bulan lalu',
-                          style: TextStyle(
-                            color: greenAccent,
-                            fontSize: 11,
-                            fontWeight: FontWeight.w600,
+                    Obx(() {
+                      if (controller.isLoadingSummary.value) {
+                        return Row(
+                          children: [
+                            SizedBox(
+                              width: 12,
+                              height: 12,
+                              child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white.withOpacity(0.5)),
+                            ),
+                            const SizedBox(width: 8),
+                            Text(
+                              'Menghitung...',
+                              style: TextStyle(color: Colors.white.withOpacity(0.5), fontSize: 11),
+                            ),
+                          ],
+                        );
+                      }
+
+                      final isPositive = controller.isPositiveChange.value;
+                      final percent = controller.percentageChange.value;
+                      final textColor = isPositive ? greenAccent : Colors.redAccent;
+                      
+                      return Row(
+                        children: [
+                          Icon(
+                            isPositive ? Icons.trending_up : Icons.trending_down,
+                            color: textColor,
+                            size: 14,
                           ),
-                        ),
-                      ],
-                    ),
+                          const SizedBox(width: 4),
+                          Text(
+                            '${isPositive ? "+" : ""}${percent.toStringAsFixed(1)}% dari bulan lalu',
+                            style: TextStyle(
+                              color: textColor,
+                              fontSize: 11,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
+                      );
+                    }),
                   ],
                 ),
               ),
@@ -289,36 +316,39 @@ class HomeView extends GetView<HomeController> {
                             ),
                           ),
                           const SizedBox(height: 4),
-                          RichText(
-                            text: TextSpan(
+                          Obx(() {
+                            if (controller.isLoadingInsight.value) {
+                              return Row(
+                                children: [
+                                  SizedBox(
+                                    width: 14,
+                                    height: 14,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                      color: greenAccent,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Text(
+                                    'Menganalisis pengeluaran Anda...',
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      color: Colors.grey[600],
+                                      fontStyle: FontStyle.italic,
+                                    ),
+                                  ),
+                                ],
+                              );
+                            }
+                            return Text(
+                              controller.aiInsightText.value,
                               style: TextStyle(
                                 fontSize: 12,
                                 color: Colors.grey[700],
                                 height: 1.4,
                               ),
-                              children: [
-                                const TextSpan(text: 'Pengeluaran '),
-                                TextSpan(
-                                  text: 'Belanja Dapur ',
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    color: primaryColor,
-                                  ),
-                                ),
-                                const TextSpan(text: 'minggu ini '),
-                                TextSpan(
-                                  text: '15% lebih rendah ',
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    color: greenAccent,
-                                  ),
-                                ),
-                                const TextSpan(
-                                  text: 'dari minggu lalu. Pertahankan!',
-                                ),
-                              ],
-                            ),
-                          ),
+                            );
+                          }),
                         ],
                       ),
                     ),
@@ -399,13 +429,15 @@ class HomeView extends GetView<HomeController> {
                   separatorBuilder: (_, __) => const SizedBox(height: 12),
                   itemBuilder: (context, index) {
                     final tx = controller.transactions[index];
-                    final isExpense = tx.transactionType == 'EXPENSE';
+                    final isExpense = tx.transactionType.toUpperCase() == 'EXPENSE';
                     return _buildTransactionItem(
                       icon: isExpense ? Icons.shopping_basket_outlined : Icons.account_balance_wallet_outlined,
                       title: tx.notes != null && tx.notes!.isNotEmpty ? tx.notes! : (isExpense ? 'Pengeluaran' : 'Pemasukan'),
                       category: isExpense ? 'Pengeluaran' : 'Pemasukan',
                       amount: '${isExpense ? "- " : "+ "}Rp ${tx.amount.toStringAsFixed(0).replaceAllMapped(RegExp(r"(\d{1,3})(?=(\d{3})+(?!\d))"), (Match m) => "${m[1]}.")}',
-                      wallet: 'Dompet',
+                      wallet: controller.wallets
+                              .firstWhere((w) => w.id == tx.walletId, orElse: () => WalletModel(id: '', walletName: 'Dompet', balance: 0, isActive: false))
+                              .walletName,
                       avatarUrl: tx.creatorAvatarUrl != null
                           ? '${ApiProvider.baseDomain}${tx.creatorAvatarUrl}'
                           : 'https://ui-avatars.com/api/?name=${tx.creatorName ?? "User"}&background=1F9975&color=fff',
