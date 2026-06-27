@@ -26,7 +26,6 @@ class HomeController extends GetxController {
 
   // State untuk daftar dompet
   var wallets = <WalletModel>[].obs;
-  var isLoadingWallets = true.obs;
 
   double get totalSaldoBersama {
     return wallets.fold(0.0, (sum, wallet) => sum + wallet.balance);
@@ -39,55 +38,50 @@ class HomeController extends GetxController {
 
   // State untuk riwayat transaksi
   var transactions = <TransactionModel>[].obs;
-  var isLoadingTransactions = true.obs;
 
-  // State untuk Balance Summary
-  var percentageChange = 0.0.obs;
-  var isPositiveChange = true.obs;
-  var isLoadingSummary = true.obs;
+  // State untuk Dashboard (Pemasukan & Pengeluaran)
+  var incomeThisMonth = 0.0.obs;
+  var expenseThisMonth = 0.0.obs;
+  var isLoadingDashboard = true.obs;
 
   @override
   void onInit() {
     super.onInit();
-    fetchWallets();
-    fetchTransactionHistory();
+    fetchDashboardData();
     fetchAiInsight();
-    fetchAnalyticsSummary();
   }
 
-  Future<void> fetchWallets() async {
+  Future<void> fetchDashboardData() async {
     try {
-      isLoadingWallets(true);
-      final fetchedWallets = await _walletProvider.fetchWallets();
-      wallets.assignAll(fetchedWallets);
+      isLoadingDashboard(true);
+      final token = _authService.accessToken.value;
+      if (token.isEmpty) return;
+
+      final response = await _apiProvider.get('/dashboard/', token: token);
+      if (response != null) {
+        incomeThisMonth.value = response['income_this_month'] is String
+            ? (double.tryParse(response['income_this_month']) ?? 0.0)
+            : (response['income_this_month'] ?? 0).toDouble();
+        expenseThisMonth.value = response['expense_this_month'] is String
+            ? (double.tryParse(response['expense_this_month']) ?? 0.0)
+            : (response['expense_this_month'] ?? 0).toDouble();
+
+        final walletsData = response['wallets'] as List? ?? [];
+        wallets.assignAll(walletsData.map((e) => WalletModel.fromJson(e)).toList());
+
+        final txData = response['recent_transactions'] as List? ?? [];
+        transactions.assignAll(txData.map((e) => TransactionModel.fromJson(e)).toList());
+      }
     } catch (e) {
       Get.snackbar(
-        'Gagal Memuat Dompet',
+        'Gagal Memuat Dashboard',
         e.toString().replaceAll('Exception: ', ''),
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: Colors.red[100],
         colorText: Colors.red[900],
       );
     } finally {
-      isLoadingWallets(false);
-    }
-  }
-
-  Future<void> fetchTransactionHistory() async {
-    try {
-      isLoadingTransactions(true);
-      final fetchedTransactions = await _walletProvider.fetchTransactions();
-      transactions.assignAll(fetchedTransactions);
-    } catch (e) {
-      Get.snackbar(
-        'Gagal Memuat Transaksi',
-        e.toString().replaceAll('Exception: ', ''),
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.red[100],
-        colorText: Colors.red[900],
-      );
-    } finally {
-      isLoadingTransactions(false);
+      isLoadingDashboard(false);
     }
   }
 
@@ -110,31 +104,10 @@ class HomeController extends GetxController {
     }
   }
 
-  Future<void> fetchAnalyticsSummary() async {
-    try {
-      isLoadingSummary(true);
-      final token = _authService.accessToken.value;
-      if (token.isEmpty) return;
-
-      final response = await _apiProvider.get('/analytics/summary', token: token);
-      if (response != null) {
-        percentageChange.value = response['percentage_change']?.toDouble() ?? 0.0;
-        isPositiveChange.value = response['is_positive'] ?? true;
-      }
-    } catch (e) {
-      percentageChange.value = 0.0;
-      isPositiveChange.value = true;
-    } finally {
-      isLoadingSummary(false);
-    }
-  }
-
   Future<void> refreshData() async {
     await Future.wait([
-      fetchWallets(),
-      fetchTransactionHistory(),
+      fetchDashboardData(),
       fetchAiInsight(),
-      fetchAnalyticsSummary(),
     ]);
   }
 

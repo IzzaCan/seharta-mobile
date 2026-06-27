@@ -19,11 +19,13 @@ abstract class Routes {
   static const EDIT_FAMILY_NAME = _Paths.EDIT_FAMILY_NAME;
   static const MANAGE_CATEGORIES = _Paths.MANAGE_CATEGORIES;
   static const MANAGE_WALLETS = _Paths.MANAGE_WALLETS;
-  static const CHANGE_PIN = _Paths.CHANGE_PIN;
+  static const PIN = _Paths.PIN;
   static const WALLET = _Paths.WALLET;
   static const OTP_VERIFICATION = _Paths.OTP_VERIFICATION;
   static const FORGOT_PASSWORD = _Paths.FORGOT_PASSWORD;
   static const RESET_PASSWORD = _Paths.RESET_PASSWORD;
+  static const GOAL_DETAIL = _Paths.GOAL_DETAIL;
+  static const ADD_GOAL = _Paths.ADD_GOAL;
 }
 
 abstract class _Paths {
@@ -44,9 +46,11 @@ abstract class _Paths {
   static const EDIT_FAMILY_NAME = '/edit-family-name';
   static const MANAGE_CATEGORIES = '/manage-categories';
   static const MANAGE_WALLETS = '/manage-wallets';
-  static const CHANGE_PIN = '/change-pin';
+  static const PIN = '/pin';
   static const WALLET = '/wallet';
   static const OTP_VERIFICATION = '/otp-verification';
   static const FORGOT_PASSWORD = '/forgot-password';
   static const RESET_PASSWORD = '/reset-password';
+  static const GOAL_DETAIL = '/goal-detail';
+  static const ADD_GOAL = '/add-goal';
 }

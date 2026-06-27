@@ -2,6 +2,7 @@ import 'package:get/get.dart';
 import '../../../data/providers/api_provider.dart';
 import '../../../data/services/auth_service.dart';
 import '../models/wallet_model.dart';
+import '../../harta/models/goal_model.dart';
 
 class WalletProvider {
   final ApiProvider _apiProvider = ApiProvider();
@@ -73,5 +74,100 @@ class WalletProvider {
 
     final response = await _apiProvider.post('/transactions/', payload, token: token);
     return TransactionModel.fromJson(response);
+  }
+
+  // --- GOAL METHODS ---
+
+  Future<List<GoalModel>> fetchGoals() async {
+    final token = _authService.accessToken.value;
+    if (token.isEmpty) throw Exception('Sesi telah habis, silakan login kembali.');
+
+    final response = await _apiProvider.get('/goals/', token: token);
+    List<dynamic> data = response['data'] ?? [];
+    return data.map((item) => GoalModel.fromJson(item)).toList();
+  }
+
+  Future<GoalDetailModel> fetchGoalDetail(String goalId) async {
+    final token = _authService.accessToken.value;
+    if (token.isEmpty) throw Exception('Sesi telah habis, silakan login kembali.');
+
+    final response = await _apiProvider.get('/goals/$goalId', token: token);
+    return GoalDetailModel.fromJson(response);
+  }
+
+  Future<GoalModel> createGoal({
+    required String name,
+    required double targetAmount,
+    String? deadline,
+    String? note,
+  }) async {
+    final token = _authService.accessToken.value;
+    if (token.isEmpty) throw Exception('Sesi telah habis, silakan login kembali.');
+
+    final payload = {
+      'name': name,
+      'target_amount': targetAmount,
+    };
+    if (deadline != null && deadline.isNotEmpty) {
+      payload['deadline'] = deadline;
+    }
+    if (note != null && note.isNotEmpty) {
+      payload['note'] = note;
+    }
+
+    final response = await _apiProvider.post('/goals/', payload, token: token);
+    return GoalModel.fromJson(response);
+  }
+
+  Future<GoalContributionModel> addGoalContribution({
+    required String goalId,
+    required double amount,
+    required String transactionType, // DEPOSIT or WITHDRAWAL
+    String? walletId,
+    String? note,
+  }) async {
+    final token = _authService.accessToken.value;
+    if (token.isEmpty) throw Exception('Sesi telah habis, silakan login kembali.');
+
+    final payload = {
+      'amount': amount,
+      'transaction_type': transactionType,
+    };
+    if (walletId != null && walletId.isNotEmpty) {
+      payload['wallet_id'] = walletId;
+    }
+    if (note != null && note.isNotEmpty) {
+      payload['note'] = note;
+    }
+
+    final response = await _apiProvider.post('/goals/$goalId/contribute', payload, token: token);
+    return GoalContributionModel.fromJson(response);
+  }
+
+  Future<void> deleteGoal(String goalId) async {
+    final token = _authService.accessToken.value;
+    if (token.isEmpty) throw Exception('Sesi telah habis, silakan login kembali.');
+
+    await _apiProvider.delete('/goals/$goalId', token: token);
+  }
+
+  Future<GoalModel> updateGoal({
+    required String goalId,
+    String? name,
+    double? targetAmount,
+    String? deadline,
+    String? note,
+  }) async {
+    final token = _authService.accessToken.value;
+    if (token.isEmpty) throw Exception('Sesi telah habis, silakan login kembali.');
+
+    final payload = <String, dynamic>{};
+    if (name != null) payload['name'] = name;
+    if (targetAmount != null) payload['target_amount'] = targetAmount;
+    if (deadline != null) payload['deadline'] = deadline;
+    if (note != null) payload['note'] = note;
+
+    final response = await _apiProvider.put('/goals/$goalId', payload, token: token);
+    return GoalModel.fromJson(response);
   }
 }

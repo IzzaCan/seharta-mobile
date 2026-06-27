@@ -10,14 +10,14 @@ class ApiProvider {
       return 'http://localhost:8000/api/v1';
     }
     return Platform.isAndroid
-        ? 'http://192.168.43.202:8000/api/v1'
+        ? 'http://192.168.1.9:8000/api/v1'
         : 'http://localhost:8000/api/v1';
   }
 
   // Domain utama untuk load static files (seperti avatar)
   static String get baseDomain {
     if (kIsWeb) return 'http://localhost:8000';
-    return Platform.isAndroid ? 'http://192.168.43.202:8000' : 'http://localhost:8000';
+    return Platform.isAndroid ? 'http://192.168.1.9:8000' : 'http://localhost:8000';
   }
 
   // Helper headers

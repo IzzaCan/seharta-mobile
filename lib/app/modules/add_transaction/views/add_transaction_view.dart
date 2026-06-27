@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controllers/add_transaction_controller.dart';
 import '../../../routes/app_pages.dart';
+import '../../../utils/rupiah_formatter.dart';
 import '../../manage_categories/controllers/manage_categories_controller.dart';
 import '../../manage_wallets/controllers/manage_wallets_controller.dart';
 import '../../wallet/models/wallet_model.dart';
@@ -246,6 +247,7 @@ class AddTransactionView extends GetView<AddTransactionController> {
                       child: TextFormField(
                         controller: controller.amountController,
                         keyboardType: TextInputType.number,
+                        inputFormatters: [RupiahInputFormatter()],
                         style: TextStyle(
                           fontSize: 32,
                           fontWeight: FontWeight.bold,

@@ -25,7 +25,7 @@ class WalletModel {
 
 class TransactionModel {
   final String id;
-  final String transactionType; // 'INCOME' or 'EXPENSE'
+  final String transactionType; // 'INCOME', 'EXPENSE', or 'TRANSFER'
   final double amount;
   final String? notes;
   final String transactionDate;
@@ -34,6 +34,8 @@ class TransactionModel {
   final String? userId;
   final String? creatorName;
   final String? creatorAvatarUrl;
+  final String? walletName;
+  final String? categoryName;
 
   TransactionModel({
     required this.id,
@@ -46,6 +48,8 @@ class TransactionModel {
     this.userId,
     this.creatorName,
     this.creatorAvatarUrl,
+    this.walletName,
+    this.categoryName,
   });
 
   factory TransactionModel.fromJson(Map<String, dynamic> json) {
@@ -62,6 +66,8 @@ class TransactionModel {
       userId: json['user_id'],
       creatorName: json['creator_name'],
       creatorAvatarUrl: json['creator_avatar_url'],
+      walletName: json['wallet_name'],
+      categoryName: json['category_name'],
     );
   }
 }

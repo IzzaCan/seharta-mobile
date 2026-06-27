@@ -4,8 +4,8 @@ import '../modules/add_transaction/bindings/add_transaction_binding.dart';
 import '../modules/add_transaction/views/add_transaction_view.dart';
 import '../modules/analytics/bindings/analytics_binding.dart';
 import '../modules/analytics/views/analytics_view.dart';
-import '../modules/change_pin/bindings/change_pin_binding.dart';
-import '../modules/change_pin/views/change_pin_view.dart';
+import '../modules/pin/bindings/pin_binding.dart';
+import '../modules/pin/views/pin_view.dart';
 import '../modules/create_group/bindings/create_group_binding.dart';
 import '../modules/create_group/views/create_group_view.dart';
 import '../modules/edit_family_name/bindings/edit_family_name_binding.dart';
@@ -42,6 +42,10 @@ import '../modules/forgot_password/bindings/forgot_password_binding.dart';
 import '../modules/forgot_password/views/forgot_password_view.dart';
 import '../modules/reset_password/bindings/reset_password_binding.dart';
 import '../modules/reset_password/views/reset_password_view.dart';
+import '../modules/add_goal/bindings/add_goal_binding.dart';
+import '../modules/add_goal/views/add_goal_view.dart';
+import '../modules/goal_detail/bindings/goal_detail_binding.dart';
+import '../modules/goal_detail/views/goal_detail_view.dart';
 part 'app_routes.dart';
 
 class AppPages {
@@ -131,9 +135,9 @@ class AppPages {
       binding: ManageWalletsBinding(),
     ),
     GetPage(
-      name: _Paths.CHANGE_PIN,
-      page: () => const ChangePinView(),
-      binding: ChangePinBinding(),
+      name: _Paths.PIN,
+      page: () => const PinView(),
+      binding: PinBinding(),
     ),
     GetPage(
       name: _Paths.WALLET,
@@ -154,6 +158,16 @@ class AppPages {
       name: _Paths.RESET_PASSWORD,
       page: () => const ResetPasswordView(),
       binding: ResetPasswordBinding(),
+    ),
+    GetPage(
+      name: _Paths.ADD_GOAL,
+      page: () => const AddGoalView(),
+      binding: AddGoalBinding(),
+    ),
+    GetPage(
+      name: _Paths.GOAL_DETAIL,
+      page: () => const GoalDetailView(),
+      binding: GoalDetailBinding(),
     ),
   ];
 }

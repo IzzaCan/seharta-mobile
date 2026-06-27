@@ -232,9 +232,17 @@ class HomeView extends GetView<HomeController> {
                         ),
                       ),
                     ),
+                    const SizedBox(height: 6),
+                    Text(
+                      'Seluruh dompet · ${_getFormattedMonth()}',
+                      style: TextStyle(
+                        color: Colors.white.withOpacity(0.7),
+                        fontSize: 11,
+                      ),
+                    ),
                     const SizedBox(height: 16),
                     Obx(() {
-                      if (controller.isLoadingSummary.value) {
+                      if (controller.isLoadingDashboard.value) {
                         return Row(
                           children: [
                             SizedBox(
@@ -244,31 +252,90 @@ class HomeView extends GetView<HomeController> {
                             ),
                             const SizedBox(width: 8),
                             Text(
-                              'Menghitung...',
+                              'Memuat data...',
                               style: TextStyle(color: Colors.white.withOpacity(0.5), fontSize: 11),
                             ),
                           ],
                         );
                       }
 
-                      final isPositive = controller.isPositiveChange.value;
-                      final percent = controller.percentageChange.value;
-                      final textColor = isPositive ? greenAccent : Colors.redAccent;
+                      final income = controller.incomeThisMonth.value;
+                      final expense = controller.expenseThisMonth.value;
                       
                       return Row(
                         children: [
-                          Icon(
-                            isPositive ? Icons.trending_up : Icons.trending_down,
-                            color: textColor,
-                            size: 14,
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    Container(
+                                      width: 6,
+                                      height: 6,
+                                      decoration: BoxDecoration(
+                                        color: greenAccent,
+                                        shape: BoxShape.circle,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 6),
+                                    Text(
+                                      'Pemasukan',
+                                      style: TextStyle(
+                                        color: Colors.white.withOpacity(0.7),
+                                        fontSize: 11,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  '+${controller.formatRupiah(income)}',
+                                  style: TextStyle(
+                                    color: greenAccent,
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
-                          const SizedBox(width: 4),
-                          Text(
-                            '${isPositive ? "+" : ""}${percent.toStringAsFixed(1)}% dari bulan lalu',
-                            style: TextStyle(
-                              color: textColor,
-                              fontSize: 11,
-                              fontWeight: FontWeight.w600,
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    Container(
+                                      width: 6,
+                                      height: 6,
+                                      decoration: const BoxDecoration(
+                                        color: Colors.redAccent,
+                                        shape: BoxShape.circle,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 6),
+                                    Text(
+                                      'Pengeluaran',
+                                      style: TextStyle(
+                                        color: Colors.white.withOpacity(0.7),
+                                        fontSize: 11,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  '-${controller.formatRupiah(expense)}',
+                                  style: const TextStyle(
+                                    color: Colors.redAccent,
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
                         ],
@@ -367,7 +434,7 @@ class HomeView extends GetView<HomeController> {
               SizedBox(
                 height: 110,
                 child: Obx(() {
-                  if (controller.isLoadingWallets.value) {
+                  if (controller.isLoadingDashboard.value) {
                     return const Center(child: CircularProgressIndicator());
                   }
                   if (controller.wallets.isEmpty) {
@@ -405,7 +472,7 @@ class HomeView extends GetView<HomeController> {
               const SizedBox(height: 12),
 
               Obx(() {
-                if (controller.isLoadingTransactions.value) {
+                if (controller.isLoadingDashboard.value) {
                   return const Center(child: Padding(
                     padding: EdgeInsets.all(20.0),
                     child: CircularProgressIndicator(),
@@ -429,13 +496,20 @@ class HomeView extends GetView<HomeController> {
                   separatorBuilder: (_, __) => const SizedBox(height: 12),
                   itemBuilder: (context, index) {
                     final tx = controller.transactions[index];
-                    final isExpense = tx.transactionType.toUpperCase() == 'EXPENSE';
+                    final isExpense = tx.transactionType.toUpperCase() == 'EXPENSE' || tx.transactionType.toUpperCase() == 'TRANSFER';
+                    final isTransfer = tx.transactionType.toUpperCase() == 'TRANSFER';
                     return _buildTransactionItem(
-                      icon: isExpense ? Icons.shopping_basket_outlined : Icons.account_balance_wallet_outlined,
-                      title: tx.notes != null && tx.notes!.isNotEmpty ? tx.notes! : (isExpense ? 'Pengeluaran' : 'Pemasukan'),
-                      category: isExpense ? 'Pengeluaran' : 'Pemasukan',
+                      icon: isTransfer
+                          ? Icons.swap_horiz
+                          : (isExpense ? Icons.shopping_basket_outlined : Icons.account_balance_wallet_outlined),
+                      title: tx.notes != null && tx.notes!.isNotEmpty 
+                          ? tx.notes! 
+                          : (isTransfer ? 'Transfer Goal' : (isExpense ? 'Pengeluaran' : 'Pemasukan')),
+                      category: isTransfer ? 'Transfer' : (isExpense ? 'Pengeluaran' : 'Pemasukan'),
                       amount: '${isExpense ? "- " : "+ "}Rp ${tx.amount.toStringAsFixed(0).replaceAllMapped(RegExp(r"(\d{1,3})(?=(\d{3})+(?!\d))"), (Match m) => "${m[1]}.")}',
-                      wallet: controller.wallets
+                      wallet: tx.walletName != null && tx.walletName!.isNotEmpty
+                          ? tx.walletName!
+                          : controller.wallets
                               .firstWhere((w) => w.id == tx.walletId, orElse: () => WalletModel(id: '', walletName: 'Dompet', balance: 0, isActive: false))
                               .walletName,
                       avatarUrl: tx.creatorAvatarUrl != null
@@ -671,5 +745,14 @@ class HomeView extends GetView<HomeController> {
         ],
       ),
     );
+  }
+
+  String _getFormattedMonth() {
+    final now = DateTime.now();
+    final months = [
+      'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+      'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
+    ];
+    return "${months[now.month - 1]} ${now.year}";
   }
 }
