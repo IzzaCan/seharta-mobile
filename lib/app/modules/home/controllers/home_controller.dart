@@ -1,5 +1,6 @@
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../../routes/app_pages.dart';
 import '../../../data/services/family_service.dart';
 import '../../../data/services/auth_service.dart';
@@ -26,7 +27,6 @@ class HomeController extends GetxController {
 
   // State untuk daftar dompet
   var wallets = <WalletModel>[].obs;
-  var isLoadingWallets = true.obs;
 
   double get totalSaldoBersama {
     return wallets.fold(0.0, (sum, wallet) => sum + wallet.balance);
@@ -39,102 +39,100 @@ class HomeController extends GetxController {
 
   // State untuk riwayat transaksi
   var transactions = <TransactionModel>[].obs;
-  var isLoadingTransactions = true.obs;
 
-  // State untuk Balance Summary
-  var percentageChange = 0.0.obs;
-  var isPositiveChange = true.obs;
-  var isLoadingSummary = true.obs;
+  // State untuk Dashboard (Pemasukan & Pengeluaran)
+  var incomeThisMonth = 0.0.obs;
+  var expenseThisMonth = 0.0.obs;
+  var isLoadingDashboard = true.obs;
 
   @override
   void onInit() {
     super.onInit();
-    fetchWallets();
-    fetchTransactionHistory();
+    _loadCachedInsight();
+    fetchDashboardData();
     fetchAiInsight();
-    fetchAnalyticsSummary();
   }
 
-  Future<void> fetchWallets() async {
+  Future<void> _loadCachedInsight() async {
     try {
-      isLoadingWallets(true);
-      final fetchedWallets = await _walletProvider.fetchWallets();
-      wallets.assignAll(fetchedWallets);
+      final prefs = await SharedPreferences.getInstance();
+      final cached = prefs.getString('cached_ai_insight') ?? '';
+      if (cached.isNotEmpty) {
+        aiInsightText.value = cached;
+        isLoadingInsight(false);
+      }
     } catch (e) {
-      Get.snackbar(
-        'Gagal Memuat Dompet',
-        e.toString().replaceAll('Exception: ', ''),
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.red[100],
-        colorText: Colors.red[900],
-      );
-    } finally {
-      isLoadingWallets(false);
+      debugPrint("Failed to load cached insight: $e");
     }
   }
 
-  Future<void> fetchTransactionHistory() async {
+  Future<void> fetchDashboardData() async {
     try {
-      isLoadingTransactions(true);
-      final fetchedTransactions = await _walletProvider.fetchTransactions();
-      transactions.assignAll(fetchedTransactions);
+      isLoadingDashboard(true);
+      final token = _authService.accessToken.value;
+      if (token.isEmpty) return;
+
+      final response = await _apiProvider.get('/dashboard/', token: token);
+      if (response != null) {
+        incomeThisMonth.value = response['income_this_month'] is String
+            ? (double.tryParse(response['income_this_month']) ?? 0.0)
+            : (response['income_this_month'] ?? 0).toDouble();
+        expenseThisMonth.value = response['expense_this_month'] is String
+            ? (double.tryParse(response['expense_this_month']) ?? 0.0)
+            : (response['expense_this_month'] ?? 0).toDouble();
+
+        final walletsData = response['wallets'] as List? ?? [];
+        wallets.assignAll(walletsData.map((e) => WalletModel.fromJson(e)).toList());
+
+        final txData = response['recent_transactions'] as List? ?? [];
+        transactions.assignAll(txData.map((e) => TransactionModel.fromJson(e)).toList());
+      }
     } catch (e) {
       Get.snackbar(
-        'Gagal Memuat Transaksi',
+        'Gagal Memuat Dashboard',
         e.toString().replaceAll('Exception: ', ''),
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: Colors.red[100],
         colorText: Colors.red[900],
       );
     } finally {
-      isLoadingTransactions(false);
+      isLoadingDashboard(false);
     }
   }
 
   Future<void> fetchAiInsight() async {
     try {
-      isLoadingInsight(true);
+      if (aiInsightText.value.isEmpty) {
+        isLoadingInsight(true);
+      }
       final token = _authService.accessToken.value;
       if (token.isEmpty) return;
 
       final response = await _apiProvider.get('/analytics/insight', token: token);
       if (response != null && response['insight'] != null) {
-        aiInsightText.value = response['insight'];
+        final newInsight = response['insight'];
+        aiInsightText.value = newInsight;
+        
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString('cached_ai_insight', newInsight);
       } else {
-        aiInsightText.value = "Pengeluaran Anda bulan ini stabil. Terus pertahankan pengelolaan keuangan yang baik!";
+        if (aiInsightText.value.isEmpty) {
+          aiInsightText.value = "Pengeluaran Anda bulan ini stabil. Terus pertahankan pengelolaan keuangan yang baik!";
+        }
       }
     } catch (e) {
-      aiInsightText.value = "Tetap semangat mengatur keuangan keluarga Anda minggu ini!";
+      if (aiInsightText.value.isEmpty) {
+        aiInsightText.value = "Tetap semangat mengatur keuangan keluarga Anda minggu ini!";
+      }
     } finally {
       isLoadingInsight(false);
     }
   }
 
-  Future<void> fetchAnalyticsSummary() async {
-    try {
-      isLoadingSummary(true);
-      final token = _authService.accessToken.value;
-      if (token.isEmpty) return;
-
-      final response = await _apiProvider.get('/analytics/summary', token: token);
-      if (response != null) {
-        percentageChange.value = response['percentage_change']?.toDouble() ?? 0.0;
-        isPositiveChange.value = response['is_positive'] ?? true;
-      }
-    } catch (e) {
-      percentageChange.value = 0.0;
-      isPositiveChange.value = true;
-    } finally {
-      isLoadingSummary(false);
-    }
-  }
-
   Future<void> refreshData() async {
     await Future.wait([
-      fetchWallets(),
-      fetchTransactionHistory(),
+      fetchDashboardData(),
       fetchAiInsight(),
-      fetchAnalyticsSummary(),
     ]);
   }
 

@@ -222,6 +222,16 @@ class AuthService extends GetxService {
     }
   }
 
+  // GET GOOGLE CLIENT ID Action
+  Future<String> fetchGoogleClientId() async {
+    try {
+      final response = await _apiProvider.get('/auth/google/config');
+      return response['client_id'] ?? '';
+    } catch (e) {
+      rethrow;
+    }
+  }
+
   // LOGOUT Action
   Future<void> logout() async {
     try {

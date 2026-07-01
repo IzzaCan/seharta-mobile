@@ -156,8 +156,12 @@ class LoginController extends GetxController {
       final GoogleSignIn googleSignIn = GoogleSignIn.instance;
       
       if (!_isGoogleSignInInitialized) {
+        final clientId = await _authService.fetchGoogleClientId();
+        if (clientId.isEmpty) {
+          throw Exception('Gagal memuat konfigurasi Google Client ID dari server.');
+        }
         await googleSignIn.initialize(
-          serverClientId: '128158425180-n4dc75ge2krp7m8mkpg38b1mjm23or77.apps.googleusercontent.com',
+          serverClientId: clientId,
         );
         _isGoogleSignInInitialized = true;
       }

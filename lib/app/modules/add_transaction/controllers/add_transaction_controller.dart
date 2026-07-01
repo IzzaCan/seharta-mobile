@@ -95,8 +95,7 @@ class AddTransactionController extends GetxController {
       // Reactive Sync
       if (Get.isRegistered<HomeController>()) {
         final homeCtrl = Get.find<HomeController>();
-        homeCtrl.fetchWallets();
-        homeCtrl.fetchTransactionHistory();
+        homeCtrl.fetchDashboardData();
       }
       
       if (Get.isRegistered<WalletController>()) {

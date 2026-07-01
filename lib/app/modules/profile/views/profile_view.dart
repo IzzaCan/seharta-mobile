@@ -264,7 +264,7 @@ class ProfileView extends GetView<ProfileController> {
                   _buildListTile(
                     title: 'Ubah PIN',
                     icon: Icons.password_outlined,
-                    onTap: () => Get.toNamed(Routes.CHANGE_PIN),
+                    onTap: () => Get.toNamed(Routes.PIN),
                   ),
                 ],
               ),

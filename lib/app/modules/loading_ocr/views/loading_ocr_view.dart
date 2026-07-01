@@ -140,7 +140,7 @@ class LoadingOcrView extends GetView<LoadingOcrController> {
               _buildInfoCard(
                 icon: Icons.memory_outlined,
                 title: 'MODEL AI OCR',
-                value: 'Gemini 2.5 Flash',
+                value: 'Gemini 3.5 Flash',
               ),
             ],
           ),

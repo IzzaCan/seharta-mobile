@@ -426,188 +426,166 @@ class HartaView extends GetView<HartaController> {
                         ],
                       ),
                       const SizedBox(height: 12),
-                      Container(
-                        padding: const EdgeInsets.all(20),
-                        decoration: BoxDecoration(
-                          color: cardColor,
-                          borderRadius: BorderRadius.circular(16),
-                          border: Border.all(color: borderColor),
-                        ),
-                        child: Column(
-                          children: [
-                            Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Container(
-                                  padding: const EdgeInsets.all(8),
-                                  decoration: const BoxDecoration(
-                                    color: Color(0xFFF0F4F8),
-                                    shape: BoxShape.circle,
-                                  ),
-                                  child: const Icon(
-                                    Icons.school_outlined,
-                                    color: Colors.blueGrey,
-                                    size: 24,
-                                  ),
+                      Obx(() {
+                        if (controller.isLoadingGoals.value) {
+                          return const Center(child: CircularProgressIndicator());
+                        }
+                        if (controller.goals.isEmpty) {
+                          return Center(
+                            child: Padding(
+                              padding: const EdgeInsets.all(24.0),
+                              child: Text(
+                                'Belum ada Financial Goals.\nYuk, buat target pertamamu!',
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  color: Colors.grey[500],
+                                  fontSize: 13,
                                 ),
-                                const SizedBox(width: 12),
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        'Dana Pendidikan Anak',
-                                        style: TextStyle(
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.bold,
-                                          color: primaryDark,
-                                        ),
-                                      ),
-                                      const SizedBox(height: 4),
-                                      Text(
-                                        'Target: Desember 2028',
-                                        style: TextStyle(
-                                          fontSize: 11,
-                                          color: Colors.grey[500],
-                                        ),
-                                      ),
-                                    ],
-                                  ),
+                              ),
+                            ),
+                          );
+                        }
+                        return Column(
+                          children: controller.goals.map((goal) {
+                            return GestureDetector(
+                              onTap: () => Get.toNamed(Routes.GOAL_DETAIL, arguments: goal.id),
+                              child: Container(
+                                margin: const EdgeInsets.only(bottom: 16),
+                                padding: const EdgeInsets.all(20),
+                                decoration: BoxDecoration(
+                                  color: cardColor,
+                                  borderRadius: BorderRadius.circular(16),
+                                  border: Border.all(color: borderColor),
                                 ),
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.end,
+                                child: Column(
                                   children: [
-                                    Text(
-                                      'STATUS',
-                                      style: TextStyle(
-                                        fontSize: 9,
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors.grey[400],
+                                    Row(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Container(
+                                          padding: const EdgeInsets.all(8),
+                                          decoration: const BoxDecoration(
+                                            color: Color(0xFFF0F4F8),
+                                            shape: BoxShape.circle,
+                                          ),
+                                          child: const Icon(
+                                            Icons.school_outlined, // Bisa dinamis jika ada ikon
+                                            color: Colors.blueGrey,
+                                            size: 24,
+                                          ),
+                                        ),
+                                        const SizedBox(width: 12),
+                                        Expanded(
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                goal.name,
+                                                style: TextStyle(
+                                                  fontSize: 14,
+                                                  fontWeight: FontWeight.bold,
+                                                  color: primaryDark,
+                                                ),
+                                              ),
+                                              const SizedBox(height: 4),
+                                              Text(
+                                                'Target: ${goal.formattedDeadline}',
+                                                style: TextStyle(
+                                                  fontSize: 11,
+                                                  color: Colors.grey[500],
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                        Column(
+                                          crossAxisAlignment: CrossAxisAlignment.end,
+                                          children: [
+                                            Text(
+                                              'STATUS',
+                                              style: TextStyle(
+                                                fontSize: 9,
+                                                fontWeight: FontWeight.bold,
+                                                color: Colors.grey[400],
+                                              ),
+                                            ),
+                                            Text(
+                                              goal.progressPercentage >= 100 
+                                                  ? 'Selesai' 
+                                                  : (goal.progressPercentage > 0 ? 'Progres' : 'Belum\nMulai'),
+                                              textAlign: TextAlign.right,
+                                              style: TextStyle(
+                                                fontSize: 11,
+                                                fontWeight: FontWeight.bold,
+                                                color: greenAccent,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 20),
+                                    Row(
+                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Text(
+                                          'Progres Tabungan',
+                                          style: TextStyle(
+                                            fontSize: 11,
+                                            color: Colors.grey[600],
+                                          ),
+                                        ),
+                                        Text(
+                                          '${goal.progressPercentage.toStringAsFixed(1)}%',
+                                          style: TextStyle(
+                                            fontSize: 11,
+                                            fontWeight: FontWeight.bold,
+                                            color: primaryDark,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 8),
+                                    ClipRRect(
+                                      borderRadius: BorderRadius.circular(4),
+                                      child: LinearProgressIndicator(
+                                        value: goal.progressPercentage / 100.0,
+                                        backgroundColor: Colors.grey[200],
+                                        valueColor: AlwaysStoppedAnimation<Color>(
+                                          greenBright,
+                                        ),
+                                        minHeight: 6,
                                       ),
                                     ),
-                                    Text(
-                                      'Sesuai\nJalur',
-                                      textAlign: TextAlign.right,
-                                      style: TextStyle(
-                                        fontSize: 11,
-                                        fontWeight: FontWeight.bold,
-                                        color: greenAccent,
-                                      ),
+                                    const SizedBox(height: 8),
+                                    Row(
+                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Text(
+                                          'Rp ${goal.currentAmount.toStringAsFixed(0).replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]}.')}',
+                                          style: TextStyle(
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.bold,
+                                            color: primaryDark,
+                                          ),
+                                        ),
+                                        Text(
+                                          'dari Rp ${goal.targetAmount.toStringAsFixed(0).replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]}.')}',
+                                          style: TextStyle(
+                                            fontSize: 10,
+                                            color: Colors.grey[400],
+                                          ),
+                                        ),
+                                      ],
                                     ),
                                   ],
                                 ),
-                              ],
-                            ),
-                            const SizedBox(height: 20),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text(
-                                  'Progres Tabungan',
-                                  style: TextStyle(
-                                    fontSize: 11,
-                                    color: Colors.grey[600],
-                                  ),
-                                ),
-                                Text(
-                                  '20%',
-                                  style: TextStyle(
-                                    fontSize: 11,
-                                    fontWeight: FontWeight.bold,
-                                    color: primaryDark,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 8),
-                            ClipRRect(
-                              borderRadius: BorderRadius.circular(4),
-                              child: LinearProgressIndicator(
-                                value: 0.2,
-                                backgroundColor: Colors.grey[200],
-                                valueColor: AlwaysStoppedAnimation<Color>(
-                                  greenBright,
-                                ),
-                                minHeight: 6,
                               ),
-                            ),
-                            const SizedBox(height: 8),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text(
-                                  'Rp 10.000.000',
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.bold,
-                                    color: primaryDark,
-                                  ),
-                                ),
-                                Text(
-                                  'dari Rp 50.000.000',
-                                  style: TextStyle(
-                                    fontSize: 10,
-                                    color: Colors.grey[400],
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 20),
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 16,
-                                vertical: 12,
-                              ),
-                              decoration: BoxDecoration(
-                                color: const Color(0xFFF5F8FF),
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              child: Row(
-                                children: [
-                                  Icon(
-                                    Icons.auto_awesome,
-                                    color: greenAccent,
-                                    size: 20,
-                                  ),
-                                  const SizedBox(width: 12),
-                                  Expanded(
-                                    child: Text(
-                                      'Butuh strategi untuk mencapai target lebih cepat?',
-                                      style: TextStyle(
-                                        fontSize: 11,
-                                        color: Colors.grey[700],
-                                      ),
-                                    ),
-                                  ),
-                                  const SizedBox(width: 8),
-                                  ElevatedButton(
-                                    onPressed: controller.askAISuggestion,
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: primaryDark,
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 16,
-                                        vertical: 0,
-                                      ),
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(8),
-                                      ),
-                                    ),
-                                    child: const Text(
-                                      'Minta\nSaran AI',
-                                      textAlign: TextAlign.center,
-                                      style: TextStyle(
-                                        fontSize: 10,
-                                        color: Colors.white,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
+                            );
+                          }).toList(),
+                        );
+                      }),
                     ],
                   );
                 }

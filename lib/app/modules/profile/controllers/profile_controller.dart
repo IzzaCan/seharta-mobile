@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../../routes/app_pages.dart';
 import '../../../data/services/family_service.dart';
 import '../../../data/services/auth_service.dart';
@@ -21,6 +22,17 @@ class ProfileController extends GetxController {
   
   String? get partnerName => _familyService.partner?.fullName;
   String? get partnerAvatarUrl => _familyService.partner?.avatarUrl;
+
+  @override
+  void onInit() {
+    super.onInit();
+    _loadSettings();
+  }
+
+  Future<void> _loadSettings() async {
+    final prefs = await SharedPreferences.getInstance();
+    isAppLockOn.value = prefs.getBool('is_app_lock_enabled') ?? false;
+  }
 
   Future<void> pickProfilePicture() async {
     final picker = ImagePicker();
@@ -157,8 +169,29 @@ class ProfileController extends GetxController {
     isNotificationOn.value = value;
   }
 
-  void toggleAppLock(bool value) {
-    isAppLockOn.value = value;
+  void toggleAppLock(bool value) async {
+    final prefs = await SharedPreferences.getInstance();
+    final storedPin = prefs.getString('security_pin') ?? '';
+    
+    if (value) {
+      if (storedPin.isEmpty) {
+        // No PIN registered yet, redirect to CHANGE_PIN
+        Get.snackbar(
+          'Buat PIN', 
+          'Silakan buat PIN keamanan Anda terlebih dahulu', 
+          backgroundColor: Colors.orange[100], 
+          colorText: Colors.orange[900]
+        );
+        Get.toNamed(Routes.PIN);
+        isAppLockOn.value = false;
+      } else {
+        isAppLockOn.value = true;
+        await prefs.setBool('is_app_lock_enabled', true);
+      }
+    } else {
+      isAppLockOn.value = false;
+      await prefs.setBool('is_app_lock_enabled', false);
+    }
   }
 
   // Aksi navigasi & aksi khusus
