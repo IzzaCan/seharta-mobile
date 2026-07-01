@@ -1,5 +1,6 @@
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../../routes/app_pages.dart';
 import '../../../data/services/family_service.dart';
 import '../../../data/services/auth_service.dart';
@@ -47,8 +48,22 @@ class HomeController extends GetxController {
   @override
   void onInit() {
     super.onInit();
+    _loadCachedInsight();
     fetchDashboardData();
     fetchAiInsight();
+  }
+
+  Future<void> _loadCachedInsight() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final cached = prefs.getString('cached_ai_insight') ?? '';
+      if (cached.isNotEmpty) {
+        aiInsightText.value = cached;
+        isLoadingInsight(false);
+      }
+    } catch (e) {
+      debugPrint("Failed to load cached insight: $e");
+    }
   }
 
   Future<void> fetchDashboardData() async {
@@ -87,18 +102,28 @@ class HomeController extends GetxController {
 
   Future<void> fetchAiInsight() async {
     try {
-      isLoadingInsight(true);
+      if (aiInsightText.value.isEmpty) {
+        isLoadingInsight(true);
+      }
       final token = _authService.accessToken.value;
       if (token.isEmpty) return;
 
       final response = await _apiProvider.get('/analytics/insight', token: token);
       if (response != null && response['insight'] != null) {
-        aiInsightText.value = response['insight'];
+        final newInsight = response['insight'];
+        aiInsightText.value = newInsight;
+        
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString('cached_ai_insight', newInsight);
       } else {
-        aiInsightText.value = "Pengeluaran Anda bulan ini stabil. Terus pertahankan pengelolaan keuangan yang baik!";
+        if (aiInsightText.value.isEmpty) {
+          aiInsightText.value = "Pengeluaran Anda bulan ini stabil. Terus pertahankan pengelolaan keuangan yang baik!";
+        }
       }
     } catch (e) {
-      aiInsightText.value = "Tetap semangat mengatur keuangan keluarga Anda minggu ini!";
+      if (aiInsightText.value.isEmpty) {
+        aiInsightText.value = "Tetap semangat mengatur keuangan keluarga Anda minggu ini!";
+      }
     } finally {
       isLoadingInsight(false);
     }
