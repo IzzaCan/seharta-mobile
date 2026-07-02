@@ -175,7 +175,7 @@ class ProfileView extends GetView<ProfileController> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Obx(() => Text(
-                      'Tertaut dengan ${controller.partnerName ?? "Pasangan"} 💍',
+                      'Tertaut dengan ${controller.partnerName ?? ""} 💍',
                       style: const TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.bold,

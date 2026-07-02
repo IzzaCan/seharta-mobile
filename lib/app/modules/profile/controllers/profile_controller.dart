@@ -204,8 +204,34 @@ class ProfileController extends GetxController {
   }
 
   void logout() {
-    // Navigasi ke Login dan hapus seluruh history navigasi
-    Get.offAllNamed(Routes.LOGIN);
+    Get.defaultDialog(
+      title: 'Keluar Akun',
+      titleStyle: const TextStyle(
+        fontWeight: FontWeight.bold,
+        color: Color(0xFF0D2B33),
+      ),
+      middleText: 'Apakah Anda yakin ingin keluar dari akun?',
+      middleTextStyle: TextStyle(
+        color: Colors.grey[700],
+      ),
+      textConfirm: 'Keluar',
+      textCancel: 'Batal',
+      confirmTextColor: Colors.white,
+      cancelTextColor: const Color(0xFF0D2B33),
+      buttonColor: const Color(0xFF0D2B33),
+      onConfirm: () async {
+        Get.back(); // Tutup dialog konfirmasi
+        // Jalankan logout dengan loading overlay
+        Get.showOverlay(
+          asyncFunction: () => _authService.logout(),
+          loadingWidget: const Center(
+            child: CircularProgressIndicator(
+              color: Color(0xFF67F2A5), // Menggunakan accent color hijau dari desain
+            ),
+          ),
+        );
+      },
+    );
   }
 
   Future<void> refreshProfile() async {
