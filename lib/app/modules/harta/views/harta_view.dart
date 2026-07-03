@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'dart:math';
 import '../controllers/harta_controller.dart';
+import '../models/asset_model.dart';
 import '../../../routes/app_pages.dart';
+import '../../../utils/asset_helper.dart';
 
 class HartaView extends GetView<HartaController> {
   const HartaView({Key? key}) : super(key: key);
@@ -157,29 +159,39 @@ class HartaView extends GetView<HartaController> {
                       ),
                     ),
                     const SizedBox(height: 8),
-                    const Text(
-                      'Rp 130.000.000',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Row(
-                      children: [
-                        Icon(Icons.trending_up, color: greenAccent, size: 14),
-                        const SizedBox(width: 4),
-                        Text(
-                          '+2.4% dari bulan lalu',
-                          style: TextStyle(
-                            color: greenAccent,
-                            fontSize: 11,
-                            fontWeight: FontWeight.w600,
-                          ),
+                    Obx(() {
+                      final total = controller.totalKekayaan;
+                      final formatted = total.toStringAsFixed(0).replaceAllMapped(
+                        RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
+                        (Match m) => '${m[1]}.',
+                      );
+                      return Text(
+                        'Rp $formatted',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
                         ),
-                      ],
-                    ),
+                      );
+                    }),
+                    Obx(() {
+                      final assetCount = controller.assets.length;
+                      final activeWalletCount = controller.wallets.where((w) => w.isActive).length;
+                      return Row(
+                        children: [
+                          Icon(Icons.info_outline, color: greenAccent, size: 14),
+                          const SizedBox(width: 6),
+                          Text(
+                            'Terdiri dari $assetCount aset & $activeWalletCount rekening aktif',
+                            style: TextStyle(
+                              color: greenAccent,
+                              fontSize: 11,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
+                      );
+                    }),
                   ],
                 ),
               ),
@@ -255,133 +267,74 @@ class HartaView extends GetView<HartaController> {
                         ],
                       ),
                       const SizedBox(height: 12),
-                      _buildAssetItem(
-                        icon: Icons.directions_car_outlined,
-                        title: 'Honda Brio 2020',
-                        subtitle: 'Transportasi • Diperbarui 2 hari yang lalu',
-                        amount: 'Rp 120.000.000',
-                        status: 'STABIL',
-                        statusColor: Colors.grey[600]!,
-                      ),
-                      const SizedBox(height: 12),
-                      _buildAssetItem(
-                        icon: Icons.hexagon_outlined,
-                        title: 'Emas Antam 10g',
-                        subtitle: 'Komoditas • Diperbarui hari ini',
-                        amount: 'Rp 10.000.000',
-                        status: 'NAIK',
-                        statusColor: greenAccent,
-                      ),
-                      const SizedBox(height: 32),
-
-                      // 6. Section: Analisis Aset
-                      Container(
-                        padding: const EdgeInsets.all(24),
-                        decoration: BoxDecoration(
-                          color: cardColor,
-                          borderRadius: BorderRadius.circular(16),
-                          border: Border.all(color: borderColor),
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Analisis Aset',
-                              style: TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.bold,
-                                color: primaryDark,
-                              ),
-                            ),
-                            const SizedBox(height: 32),
-                            Center(
-                              child: SizedBox(
-                                height: 180,
-                                width: 180,
-                                child: Stack(
-                                  alignment: Alignment.center,
-                                  children: [
-                                    CustomPaint(
-                                      size: const Size(180, 180),
-                                      painter: AssetDonutPainter(
-                                        colors: [greenBright, primaryDark],
-                                        percentages: [0.923, 0.077],
-                                      ),
-                                    ),
-                                    Column(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        Text(
-                                          'KOMPOSISI',
-                                          style: TextStyle(
-                                            fontSize: 9,
-                                            fontWeight: FontWeight.bold,
-                                            color: Colors.grey[400],
-                                            letterSpacing: 1,
-                                          ),
-                                        ),
-                                        const SizedBox(height: 4),
-                                        Text(
-                                          '92%',
-                                          style: TextStyle(
-                                            fontSize: 24,
-                                            fontWeight: FontWeight.bold,
-                                            color: primaryDark,
-                                          ),
-                                        ),
-                                        Text(
-                                          'Kendaraan',
-                                          style: TextStyle(
-                                            fontSize: 10,
-                                            color: Colors.grey[500],
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ],
+                      Obx(() {
+                        if (controller.isLoadingAssets.value) {
+                          // Shimmer Loading Placeholder
+                          return Column(
+                            children: List.generate(2, (index) => _buildShimmerAssetItem()),
+                          );
+                        }
+                        if (controller.assets.isEmpty) {
+                          return Center(
+                            child: Padding(
+                              padding: const EdgeInsets.all(24.0),
+                              child: Text(
+                                'Belum ada aset tetap.\nYuk, tambahkan aset pertamamu!',
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  color: Colors.grey[500],
+                                  fontSize: 13,
                                 ),
                               ),
                             ),
-                            const SizedBox(height: 32),
-                            _buildChartLegend(
-                              color: greenBright,
-                              title: 'Kendaraan',
-                              percentage: '92.3%',
-                            ),
-                            const SizedBox(height: 12),
-                            _buildChartLegend(
-                              color: primaryDark,
-                              title: 'Emas',
-                              percentage: '7.7%',
-                            ),
-                            const SizedBox(height: 24),
-                            ClipRRect(
-                              borderRadius: BorderRadius.circular(8),
-                              child: Image.network(
-                                'https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?auto=format&fit=crop&q=80&w=600',
-                                height: 80,
-                                width: double.infinity,
-                                fit: BoxFit.cover,
-                                errorBuilder: (context, error, stackTrace) =>
-                                    Container(
-                                      height: 80,
-                                      color: Colors.grey[200],
+                          );
+                        }
+                        return Column(
+                          children: controller.assets.map((asset) {
+                            return Padding(
+                              padding: const EdgeInsets.only(bottom: 12),
+                              child: _buildAssetItem(
+                                id: asset.id,
+                                icon: _getCategoryIcon(asset.categoryName),
+                                title: asset.assetName,
+                                subtitle: RichText(
+                                  text: TextSpan(
+                                    style: const TextStyle(
+                                      fontSize: 10,
+                                      height: 1.4,
                                     ),
+                                    children: [
+                                      TextSpan(
+                                        text: translateAssetCategory(asset.categoryName),
+                                        style: TextStyle(
+                                          color: Colors.blueGrey[600],
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                      ),
+                                      const TextSpan(
+                                        text: '  •  ',
+                                        style: TextStyle(color: Colors.grey),
+                                      ),
+                                      TextSpan(
+                                        text: asset.ownershipType == 'PERSONAL' ? asset.ownerName : 'Bersama',
+                                        style: TextStyle(
+                                          color: asset.ownershipType == 'PERSONAL'
+                                              ? const Color(0xFF1F9975)
+                                              : const Color(0xFFD97706),
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                amount: 'Rp ${asset.purchasePrice.toStringAsFixed(0).replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]}.')}',
+                                asset: asset,
+                                canEdit: asset.ownershipType == 'JOINT' || controller.currentUserId == asset.ownerUserId,
                               ),
-                            ),
-                            const SizedBox(height: 12),
-                            Text(
-                              '"Cara terbaik untuk memprediksi masa depan adalah dengan menciptakannya."',
-                              style: TextStyle(
-                                fontSize: 11,
-                                fontStyle: FontStyle.italic,
-                                color: Colors.grey[500],
-                              ),
-                              textAlign: TextAlign.center,
-                            ),
-                          ],
-                        ),
-                      ),
+                            );
+                          }).toList(),
+                        );
+                      }),
                     ],
                   );
                 } else {
@@ -683,16 +636,62 @@ class HartaView extends GetView<HartaController> {
     );
   }
 
+  Widget _buildShimmerAssetItem() {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: cardColor,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: borderColor),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 48,
+            height: 48,
+            decoration: BoxDecoration(
+              color: Colors.grey[300],
+              borderRadius: BorderRadius.circular(12),
+            ),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(width: 120, height: 14, color: Colors.grey[300]),
+                const SizedBox(height: 8),
+                Container(width: 80, height: 10, color: Colors.grey[300]),
+              ],
+            ),
+          ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Container(width: 80, height: 14, color: Colors.grey[300]),
+              const SizedBox(height: 8),
+              Container(width: 40, height: 10, color: Colors.grey[300]),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildAssetItem({
+    required String id,
     required IconData icon,
     required String title,
-    required String subtitle,
+    required Widget subtitle,
     required String amount,
-    required String status,
-    required Color statusColor,
+    required AssetModel asset,
+    required bool canEdit,
   }) {
-    return Container(
-      padding: const EdgeInsets.all(16),
+    return GestureDetector(
+      onTap: () => Get.toNamed(Routes.DETAIL_ASSET, arguments: asset),
+      child: Container(
+        padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: cardColor,
         borderRadius: BorderRadius.circular(16),
@@ -706,8 +705,8 @@ class HartaView extends GetView<HartaController> {
               color: backgroundColor,
               borderRadius: BorderRadius.circular(12),
             ),
-            child: const Icon(
-              Icons.attach_money,
+            child: Icon(
+              icon,
               color: Colors.blueGrey,
               size: 24,
             ),
@@ -726,14 +725,7 @@ class HartaView extends GetView<HartaController> {
                   ),
                 ),
                 const SizedBox(height: 4),
-                Text(
-                  subtitle,
-                  style: TextStyle(
-                    fontSize: 10,
-                    color: Colors.grey[500],
-                    height: 1.4,
-                  ),
-                ),
+                subtitle,
               ],
             ),
           ),
@@ -749,20 +741,65 @@ class HartaView extends GetView<HartaController> {
                 ),
               ),
               const SizedBox(height: 6),
-              Text(
-                status,
-                style: TextStyle(
-                  fontSize: 9,
-                  fontWeight: FontWeight.bold,
-                  color: statusColor,
-                  letterSpacing: 0.5,
+              if (canEdit)
+                GestureDetector(
+                  onTap: () {
+                    Get.bottomSheet(
+                      Container(
+                        padding: const EdgeInsets.all(24),
+                        decoration: const BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+                        ),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            ListTile(
+                              leading: Icon(Icons.edit, color: primaryDark),
+                              title: Text('Edit Aset', style: TextStyle(color: primaryDark, fontWeight: FontWeight.bold)),
+                              onTap: () {
+                                Get.back();
+                                Get.toNamed(Routes.ADD_ASSET, arguments: id); // Or edit asset route
+                              },
+                            ),
+                            ListTile(
+                              leading: const Icon(Icons.delete, color: Colors.red),
+                              title: const Text('Hapus Aset', style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
+                              onTap: () {
+                                Get.back();
+                                controller.deleteAsset(id);
+                              },
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
+                  child: Icon(Icons.more_vert, size: 16, color: Colors.grey[600]),
                 ),
-              ),
             ],
           ),
         ],
       ),
-    );
+    ),
+  );
+}
+
+  IconData _getCategoryIcon(String? categoryName) {
+    if (categoryName == null) return Icons.category_outlined;
+    final name = categoryName.toLowerCase();
+    if (name.contains('kendaraan') || name.contains('car') || name.contains('brio') || name.contains('transport')) {
+      return Icons.directions_car_outlined;
+    } else if (name.contains('emas') || name.contains('gold') || name.contains('komoditas') || name.contains('precious') || name.contains('logam')) {
+      return Icons.hexagon_outlined;
+    } else if (name.contains('elektronik') || name.contains('electronics') || name.contains('gadget') || name.contains('ps5') || name.contains('device')) {
+      return Icons.devices_other;
+    } else if (name.contains('properti') || name.contains('property') || name.contains('rumah') || name.contains('house') || name.contains('tanah')) {
+      return Icons.home_work_outlined;
+    } else if (name.contains('investasi') || name.contains('investment') || name.contains('saham') || name.contains('stock')) {
+      return Icons.trending_up_outlined;
+    }
+    return Icons.category_outlined;
   }
 
   Widget _buildChartLegend({

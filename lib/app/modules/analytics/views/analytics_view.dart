@@ -10,6 +10,7 @@ class AnalyticsView extends GetView<AnalyticsController> {
   // Palet Warna
   final Color primaryDark = const Color(0xFF0D2B33); // Dark Teal
   final Color greenAccent = const Color(0xFF4ADE80); // Bright Green
+  final Color greenBright = const Color(0xFF047857); // Chart Green
   final Color lightBlue = const Color(0xFFA5C5CB); // Rent Color
   final Color greyAccent = const Color(0xFFE2E8F0); // Others Color
   final Color backgroundColor = const Color(0xFFF8F9FF);
@@ -390,6 +391,126 @@ class AnalyticsView extends GetView<AnalyticsController> {
               ),
               const SizedBox(height: 16),
 
+              // 4b. Card Analisis Aset
+              Container(
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: cardColor,
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: borderColor),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Analisis Aset',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: primaryDark,
+                          ),
+                        ),
+                        Icon(
+                          Icons.donut_large,
+                          color: Colors.grey[400],
+                          size: 20,
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 32),
+                    Center(
+                      child: SizedBox(
+                        height: 160,
+                        width: 160,
+                        child: Stack(
+                          alignment: Alignment.center,
+                          children: [
+                            CustomPaint(
+                              size: const Size(160, 160),
+                              painter: DonutChartPainter(
+                                colors: [greenBright, primaryDark],
+                                percentages: [0.923, 0.077],
+                              ),
+                            ),
+                            Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  'KOMPOSISI',
+                                  style: TextStyle(
+                                    fontSize: 9,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.grey[400],
+                                    letterSpacing: 1,
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  '92%',
+                                  style: TextStyle(
+                                    fontSize: 22,
+                                    fontWeight: FontWeight.bold,
+                                    color: primaryDark,
+                                  ),
+                                ),
+                                Text(
+                                  'Kendaraan',
+                                  style: TextStyle(
+                                    fontSize: 10,
+                                    color: Colors.grey[500],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 32),
+                    _buildChartLegendItem(
+                      color: greenBright,
+                      title: 'Kendaraan',
+                      percentage: '92.3%',
+                    ),
+                    const SizedBox(height: 12),
+                    _buildChartLegendItem(
+                      color: primaryDark,
+                      title: 'Emas',
+                      percentage: '7.7%',
+                    ),
+                    const SizedBox(height: 24),
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(8),
+                      child: Image.network(
+                        'https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?auto=format&fit=crop&q=80&w=600',
+                        height: 80,
+                        width: double.infinity,
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) =>
+                            Container(
+                              height: 80,
+                              color: Colors.grey[200],
+                            ),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    Text(
+                      '"Cara terbaik untuk memprediksi masa depan adalah dengan menciptakannya."',
+                      style: TextStyle(
+                        fontSize: 11,
+                        fontStyle: FontStyle.italic,
+                        color: Colors.grey[500],
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 16),
+
               // 5. Card Laporan AI (Warna Gelap)
               Container(
                 padding: const EdgeInsets.all(24),
@@ -629,6 +750,40 @@ class AnalyticsView extends GetView<AnalyticsController> {
         ),
         const SizedBox(width: 6),
         Text(label, style: TextStyle(fontSize: 10, color: Colors.grey[600])),
+      ],
+    );
+  }
+
+  Widget _buildChartLegendItem({
+    required Color color,
+    required String title,
+    required String percentage,
+  }) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Row(
+          children: [
+            Container(
+              width: 8,
+              height: 8,
+              decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+            ),
+            const SizedBox(width: 12),
+            Text(
+              title,
+              style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+            ),
+          ],
+        ),
+        Text(
+          percentage,
+          style: TextStyle(
+            fontSize: 12,
+            fontWeight: FontWeight.bold,
+            color: primaryDark,
+          ),
+        ),
       ],
     );
   }

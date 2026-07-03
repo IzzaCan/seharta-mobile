@@ -515,6 +515,7 @@ class HomeView extends GetView<HomeController> {
                       avatarUrl: tx.creatorAvatarUrl != null
                           ? '${ApiProvider.baseDomain}${tx.creatorAvatarUrl}'
                           : 'https://ui-avatars.com/api/?name=${tx.creatorName ?? "User"}&background=1F9975&color=fff',
+                      isExpense: isExpense,
                     );
                   },
                 );
@@ -658,6 +659,7 @@ class HomeView extends GetView<HomeController> {
     required String amount,
     required String wallet,
     required String avatarUrl,
+    required bool isExpense,
   }) {
     return Container(
       padding: const EdgeInsets.all(16),
@@ -729,10 +731,10 @@ class HomeView extends GetView<HomeController> {
             children: [
               Text(
                 amount,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.bold,
-                  color: Colors.red,
+                  color: isExpense ? Colors.red : const Color(0xFF1F9975),
                 ),
               ),
               const SizedBox(height: 4),
