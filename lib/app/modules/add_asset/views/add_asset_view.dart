@@ -1,0 +1,452 @@
+import 'dart:io';
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:image_picker/image_picker.dart';
+import '../controllers/add_asset_controller.dart';
+import '../../../utils/rupiah_formatter.dart';
+import '../../../utils/asset_helper.dart';
+import '../../../data/providers/api_provider.dart';
+
+class AddAssetView extends GetView<AddAssetController> {
+  const AddAssetView({Key? key}) : super(key: key);
+
+  final Color primaryDark = const Color(0xFF0D2B33);
+  final Color greenAccent = const Color(0xFF1F9975);
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: const Color(0xFFF8F9FF),
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        elevation: 0,
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back, color: primaryDark),
+          onPressed: () => Get.back(),
+        ),
+        title: Obx(() => Text(
+          controller.isEdit.value ? 'Edit Aset' : 'Tambah Aset',
+          style: TextStyle(
+            color: primaryDark,
+            fontWeight: FontWeight.bold,
+            fontSize: 16,
+          ),
+        )),
+        centerTitle: true,
+      ),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(24.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Upload Foto Utama
+            Text('Foto Utama Aset (Opsional)', style: TextStyle(fontWeight: FontWeight.bold, color: primaryDark)),
+            const SizedBox(height: 8),
+            GestureDetector(
+              onTap: () => _showImageSourceDialog(context, isMain: true),
+              child: Obx(() {
+                final localPath = controller.mainPhotoPath.value;
+                final existingUrl = controller.existingMainPhotoUrl.value;
+
+                return Container(
+                  width: double.infinity,
+                  height: 180,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: const Color(0xFFE0E5E9)),
+                  ),
+                  child: localPath.isNotEmpty
+                      ? Stack(
+                          fit: StackFit.expand,
+                          children: [
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(12),
+                              child: Image.file(File(localPath), fit: BoxFit.cover),
+                            ),
+                            Positioned(
+                              top: 8,
+                              right: 8,
+                              child: GestureDetector(
+                                onTap: () => controller.removeMainPhoto(),
+                                child: CircleAvatar(
+                                  radius: 14,
+                                  backgroundColor: Colors.black.withOpacity(0.5),
+                                  child: const Icon(Icons.close, size: 16, color: Colors.white),
+                                ),
+                              ),
+                            ),
+                          ],
+                        )
+                      : existingUrl.isNotEmpty
+                          ? Stack(
+                              fit: StackFit.expand,
+                              children: [
+                                ClipRRect(
+                                  borderRadius: BorderRadius.circular(12),
+                                  child: Image.network('${ApiProvider.baseDomain}$existingUrl', fit: BoxFit.cover),
+                                ),
+                                Positioned(
+                                  top: 8,
+                                  right: 8,
+                                  child: GestureDetector(
+                                    onTap: () => controller.removeMainPhoto(),
+                                    child: CircleAvatar(
+                                      radius: 14,
+                                      backgroundColor: Colors.black.withOpacity(0.5),
+                                      child: const Icon(Icons.close, size: 16, color: Colors.white),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            )
+                          : Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(Icons.camera_alt_outlined, size: 36, color: Colors.grey[400]),
+                                const SizedBox(height: 8),
+                                Text('Tambah Foto Utama', style: TextStyle(color: Colors.grey[600], fontSize: 13)),
+                              ],
+                            ),
+                );
+              }),
+            ),
+            const SizedBox(height: 16),
+
+            // Nama Aset
+            Text('Nama Aset', style: TextStyle(fontWeight: FontWeight.bold, color: primaryDark)),
+            const SizedBox(height: 8),
+            TextField(
+              controller: controller.nameController,
+              decoration: InputDecoration(
+                hintText: 'Contoh: Honda Brio 2020',
+                filled: true,
+                fillColor: Colors.white,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: const BorderSide(color: Color(0xFFE0E5E9)),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: const BorderSide(color: Color(0xFFE0E5E9)),
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+
+            // Harga / Nilai Aset
+            Text('Nilai Aset (Rp)', style: TextStyle(fontWeight: FontWeight.bold, color: primaryDark)),
+            const SizedBox(height: 8),
+            TextField(
+              controller: controller.priceController,
+              keyboardType: TextInputType.number,
+              inputFormatters: [RupiahInputFormatter()],
+              decoration: InputDecoration(
+                hintText: 'Contoh: 120.000.000',
+                filled: true,
+                fillColor: Colors.white,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: const BorderSide(color: Color(0xFFE0E5E9)),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: const BorderSide(color: Color(0xFFE0E5E9)),
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+
+            // Kategori
+            Text('Kategori', style: TextStyle(fontWeight: FontWeight.bold, color: primaryDark)),
+            const SizedBox(height: 8),
+            Obx(() {
+              if (controller.isLoadingCategories.value) {
+                return const Center(child: CircularProgressIndicator());
+              }
+              return Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: const Color(0xFFE0E5E9)),
+                ),
+                child: DropdownButtonHideUnderline(
+                  child: DropdownButton<String>(
+                    isExpanded: true,
+                    value: controller.selectedCategoryId.value,
+                    hint: const Text('Pilih Kategori'),
+                    items: controller.categories.map((cat) {
+                      return DropdownMenuItem<String>(
+                        value: cat.id,
+                        child: Text(translateAssetCategory(cat.name)),
+                      );
+                    }).toList(),
+                    onChanged: (val) {
+                      if (val != null) controller.selectedCategoryId.value = val;
+                    },
+                  ),
+                ),
+              );
+            }),
+            const SizedBox(height: 16),
+
+            // Kepemilikan
+            Text('Kepemilikan', style: TextStyle(fontWeight: FontWeight.bold, color: primaryDark)),
+            const SizedBox(height: 8),
+            Obx(() => Row(
+              children: [
+                Expanded(
+                  child: RadioListTile<String>(
+                    title: const Text('Pribadi', style: TextStyle(fontSize: 14)),
+                    value: 'PERSONAL',
+                    groupValue: controller.selectedOwnership.value,
+                    onChanged: (val) {
+                      if (val != null) controller.selectedOwnership.value = val;
+                    },
+                    contentPadding: EdgeInsets.zero,
+                    activeColor: greenAccent,
+                  ),
+                ),
+                Expanded(
+                  child: RadioListTile<String>(
+                    title: const Text('Bersama', style: TextStyle(fontSize: 14)),
+                    value: 'JOINT',
+                    groupValue: controller.selectedOwnership.value,
+                    onChanged: (val) {
+                      if (val != null) controller.selectedOwnership.value = val;
+                    },
+                    contentPadding: EdgeInsets.zero,
+                    activeColor: greenAccent,
+                  ),
+                ),
+              ],
+            )),
+            const SizedBox(height: 16),
+            
+            // Tanggal Perolehan
+             Text('Tanggal Pembelian (Opsional)', style: TextStyle(fontWeight: FontWeight.bold, color: primaryDark)),
+            const SizedBox(height: 8),
+            TextField(
+              controller: controller.dateController,
+              readOnly: true,
+              onTap: () => controller.pickDate(context),
+              decoration: InputDecoration(
+                hintText: 'Pilih Tanggal',
+                filled: true,
+                fillColor: Colors.white,
+                suffixIcon: const Icon(Icons.calendar_today),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: const BorderSide(color: Color(0xFFE0E5E9)),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: const BorderSide(color: Color(0xFFE0E5E9)),
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+
+            // Catatan
+            Text('Catatan (Opsional)', style: TextStyle(fontWeight: FontWeight.bold, color: primaryDark)),
+            const SizedBox(height: 8),
+            TextField(
+              controller: controller.notesController,
+              maxLines: 3,
+              decoration: InputDecoration(
+                hintText: 'Contoh: Pembelian lunas, garansi s/d 2028',
+                filled: true,
+                fillColor: Colors.white,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: const BorderSide(color: Color(0xFFE0E5E9)),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: const BorderSide(color: Color(0xFFE0E5E9)),
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+
+            // Dokumen / Bukti Lainnya
+            Text('Dokumen / Bukti Lainnya (Opsional)', style: TextStyle(fontWeight: FontWeight.bold, color: primaryDark)),
+            const SizedBox(height: 8),
+            Obx(() {
+              final localDocs = controller.localDocPaths;
+              final existingDocs = controller.existingDocUrls;
+              final totalCount = localDocs.length + existingDocs.length;
+
+              return Column(
+                children: [
+                  if (totalCount > 0)
+                    Container(
+                      height: 80,
+                      margin: const EdgeInsets.only(bottom: 12),
+                      child: ListView(
+                        scrollDirection: Axis.horizontal,
+                        children: [
+                          // Render existing documents
+                          ...existingDocs.asMap().entries.map((entry) {
+                            final idx = entry.key;
+                            final url = entry.value;
+                            return Stack(
+                              children: [
+                                Container(
+                                  width: 80,
+                                  height: 80,
+                                  margin: const EdgeInsets.only(right: 8),
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(8),
+                                    border: Border.all(color: const Color(0xFFE0E5E9)),
+                                  ),
+                                  child: ClipRRect(
+                                    borderRadius: BorderRadius.circular(8),
+                                    child: Image.network('${ApiProvider.baseDomain}$url', fit: BoxFit.cover),
+                                  ),
+                                ),
+                                Positioned(
+                                  top: 2,
+                                  right: 10,
+                                  child: GestureDetector(
+                                    onTap: () => controller.removeExistingDoc(idx),
+                                    child: CircleAvatar(
+                                      radius: 10,
+                                      backgroundColor: Colors.black.withOpacity(0.6),
+                                      child: const Icon(Icons.close, size: 12, color: Colors.white),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            );
+                          }),
+                          // Render local picked documents
+                          ...localDocs.asMap().entries.map((entry) {
+                            final idx = entry.key;
+                            final path = entry.value;
+                            return Stack(
+                              children: [
+                                Container(
+                                  width: 80,
+                                  height: 80,
+                                  margin: const EdgeInsets.only(right: 8),
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(8),
+                                    border: Border.all(color: const Color(0xFFE0E5E9)),
+                                  ),
+                                  child: ClipRRect(
+                                    borderRadius: BorderRadius.circular(8),
+                                    child: Image.file(File(path), fit: BoxFit.cover),
+                                  ),
+                                ),
+                                Positioned(
+                                  top: 2,
+                                  right: 10,
+                                  child: GestureDetector(
+                                    onTap: () => controller.removeLocalDoc(idx),
+                                    child: CircleAvatar(
+                                      radius: 10,
+                                      backgroundColor: Colors.black.withOpacity(0.6),
+                                      child: const Icon(Icons.close, size: 12, color: Colors.white),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            );
+                          }),
+                        ],
+                      ),
+                    ),
+                  // Add document button
+                  OutlinedButton.icon(
+                    onPressed: () => _showImageSourceDialog(context, isMain: false),
+                    icon: Icon(Icons.add_photo_alternate_outlined, color: greenAccent),
+                    label: Text('Tambah Dokumen / Nota', style: TextStyle(color: greenAccent, fontWeight: FontWeight.bold)),
+                    style: OutlinedButton.styleFrom(
+                      side: BorderSide(color: greenAccent),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      minimumSize: const Size(double.infinity, 44),
+                    ),
+                  ),
+                ],
+              );
+            }),
+            const SizedBox(height: 40),
+
+            // Tombol Simpan
+            SizedBox(
+              width: double.infinity,
+              height: 50,
+              child: Obx(() => ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: primaryDark,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                onPressed: controller.isLoading.value ? null : controller.submit,
+                child: controller.isLoading.value
+                    ? const CircularProgressIndicator(color: Colors.white)
+                    : Text(
+                        controller.isEdit.value ? 'SIMPAN PERUBAHAN' : 'TAMBAH ASET',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 1,
+                        ),
+                      ),
+              )),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showImageSourceDialog(BuildContext context, {required bool isMain}) {
+    Get.bottomSheet(
+      Container(
+        padding: const EdgeInsets.all(24),
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              isMain ? 'Pilih Foto Utama' : 'Pilih Dokumen Tambahan',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: primaryDark),
+            ),
+            const SizedBox(height: 16),
+            ListTile(
+              leading: Icon(Icons.camera_alt, color: greenAccent),
+              title: const Text('Ambil dari Kamera', style: TextStyle(fontWeight: FontWeight.bold)),
+              onTap: () {
+                Get.back();
+                if (isMain) {
+                  controller.pickMainPhoto(ImageSource.camera);
+                } else {
+                  controller.pickDocPhoto(ImageSource.camera);
+                }
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.photo_library, color: greenAccent),
+              title: const Text('Ambil dari Galeri', style: TextStyle(fontWeight: FontWeight.bold)),
+              onTap: () {
+                Get.back();
+                if (isMain) {
+                  controller.pickMainPhoto(ImageSource.gallery);
+                } else {
+                  controller.pickDocPhoto(ImageSource.gallery);
+                }
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}

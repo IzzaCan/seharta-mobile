@@ -10,14 +10,14 @@ class ApiProvider {
       return 'http://localhost:8000/api/v1';
     }
     return Platform.isAndroid
-        ? 'http://192.168.43.202:8000/api/v1'
+        ? 'http://192.168.1.6:8000/api/v1'
         : 'http://localhost:8000/api/v1';
   }
 
   // Domain utama untuk load static files (seperti avatar)
   static String get baseDomain {
     if (kIsWeb) return 'http://localhost:8000';
-    return Platform.isAndroid ? 'http://192.168.43.202:8000' : 'http://localhost:8000';
+    return Platform.isAndroid ? 'http://192.168.1.6:8000' : 'http://localhost:8000';
   }
 
   // Helper headers
@@ -204,5 +204,53 @@ class ApiProvider {
       return 'Format data tidak didukung.';
     }
     return exception.toString();
+  }
+
+  // ==========================================
+  // ASSET MANAGEMENT ENDPOINTS
+  // ==========================================
+
+  Future<Map<String, dynamic>> getAssets({required String token}) async {
+    return await get('/assets/', token: token);
+  }
+
+  Future<Map<String, dynamic>> getAssetCategories({required String token}) async {
+    return await get('/asset-categories/', token: token);
+  }
+
+  Future<Map<String, dynamic>> createAsset({
+    required Map<String, dynamic> data,
+    required String token,
+  }) async {
+    return await post('/assets/', data, token: token);
+  }
+
+  Future<Map<String, dynamic>> updateAsset({
+    required String id,
+    required Map<String, dynamic> data,
+    required String token,
+  }) async {
+    return await put('/assets/$id', data, token: token);
+  }
+
+  Future<Map<String, dynamic>> deleteAsset({
+    required String id,
+    required String token,
+  }) async {
+    return await delete('/assets/$id', token: token);
+  }
+
+  Future<Map<String, dynamic>> uploadAssetFile({
+    required List<int> fileBytes,
+    required String fileName,
+    required String token,
+  }) async {
+    return await postMultipart(
+      '/assets/upload',
+      fileBytes: fileBytes,
+      fileName: fileName,
+      token: token,
+      fileField: 'file',
+    );
   }
 }

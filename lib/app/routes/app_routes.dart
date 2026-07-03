@@ -26,6 +26,8 @@ abstract class Routes {
   static const RESET_PASSWORD = _Paths.RESET_PASSWORD;
   static const GOAL_DETAIL = _Paths.GOAL_DETAIL;
   static const ADD_GOAL = _Paths.ADD_GOAL;
+  static const ADD_ASSET = _Paths.ADD_ASSET;
+  static const DETAIL_ASSET = _Paths.DETAIL_ASSET;
 }
 
 abstract class _Paths {
@@ -53,4 +55,6 @@ abstract class _Paths {
   static const RESET_PASSWORD = '/reset-password';
   static const GOAL_DETAIL = '/goal-detail';
   static const ADD_GOAL = '/add-goal';
+  static const ADD_ASSET = '/add-asset';
+  static const DETAIL_ASSET = '/detail-asset';
 }

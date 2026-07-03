@@ -1,15 +1,23 @@
 import 'package:get/get.dart';
 
+import '../modules/add_asset/bindings/add_asset_binding.dart';
+import '../modules/add_asset/views/add_asset_view.dart';
+import '../modules/detail_asset/bindings/detail_asset_binding.dart';
+import '../modules/detail_asset/views/detail_asset_view.dart';
+import '../modules/add_goal/bindings/add_goal_binding.dart';
+import '../modules/add_goal/views/add_goal_view.dart';
 import '../modules/add_transaction/bindings/add_transaction_binding.dart';
 import '../modules/add_transaction/views/add_transaction_view.dart';
 import '../modules/analytics/bindings/analytics_binding.dart';
 import '../modules/analytics/views/analytics_view.dart';
-import '../modules/pin/bindings/pin_binding.dart';
-import '../modules/pin/views/pin_view.dart';
 import '../modules/create_group/bindings/create_group_binding.dart';
 import '../modules/create_group/views/create_group_view.dart';
 import '../modules/edit_family_name/bindings/edit_family_name_binding.dart';
 import '../modules/edit_family_name/views/edit_family_name_view.dart';
+import '../modules/forgot_password/bindings/forgot_password_binding.dart';
+import '../modules/forgot_password/views/forgot_password_view.dart';
+import '../modules/goal_detail/bindings/goal_detail_binding.dart';
+import '../modules/goal_detail/views/goal_detail_view.dart';
 import '../modules/harta/bindings/harta_binding.dart';
 import '../modules/harta/views/harta_view.dart';
 import '../modules/home/bindings/home_binding.dart';
@@ -24,28 +32,25 @@ import '../modules/manage_categories/bindings/manage_categories_binding.dart';
 import '../modules/manage_categories/views/manage_categories_view.dart';
 import '../modules/manage_wallets/bindings/manage_wallets_binding.dart';
 import '../modules/manage_wallets/views/manage_wallets_view.dart';
+import '../modules/ocr/bindings/ocr_binding.dart';
+import '../modules/ocr/views/ocr_view.dart';
+import '../modules/otp_verification/bindings/otp_verification_binding.dart';
+import '../modules/otp_verification/views/otp_verification_view.dart';
+import '../modules/pin/bindings/pin_binding.dart';
+import '../modules/pin/views/pin_view.dart';
 import '../modules/profile/bindings/profile_binding.dart';
 import '../modules/profile/views/profile_view.dart';
 import '../modules/register/bindings/register_binding.dart';
 import '../modules/register/views/register_view.dart';
-import '../modules/ocr/bindings/ocr_binding.dart';
-import '../modules/ocr/views/ocr_view.dart';
+import '../modules/reset_password/bindings/reset_password_binding.dart';
+import '../modules/reset_password/views/reset_password_view.dart';
 import '../modules/select_status/bindings/select_status_binding.dart';
 import '../modules/select_status/views/select_status_view.dart';
 import '../modules/splash/bindings/splash_binding.dart';
 import '../modules/splash/views/splash_view.dart';
 import '../modules/wallet/bindings/wallet_binding.dart';
 import '../modules/wallet/views/wallet_view.dart';
-import '../modules/otp_verification/bindings/otp_verification_binding.dart';
-import '../modules/otp_verification/views/otp_verification_view.dart';
-import '../modules/forgot_password/bindings/forgot_password_binding.dart';
-import '../modules/forgot_password/views/forgot_password_view.dart';
-import '../modules/reset_password/bindings/reset_password_binding.dart';
-import '../modules/reset_password/views/reset_password_view.dart';
-import '../modules/add_goal/bindings/add_goal_binding.dart';
-import '../modules/add_goal/views/add_goal_view.dart';
-import '../modules/goal_detail/bindings/goal_detail_binding.dart';
-import '../modules/goal_detail/views/goal_detail_view.dart';
+
 part 'app_routes.dart';
 
 class AppPages {
@@ -168,6 +173,16 @@ class AppPages {
       name: _Paths.GOAL_DETAIL,
       page: () => const GoalDetailView(),
       binding: GoalDetailBinding(),
+    ),
+    GetPage(
+      name: _Paths.ADD_ASSET,
+      page: () => const AddAssetView(),
+      binding: AddAssetBinding(),
+    ),
+    GetPage(
+      name: _Paths.DETAIL_ASSET,
+      page: () => const DetailAssetView(),
+      binding: DetailAssetBinding(),
     ),
   ];
 }
