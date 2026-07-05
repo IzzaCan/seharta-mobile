@@ -28,6 +28,8 @@ abstract class Routes {
   static const ADD_GOAL = _Paths.ADD_GOAL;
   static const ADD_ASSET = _Paths.ADD_ASSET;
   static const DETAIL_ASSET = _Paths.DETAIL_ASSET;
+  static const BUDGETING = _Paths.BUDGETING;
+  static const BUDGET_DETAIL = _Paths.BUDGET_DETAIL;
 }
 
 abstract class _Paths {
@@ -57,4 +59,6 @@ abstract class _Paths {
   static const ADD_GOAL = '/add-goal';
   static const ADD_ASSET = '/add-asset';
   static const DETAIL_ASSET = '/detail-asset';
+  static const BUDGETING = '/budgeting';
+  static const BUDGET_DETAIL = '/budget-detail';
 }

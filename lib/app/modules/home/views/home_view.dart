@@ -30,54 +30,58 @@ class HomeView extends GetView<HomeController> {
         child: const Icon(Icons.add, color: Colors.white, size: 28),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-      bottomNavigationBar: BottomAppBar(
-        shape: const CircularNotchedRectangle(),
-        notchMargin: 8.0,
-        color: Colors.white,
-        elevation: 10,
-        child: Obx(
-          () => SizedBox(
-            height: 60,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                _buildNavItem(
-                  icon: controller.currentIndex.value == 0
-                      ? Icons.home
-                      : Icons.home_outlined,
-                  label: 'HOME',
-                  index: 0,
-                  isActive: controller.currentIndex.value == 0,
-                ),
-                _buildNavItem(
-                  icon: controller.currentIndex.value == 1
-                      ? Icons.account_balance_wallet
-                      : Icons.account_balance_wallet_outlined,
-                  label: 'HARTA',
-                  index: 1,
-                  isActive: controller.currentIndex.value == 1,
-                ),
-                const SizedBox(
-                  width: 48,
-                ), // Ruang kosong untuk Floating Action Button
-                _buildNavItem(
-                  icon: controller.currentIndex.value == 2
-                      ? Icons.bar_chart_rounded
-                      : Icons.bar_chart_rounded,
-                  label: 'ANALYTICS',
-                  index: 2,
-                  isActive: controller.currentIndex.value == 2,
-                ),
-                _buildNavItem(
-                  icon: controller.currentIndex.value == 3
-                      ? Icons.person
-                      : Icons.person_outline,
-                  label: 'PROFILE',
-                  index: 3,
-                  isActive: controller.currentIndex.value == 3,
-                ),
-              ],
+      bottomNavigationBar: Container(
+        margin: const EdgeInsets.fromLTRB(12, 0, 12, 10),
+        height: 72,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(24),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.04),
+              blurRadius: 15,
+              offset: const Offset(0, 5),
             ),
+          ],
+        ),
+        child: Obx(
+          () => Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              _buildNavItem(
+                icon: controller.currentIndex.value == 0
+                    ? Icons.home
+                    : Icons.home_outlined,
+                label: 'Beranda',
+                index: 0,
+                isActive: controller.currentIndex.value == 0,
+              ),
+              _buildNavItem(
+                icon: controller.currentIndex.value == 1
+                    ? Icons.account_balance_wallet
+                    : Icons.account_balance_wallet_outlined,
+                label: 'Harta',
+                index: 1,
+                isActive: controller.currentIndex.value == 1,
+              ),
+              const SizedBox(width: 48), // Ruang kosong untuk Floating Action Button
+              _buildNavItem(
+                icon: controller.currentIndex.value == 2
+                    ? Icons.analytics
+                    : Icons.analytics_outlined,
+                label: 'Analytics',
+                index: 2,
+                isActive: controller.currentIndex.value == 2,
+              ),
+              _buildNavItem(
+                icon: controller.currentIndex.value == 3
+                    ? Icons.person
+                    : Icons.person_outline,
+                label: 'Profile',
+                index: 3,
+                isActive: controller.currentIndex.value == 3,
+              ),
+            ],
           ),
         ),
       ),
@@ -151,12 +155,12 @@ class HomeView extends GetView<HomeController> {
 
               // 2. Teks Sapaan
               Text(
-                'SELAMAT PAGI',
+                _getDynamicGreeting(),
                 style: TextStyle(
-                  fontSize: 10,
+                  fontSize: 12,
                   fontWeight: FontWeight.bold,
-                  color: Colors.grey[500],
-                  letterSpacing: 1,
+                  color: Colors.grey[700],
+                  letterSpacing: 1.2,
                 ),
               ),
               const SizedBox(height: 4),
@@ -245,15 +249,22 @@ class HomeView extends GetView<HomeController> {
                       if (controller.isLoadingDashboard.value) {
                         return Row(
                           children: [
-                            SizedBox(
+                            Container(
                               width: 12,
                               height: 12,
-                              child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white.withOpacity(0.5)),
+                              decoration: BoxDecoration(
+                                color: Colors.white.withOpacity(0.3),
+                                shape: BoxShape.circle,
+                              ),
                             ),
                             const SizedBox(width: 8),
-                            Text(
-                              'Memuat data...',
-                              style: TextStyle(color: Colors.white.withOpacity(0.5), fontSize: 11),
+                            Container(
+                              width: 80,
+                              height: 10,
+                              decoration: BoxDecoration(
+                                color: Colors.white.withOpacity(0.3),
+                                borderRadius: BorderRadius.circular(4),
+                              ),
                             ),
                           ],
                         );
@@ -385,25 +396,13 @@ class HomeView extends GetView<HomeController> {
                           const SizedBox(height: 4),
                           Obx(() {
                             if (controller.isLoadingInsight.value) {
-                              return Row(
+                              return Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  SizedBox(
-                                    width: 14,
-                                    height: 14,
-                                    child: CircularProgressIndicator(
-                                      strokeWidth: 2,
-                                      color: greenAccent,
-                                    ),
-                                  ),
-                                  const SizedBox(width: 8),
-                                  Text(
-                                    'Menganalisis pengeluaran Anda...',
-                                    style: TextStyle(
-                                      fontSize: 12,
-                                      color: Colors.grey[600],
-                                      fontStyle: FontStyle.italic,
-                                    ),
-                                  ),
+                                  const SizedBox(height: 4),
+                                  Container(width: double.infinity, height: 12, decoration: BoxDecoration(color: Colors.grey[200], borderRadius: BorderRadius.circular(4))),
+                                  const SizedBox(height: 6),
+                                  Container(width: 200, height: 12, decoration: BoxDecoration(color: Colors.grey[200], borderRadius: BorderRadius.circular(4))),
                                 ],
                               );
                             }
@@ -427,7 +426,7 @@ class HomeView extends GetView<HomeController> {
               // 5. Section: Dompet Bersama
               _buildSectionHeader(
                 title: 'Dompet Bersama',
-                actionText: 'Lihat Semua',
+                actionText: 'Lihat Semua →',
                 onTap: () => Get.toNamed(Routes.WALLET),
               ),
               const SizedBox(height: 12),
@@ -435,7 +434,36 @@ class HomeView extends GetView<HomeController> {
                 height: 110,
                 child: Obx(() {
                   if (controller.isLoadingDashboard.value) {
-                    return const Center(child: CircularProgressIndicator());
+                    return Row(
+                      children: List.generate(2, (index) => Container(
+                        width: 140,
+                        padding: const EdgeInsets.all(16),
+                        margin: const EdgeInsets.only(right: 12),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(color: borderColor),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Container(
+                              width: 24,
+                              height: 24,
+                              decoration: BoxDecoration(
+                                color: Colors.grey[200],
+                                shape: BoxShape.circle,
+                              ),
+                            ),
+                            const SizedBox(height: 12),
+                            Container(width: 80, height: 12, decoration: BoxDecoration(color: Colors.grey[200], borderRadius: BorderRadius.circular(4))),
+                            const SizedBox(height: 8),
+                            Container(width: 50, height: 10, decoration: BoxDecoration(color: Colors.grey[200], borderRadius: BorderRadius.circular(4))),
+                          ],
+                        ),
+                      )),
+                    );
                   }
                   if (controller.wallets.isEmpty) {
                     return Center(
@@ -464,6 +492,190 @@ class HomeView extends GetView<HomeController> {
               ),
               const SizedBox(height: 24),
 
+              // 5.5 Section: Anggaran Bulan Ini
+              _buildSectionHeader(
+                title: 'Anggaran',
+                actionText: 'Lihat Semua →',
+                onTap: () => Get.toNamed(Routes.BUDGETING),
+              ),
+              const SizedBox(height: 12),
+              Obx(() {
+                if (controller.isLoadingBudgets.value) {
+                  return Column(
+                    children: List.generate(2, (index) => Container(
+                      margin: const EdgeInsets.only(bottom: 12),
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: cardBackgroundColor,
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: borderColor),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Container(width: 80, height: 14, decoration: BoxDecoration(color: Colors.grey[200], borderRadius: BorderRadius.circular(4))),
+                              Container(width: 100, height: 12, decoration: BoxDecoration(color: Colors.grey[200], borderRadius: BorderRadius.circular(4))),
+                            ],
+                          ),
+                          const SizedBox(height: 12),
+                          Container(
+                            width: double.infinity,
+                            height: 8,
+                            decoration: BoxDecoration(
+                              color: Colors.grey[100],
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                          ),
+                        ],
+                      ),
+                    )),
+                  );
+                }
+                if (controller.budgets.isEmpty) {
+                  // Fallback ke border solid jika package dotted_border tidak digunakan
+                  return Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: cardBackgroundColor,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: greenAccent.withOpacity(0.5), width: 1.5),
+                    ),
+                    child: Column(
+                      children: [
+                        Text(
+                          'Belum ada anggaran bulan ini. Yuk, buat anggaran bersama pasanganmu agar keuangan terkontrol!',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                        ),
+                        const SizedBox(height: 12),
+                        ElevatedButton(
+                          onPressed: () => Get.toNamed(Routes.BUDGETING),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: primaryColor,
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                            minimumSize: const Size(0, 36),
+                          ),
+                          child: const Text('[Buat Anggaran Sekarang]', style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold)),
+                        ),
+                      ],
+                    ),
+                  );
+                }
+                
+                // Show max 3 budgets
+                final topBudgets = controller.budgets.take(3).toList();
+                return Column(
+                  children: topBudgets.map((budget) {
+                    final progress = budget.limitAmount > 0 ? (budget.spentAmount / budget.limitAmount) : 0.0;
+                    final progressClamped = progress.clamp(0.0, 1.0);
+                    final isOverBudget = progress >= 0.8;
+                    
+                    return GestureDetector(
+                      onTap: () => Get.toNamed(Routes.BUDGET_DETAIL, arguments: budget),
+                      child: Container(
+                        margin: const EdgeInsets.only(bottom: 12),
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: cardBackgroundColor,
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(color: borderColor),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.03),
+                              blurRadius: 10,
+                              offset: const Offset(0, 4),
+                            ),
+                          ],
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      budget.categoryName,
+                                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: primaryColor),
+                                    ),
+                                    const SizedBox(height: 4),
+                                    Text(
+                                      _getFormattedMonthName(budget.month, budget.year),
+                                      style: TextStyle(fontSize: 11, color: Colors.grey[500], fontWeight: FontWeight.w500),
+                                    ),
+                                  ],
+                                ),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                  decoration: BoxDecoration(
+                                    color: isOverBudget ? Colors.red[50] : bgLightGreen,
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  child: Text(
+                                    'Sisa ${controller.formatRupiah(budget.remainingAmount)}',
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.bold,
+                                      color: isOverBudget ? Colors.red : greenAccent,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 16),
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(6),
+                              child: LinearProgressIndicator(
+                                value: progressClamped,
+                                backgroundColor: Colors.grey[200],
+                                color: isOverBudget ? Colors.orange : greenAccent,
+                                minHeight: 10,
+                              ),
+                            ),
+                            const SizedBox(height: 12),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text('Terpakai', style: TextStyle(fontSize: 11, color: Colors.grey[500])),
+                                    const SizedBox(height: 4),
+                                    Text(
+                                      controller.formatRupiah(budget.spentAmount),
+                                      style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: primaryColor),
+                                    ),
+                                  ],
+                                ),
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.end,
+                                  children: [
+                                    Text('Batas Anggaran', style: TextStyle(fontSize: 11, color: Colors.grey[500])),
+                                    const SizedBox(height: 4),
+                                    Text(
+                                      controller.formatRupiah(budget.limitAmount),
+                                      style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: primaryColor),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  }).toList(),
+                );
+              }),
+              const SizedBox(height: 24),
+
               // 6. Section: Riwayat Transaksi
               _buildSectionHeader(
                 title: 'Riwayat Transaksi',
@@ -473,10 +685,41 @@ class HomeView extends GetView<HomeController> {
 
               Obx(() {
                 if (controller.isLoadingDashboard.value) {
-                  return const Center(child: Padding(
-                    padding: EdgeInsets.all(20.0),
-                    child: CircularProgressIndicator(),
-                  ));
+                  return Column(
+                    children: List.generate(3, (index) => Container(
+                      padding: const EdgeInsets.all(12),
+                      margin: const EdgeInsets.only(bottom: 12),
+                      decoration: BoxDecoration(
+                        color: cardBackgroundColor,
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: borderColor),
+                      ),
+                      child: Row(
+                        children: [
+                          Container(
+                            width: 40,
+                            height: 40,
+                            decoration: BoxDecoration(
+                              color: Colors.grey[200],
+                              shape: BoxShape.circle,
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Container(width: 120, height: 12, decoration: BoxDecoration(color: Colors.grey[200], borderRadius: BorderRadius.circular(4))),
+                                const SizedBox(height: 6),
+                                Container(width: 60, height: 10, decoration: BoxDecoration(color: Colors.grey[200], borderRadius: BorderRadius.circular(4))),
+                              ],
+                            ),
+                          ),
+                          Container(width: 70, height: 14, decoration: BoxDecoration(color: Colors.grey[200], borderRadius: BorderRadius.circular(4))),
+                        ],
+                      ),
+                    )),
+                  );
                 }
                 if (controller.transactions.isEmpty) {
                   return Center(
@@ -541,37 +784,39 @@ class HomeView extends GetView<HomeController> {
     required int index,
     bool isActive = false,
   }) {
-    return GestureDetector(
-      onTap: () => controller.changePage(index),
-      child: Container(
-        padding: isActive
-            ? const EdgeInsets.symmetric(horizontal: 16, vertical: 8)
-            : null,
-        decoration: isActive
-            ? BoxDecoration(
-                color: bgLightGreen,
-                borderRadius: BorderRadius.circular(20),
-              )
-            : null,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              icon,
-              color: isActive ? primaryColor : Colors.grey[400],
-              size: 24,
-            ),
-            const SizedBox(height: 4),
-            Text(
-              label,
-              style: TextStyle(
-                fontSize: 8,
-                fontWeight: isActive ? FontWeight.bold : FontWeight.normal,
-                color: isActive ? primaryColor : Colors.grey[500],
+    return Expanded(
+      child: GestureDetector(
+        onTap: () => controller.changePage(index),
+        behavior: HitTestBehavior.opaque,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 8.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+                decoration: BoxDecoration(
+                  color: isActive ? bgLightGreen : Colors.transparent,
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Icon(
+                  icon,
+                  color: isActive ? primaryColor : Colors.grey[400],
+                  size: 24,
+                ),
               ),
-            ),
-          ],
+              const SizedBox(height: 4),
+              Text(
+                label,
+                style: TextStyle(
+                  fontSize: 10,
+                  fontWeight: isActive ? FontWeight.bold : FontWeight.w500,
+                  color: isActive ? primaryColor : Colors.grey[500],
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -749,12 +994,31 @@ class HomeView extends GetView<HomeController> {
     );
   }
 
-  String _getFormattedMonth() {
+  
+String _getFormattedMonth() {
     final now = DateTime.now();
+    return _getFormattedMonthName(now.month, now.year);
+  }
+
+  String _getFormattedMonthName(int month, int year) {
     final months = [
       'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
       'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
     ];
-    return "${months[now.month - 1]} ${now.year}";
+    if (month < 1 || month > 12) return '';
+    return "${months[month - 1]} $year";
+  }
+
+  String _getDynamicGreeting() {
+    final hour = DateTime.now().hour;
+    if (hour >= 4 && hour < 10) {
+      return 'SELAMAT PAGI';
+    } else if (hour >= 10 && hour < 14) {
+      return 'SELAMAT SIANG';
+    } else if (hour >= 14 && hour < 18) {
+      return 'SELAMAT SORE';
+    } else {
+      return 'SELAMAT MALAM';
+    }
   }
 }

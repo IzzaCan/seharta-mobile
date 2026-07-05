@@ -91,7 +91,9 @@ class PinController extends GetxController {
           _prefs.setString('security_pin', currentPin.value);
           _prefs.setBool('is_app_lock_enabled', true);
           if (Get.isRegistered<ProfileController>()) {
-            Get.find<ProfileController>().isAppLockOn.value = true;
+            final profileCtrl = Get.find<ProfileController>();
+            profileCtrl.isAppLockOn = true;
+            profileCtrl.update();
           }
           Get.back(); // close page first
           Get.snackbar('Berhasil', 'PIN keamanan berhasil diperbarui', backgroundColor: Colors.green[100], colorText: Colors.green[900]);

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import '../models/goal_model.dart';
 import '../models/asset_model.dart';
@@ -7,6 +8,10 @@ import '../../wallet/models/wallet_model.dart';
 import '../../../data/providers/api_provider.dart';
 import '../../../data/services/auth_service.dart';
 import '../../../routes/app_pages.dart';
+
+List<AssetModel> _parseAssets(List<dynamic> data) {
+  return data.map((json) => AssetModel.fromJson(json)).toList();
+}
 
 class HartaController extends GetxController {
   final WalletProvider _walletProvider = WalletProvider();
@@ -59,7 +64,7 @@ class HartaController extends GetxController {
       final response = await _apiProvider.getAssets(token: token);
       final List<dynamic> data = response['data'] as List<dynamic>? ?? [];
       
-      final fetchedAssets = data.map((json) => AssetModel.fromJson(json)).toList();
+      final fetchedAssets = await compute(_parseAssets, data);
       assets.assignAll(fetchedAssets);
     } catch (e) {
       Get.snackbar(

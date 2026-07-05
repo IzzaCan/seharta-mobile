@@ -31,7 +31,8 @@ class ProfileController extends GetxController {
 
   Future<void> _loadSettings() async {
     final prefs = await SharedPreferences.getInstance();
-    isAppLockOn.value = prefs.getBool('is_app_lock_enabled') ?? false;
+    isAppLockOn = prefs.getBool('is_app_lock_enabled') ?? false;
+    update();
   }
 
   Future<void> pickProfilePicture() async {
@@ -161,12 +162,13 @@ class ProfileController extends GetxController {
   }
 
   // State untuk Switch (Toggle)
-  var isNotificationOn = true.obs;
-  var isAppLockOn = false.obs;
+  bool isNotificationOn = true;
+  bool isAppLockOn = false;
 
   // Fungsi toggle
   void toggleNotification(bool value) {
-    isNotificationOn.value = value;
+    isNotificationOn = value;
+    update();
   }
 
   void toggleAppLock(bool value) async {
@@ -183,15 +185,16 @@ class ProfileController extends GetxController {
           colorText: Colors.orange[900]
         );
         Get.toNamed(Routes.PIN);
-        isAppLockOn.value = false;
+        isAppLockOn = false;
       } else {
-        isAppLockOn.value = true;
+        isAppLockOn = true;
         await prefs.setBool('is_app_lock_enabled', true);
       }
     } else {
-      isAppLockOn.value = false;
+      isAppLockOn = false;
       await prefs.setBool('is_app_lock_enabled', false);
     }
+    update();
   }
 
   // Aksi navigasi & aksi khusus

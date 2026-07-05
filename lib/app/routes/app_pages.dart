@@ -50,6 +50,10 @@ import '../modules/splash/bindings/splash_binding.dart';
 import '../modules/splash/views/splash_view.dart';
 import '../modules/wallet/bindings/wallet_binding.dart';
 import '../modules/wallet/views/wallet_view.dart';
+import '../modules/budgeting/bindings/budgeting_binding.dart';
+import '../modules/budgeting/views/budgeting_view.dart';
+import '../modules/budget_detail/bindings/budget_detail_binding.dart';
+import '../modules/budget_detail/views/budget_detail_view.dart';
 
 part 'app_routes.dart';
 
@@ -63,6 +67,7 @@ class AppPages {
       name: _Paths.HOME,
       page: () => const HomeView(),
       binding: HomeBinding(),
+      transition: Transition.noTransition,
     ),
     GetPage(
       name: _Paths.LOGIN,
@@ -98,6 +103,7 @@ class AppPages {
       name: _Paths.PROFILE,
       page: () => const ProfileView(),
       binding: ProfileBinding(),
+      transition: Transition.noTransition,
     ),
     GetPage(
       name: _Paths.ADD_TRANSACTION,
@@ -118,11 +124,13 @@ class AppPages {
       name: _Paths.ANALYTICS,
       page: () => const AnalyticsView(),
       binding: AnalyticsBinding(),
+      transition: Transition.noTransition,
     ),
     GetPage(
       name: _Paths.HARTA,
       page: () => const HartaView(),
       binding: HartaBinding(),
+      transition: Transition.noTransition,
     ),
     GetPage(
       name: _Paths.EDIT_FAMILY_NAME,
@@ -183,6 +191,16 @@ class AppPages {
       name: _Paths.DETAIL_ASSET,
       page: () => const DetailAssetView(),
       binding: DetailAssetBinding(),
+    ),
+    GetPage(
+      name: _Paths.BUDGETING,
+      page: () => const BudgetingView(),
+      binding: BudgetingBinding(),
+    ),
+    GetPage(
+      name: _Paths.BUDGET_DETAIL,
+      page: () => const BudgetDetailView(),
+      binding: BudgetDetailBinding(),
     ),
   ];
 }

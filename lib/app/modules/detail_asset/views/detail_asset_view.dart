@@ -5,6 +5,7 @@ import '../controllers/detail_asset_controller.dart';
 import '../../harta/models/asset_model.dart';
 import '../../../routes/app_pages.dart';
 import '../../../utils/asset_helper.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 class DetailAssetView extends GetView<DetailAssetController> {
   const DetailAssetView({Key? key}) : super(key: key);
@@ -54,10 +55,11 @@ class DetailAssetView extends GetView<DetailAssetController> {
       height: 250,
       color: Colors.white,
       child: photoUrl != null
-          ? Image.network(
-              photoUrl,
+          ? CachedNetworkImage(
+              imageUrl: photoUrl,
               fit: BoxFit.cover,
-              errorBuilder: (context, error, stackTrace) => _buildPlaceholder(),
+              placeholder: (context, url) => const Center(child: CircularProgressIndicator()),
+              errorWidget: (context, url, error) => _buildPlaceholder(),
             )
           : _buildPlaceholder(),
     );
@@ -164,10 +166,11 @@ class DetailAssetView extends GetView<DetailAssetController> {
                     child: Container(
                       width: 100,
                       color: Colors.grey[200],
-                      child: Image.network(
-                        url,
+                      child: CachedNetworkImage(
+                        imageUrl: url,
                         fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) => const Icon(Icons.broken_image, color: Colors.grey),
+                        placeholder: (context, url) => const Center(child: CircularProgressIndicator(strokeWidth: 2)),
+                        errorWidget: (context, url, error) => const Icon(Icons.broken_image, color: Colors.grey),
                       ),
                     ),
                   ),
@@ -193,10 +196,11 @@ class DetailAssetView extends GetView<DetailAssetController> {
               boundaryMargin: const EdgeInsets.all(20),
               minScale: 0.5,
               maxScale: 4.0,
-              child: Image.network(
-                url,
+              child: CachedNetworkImage(
+                imageUrl: url,
                 fit: BoxFit.contain,
-                errorBuilder: (_, __, ___) => const Center(child: Text('Gagal memuat gambar', style: TextStyle(color: Colors.white))),
+                placeholder: (context, url) => const Center(child: CircularProgressIndicator(color: Colors.white)),
+                errorWidget: (context, url, error) => const Center(child: Text('Gagal memuat gambar', style: TextStyle(color: Colors.white))),
               ),
             ),
             Positioned(

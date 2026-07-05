@@ -6,6 +6,7 @@ import '../controllers/add_asset_controller.dart';
 import '../../../utils/rupiah_formatter.dart';
 import '../../../utils/asset_helper.dart';
 import '../../../data/providers/api_provider.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 class AddAssetView extends GetView<AddAssetController> {
   const AddAssetView({Key? key}) : super(key: key);
@@ -84,7 +85,18 @@ class AddAssetView extends GetView<AddAssetController> {
                               children: [
                                 ClipRRect(
                                   borderRadius: BorderRadius.circular(12),
-                                  child: Image.network('${ApiProvider.baseDomain}$existingUrl', fit: BoxFit.cover),
+                                  child: CachedNetworkImage(
+                                    imageUrl: '${ApiProvider.baseDomain}$existingUrl', 
+                                    fit: BoxFit.cover,
+                                    placeholder: (context, url) => Container(
+                                      color: Colors.grey[200],
+                                      child: const Center(child: CircularProgressIndicator()),
+                                    ),
+                                    errorWidget: (context, url, error) => Container(
+                                      color: Colors.grey[200],
+                                      child: const Icon(Icons.broken_image, color: Colors.grey),
+                                    ),
+                                  ),
                                 ),
                                 Positioned(
                                   top: 8,
@@ -284,13 +296,13 @@ class AddAssetView extends GetView<AddAssetController> {
                     Container(
                       height: 80,
                       margin: const EdgeInsets.only(bottom: 12),
-                      child: ListView(
+                      child: ListView.builder(
                         scrollDirection: Axis.horizontal,
-                        children: [
-                          // Render existing documents
-                          ...existingDocs.asMap().entries.map((entry) {
-                            final idx = entry.key;
-                            final url = entry.value;
+                        itemCount: existingDocs.length + localDocs.length,
+                        itemBuilder: (context, index) {
+                          if (index < existingDocs.length) {
+                            final idx = index;
+                            final url = existingDocs[idx];
                             return Stack(
                               children: [
                                 Container(
@@ -303,7 +315,18 @@ class AddAssetView extends GetView<AddAssetController> {
                                   ),
                                   child: ClipRRect(
                                     borderRadius: BorderRadius.circular(8),
-                                    child: Image.network('${ApiProvider.baseDomain}$url', fit: BoxFit.cover),
+                                    child: CachedNetworkImage(
+                                      imageUrl: '${ApiProvider.baseDomain}$url', 
+                                      fit: BoxFit.cover,
+                                      placeholder: (context, url) => Container(
+                                        color: Colors.grey[200],
+                                        child: const Center(child: CircularProgressIndicator(strokeWidth: 2)),
+                                      ),
+                                      errorWidget: (context, url, error) => Container(
+                                        color: Colors.grey[200],
+                                        child: const Icon(Icons.broken_image, color: Colors.grey, size: 24),
+                                      ),
+                                    ),
                                   ),
                                 ),
                                 Positioned(
@@ -320,11 +343,9 @@ class AddAssetView extends GetView<AddAssetController> {
                                 ),
                               ],
                             );
-                          }),
-                          // Render local picked documents
-                          ...localDocs.asMap().entries.map((entry) {
-                            final idx = entry.key;
-                            final path = entry.value;
+                          } else {
+                            final idx = index - existingDocs.length;
+                            final path = localDocs[idx];
                             return Stack(
                               children: [
                                 Container(
@@ -354,8 +375,8 @@ class AddAssetView extends GetView<AddAssetController> {
                                 ),
                               ],
                             );
-                          }),
-                        ],
+                          }
+                        },
                       ),
                     ),
                   // Add document button

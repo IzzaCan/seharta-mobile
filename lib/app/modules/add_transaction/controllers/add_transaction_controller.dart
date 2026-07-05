@@ -12,9 +12,11 @@ class AddTransactionController extends GetxController {
   // State untuk Tab Pengeluaran vs Pemasukan (True = Pengeluaran)
   var isExpense = true.obs;
 
-  // Controller untuk Text Input
+  // Controller dan FocusNode untuk Text Input
   final amountController = TextEditingController();
   final noteController = TextEditingController();
+  final amountFocusNode = FocusNode();
+  final noteFocusNode = FocusNode();
 
   // State untuk Dropdown/Pilihan (Bisa diubah nantinya sesuai model database)
   var selectedCategory = 'Pilih Kategori'.obs;
@@ -123,6 +125,8 @@ class AddTransactionController extends GetxController {
   void onClose() {
     amountController.dispose();
     noteController.dispose();
+    amountFocusNode.dispose();
+    noteFocusNode.dispose();
     super.onClose();
   }
 }

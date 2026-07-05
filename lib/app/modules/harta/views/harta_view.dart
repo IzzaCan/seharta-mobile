@@ -32,44 +32,49 @@ class HartaView extends GetView<HartaController> {
         child: const Icon(Icons.add, color: Colors.white, size: 28),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-      bottomNavigationBar: BottomAppBar(
-        shape: const CircularNotchedRectangle(),
-        notchMargin: 8.0,
-        color: Colors.white,
-        elevation: 10,
-        child: SizedBox(
-          height: 60,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              _buildNavItem(
-                icon: Icons.home_outlined,
-                label: 'HOME',
-                isActive: false,
-                onTap: () => Get.offAllNamed(Routes.HOME),
-              ),
-              // Item HARTA aktif
-              _buildNavItem(
-                icon: Icons.account_balance_wallet,
-                label: 'HARTA',
-                isActive: true,
-                onTap: () {},
-              ),
-              const SizedBox(width: 48), // Ruang kosong untuk FAB
-              _buildNavItem(
-                icon: Icons.bar_chart_rounded,
-                label: 'ANALYTICS',
-                isActive: false,
-                onTap: () => Get.offAllNamed(Routes.ANALYTICS),
-              ),
-              _buildNavItem(
-                icon: Icons.person_outline,
-                label: 'PROFILE',
-                isActive: false,
-                onTap: () => Get.offAllNamed(Routes.PROFILE),
-              ),
-            ],
-          ),
+      bottomNavigationBar: Container(
+        margin: const EdgeInsets.fromLTRB(12, 0, 12, 10),
+        height: 72,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(24),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.04),
+              blurRadius: 15,
+              offset: const Offset(0, 5),
+            ),
+          ],
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            _buildNavItem(
+              icon: Icons.home_outlined,
+              label: 'Beranda',
+              isActive: false,
+              onTap: () => Get.offAllNamed(Routes.HOME),
+            ),
+            _buildNavItem(
+              icon: Icons.account_balance_wallet,
+              label: 'Harta',
+              isActive: true,
+              onTap: () {},
+            ),
+            const SizedBox(width: 48), // Ruang kosong untuk Floating Action Button
+            _buildNavItem(
+              icon: Icons.analytics_outlined,
+              label: 'Analytics',
+              isActive: false,
+              onTap: () => Get.offAllNamed(Routes.ANALYTICS),
+            ),
+            _buildNavItem(
+              icon: Icons.person_outline,
+              label: 'Profile',
+              isActive: false,
+              onTap: () => Get.offAllNamed(Routes.PROFILE),
+            ),
+          ],
         ),
       ),
 
@@ -381,7 +386,12 @@ class HartaView extends GetView<HartaController> {
                       const SizedBox(height: 12),
                       Obx(() {
                         if (controller.isLoadingGoals.value) {
-                          return const Center(child: CircularProgressIndicator());
+                          return Column(
+                            children: [
+                              _buildShimmerGoalItem(),
+                              _buildShimmerGoalItem(),
+                            ],
+                          );
                         }
                         if (controller.goals.isEmpty) {
                           return Center(
@@ -559,37 +569,39 @@ class HartaView extends GetView<HartaController> {
     required VoidCallback onTap,
     bool isActive = false,
   }) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: isActive
-            ? const EdgeInsets.symmetric(horizontal: 16, vertical: 8)
-            : null,
-        decoration: isActive
-            ? BoxDecoration(
-                color: bgLightGreen,
-                borderRadius: BorderRadius.circular(20),
-              )
-            : null,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              icon,
-              color: isActive ? primaryDark : Colors.grey[400],
-              size: 24,
-            ),
-            const SizedBox(height: 4),
-            Text(
-              label,
-              style: TextStyle(
-                fontSize: 8,
-                fontWeight: isActive ? FontWeight.bold : FontWeight.normal,
-                color: isActive ? primaryDark : Colors.grey[500],
+    return Expanded(
+      child: GestureDetector(
+        onTap: onTap,
+        behavior: HitTestBehavior.opaque,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 8.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+                decoration: BoxDecoration(
+                  color: isActive ? bgLightGreen : Colors.transparent,
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Icon(
+                  icon,
+                  color: isActive ? primaryDark : Colors.grey[400],
+                  size: 24,
+                ),
               ),
-            ),
-          ],
+              const SizedBox(height: 4),
+              Text(
+                label,
+                style: TextStyle(
+                  fontSize: 10,
+                  fontWeight: isActive ? FontWeight.bold : FontWeight.w500,
+                  color: isActive ? primaryDark : Colors.grey[500],
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -672,6 +684,79 @@ class HartaView extends GetView<HartaController> {
               Container(width: 80, height: 14, color: Colors.grey[300]),
               const SizedBox(height: 8),
               Container(width: 40, height: 10, color: Colors.grey[300]),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildShimmerGoalItem() {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 16),
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: cardColor,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: borderColor),
+      ),
+      child: Column(
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  color: Colors.grey[200],
+                  shape: BoxShape.circle,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(width: 100, height: 14, decoration: BoxDecoration(color: Colors.grey[200], borderRadius: BorderRadius.circular(4))),
+                    const SizedBox(height: 8),
+                    Container(width: 80, height: 10, decoration: BoxDecoration(color: Colors.grey[200], borderRadius: BorderRadius.circular(4))),
+                  ],
+                ),
+              ),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Container(width: 40, height: 10, decoration: BoxDecoration(color: Colors.grey[200], borderRadius: BorderRadius.circular(4))),
+                  const SizedBox(height: 6),
+                  Container(width: 50, height: 12, decoration: BoxDecoration(color: Colors.grey[200], borderRadius: BorderRadius.circular(4))),
+                ],
+              ),
+            ],
+          ),
+          const SizedBox(height: 20),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Container(width: 100, height: 12, decoration: BoxDecoration(color: Colors.grey[200], borderRadius: BorderRadius.circular(4))),
+              Container(width: 30, height: 12, decoration: BoxDecoration(color: Colors.grey[200], borderRadius: BorderRadius.circular(4))),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Container(
+            width: double.infinity,
+            height: 6,
+            decoration: BoxDecoration(
+              color: Colors.grey[200],
+              borderRadius: BorderRadius.circular(4),
+            ),
+          ),
+          const SizedBox(height: 8),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Container(width: 80, height: 12, decoration: BoxDecoration(color: Colors.grey[200], borderRadius: BorderRadius.circular(4))),
+              Container(width: 80, height: 10, decoration: BoxDecoration(color: Colors.grey[200], borderRadius: BorderRadius.circular(4))),
             ],
           ),
         ],

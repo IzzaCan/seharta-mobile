@@ -58,20 +58,20 @@ class ManageCategoriesView extends GetView<ManageCategoriesController> {
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(color: borderColor),
                     ),
-                    child: Obx(
-                      () => Row(
+                    child: GetBuilder<ManageCategoriesController>(
+                      builder: (controller) => Row(
                         children: [
                           Expanded(
                             child: _buildToggleItem(
                               title: 'Pengeluaran',
-                              isActive: controller.isExpense.value,
+                              isActive: controller.isExpense,
                               onTap: () => controller.toggleCategoryType(true),
                             ),
                           ),
                           Expanded(
                             child: _buildToggleItem(
                               title: 'Pemasukan',
-                              isActive: !controller.isExpense.value,
+                              isActive: !controller.isExpense,
                               onTap: () => controller.toggleCategoryType(false),
                             ),
                           ),
@@ -93,10 +93,11 @@ class ManageCategoriesView extends GetView<ManageCategoriesController> {
                   const SizedBox(height: 12),
 
 // 3. List Kategori Dinamis Obx (Diperbarui menggunakan Column Mapping)
-                  Obx(() {
+                  GetBuilder<ManageCategoriesController>(
+                    builder: (controller) {
                     // Menyaring kategori berdasarkan tipe yang dipilih (Expense/Income)
                     final filteredCategories = controller.categories
-                        .where((c) => c['isExpense'] == controller.isExpense.value)
+                        .where((c) => c['isExpense'] == controller.isExpense)
                         .toList();
 
                     if (filteredCategories.isEmpty) {
@@ -117,7 +118,7 @@ class ManageCategoriesView extends GetView<ManageCategoriesController> {
                     // Menggunakan Column + Map untuk menjamin kelancaran sistem Gesture/Tap Detector
                     return Column(
                       children: filteredCategories.map((category) {
-                        final isSelected = controller.selectedCategory.value == category['title'];
+                        final isSelected = controller.selectedCategory == category['title'];
 
                         return Padding(
                           padding: const EdgeInsets.only(bottom: 12.0), // Sebagai pengganti separatorBuilder

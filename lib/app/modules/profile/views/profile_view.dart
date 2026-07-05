@@ -31,43 +31,49 @@ class ProfileView extends GetView<ProfileController> {
         child: const Icon(Icons.add, color: Colors.white, size: 28),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-      bottomNavigationBar: BottomAppBar(
-        shape: const CircularNotchedRectangle(),
-        notchMargin: 8.0,
-        color: Colors.white,
-        elevation: 10,
-        child: SizedBox(
-          height: 60,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              _buildNavItem(
-                icon: Icons.home_outlined,
-                label: 'HOME',
-                isActive: false,
-                onTap: () => Get.offAllNamed(Routes.HOME),
-              ),
-              _buildNavItem(
-                icon: Icons.account_balance_wallet_outlined,
-                label: 'HARTA',
-                isActive: false,
-                onTap: () => Get.offAllNamed(Routes.HARTA),
-              ),
-              const SizedBox(width: 48), // Ruang untuk FAB
-              _buildNavItem(
-                icon: Icons.bar_chart_rounded,
-                label: 'ANALYTICS',
-                isActive: false,
-                onTap: () => Get.offAllNamed(Routes.ANALYTICS),
-              ),
-              _buildNavItem(
-                icon: Icons.person,
-                label: 'PROFILE',
-                isActive: true,
-                onTap: () {},
-              ),
-            ],
-          ),
+      bottomNavigationBar: Container(
+        margin: const EdgeInsets.fromLTRB(12, 0, 12, 10),
+        height: 72,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(24),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.04),
+              blurRadius: 15,
+              offset: const Offset(0, 5),
+            ),
+          ],
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            _buildNavItem(
+              icon: Icons.home_outlined,
+              label: 'Beranda',
+              isActive: false,
+              onTap: () => Get.offAllNamed(Routes.HOME),
+            ),
+            _buildNavItem(
+              icon: Icons.account_balance_wallet_outlined,
+              label: 'Harta',
+              isActive: false,
+              onTap: () => Get.offAllNamed(Routes.HARTA),
+            ),
+            const SizedBox(width: 48), // Ruang kosong untuk Floating Action Button
+            _buildNavItem(
+              icon: Icons.analytics_outlined,
+              label: 'Analytics',
+              isActive: false,
+              onTap: () => Get.offAllNamed(Routes.ANALYTICS),
+            ),
+            _buildNavItem(
+              icon: Icons.person,
+              label: 'Profile',
+              isActive: true,
+              onTap: () {},
+            ),
+          ],
         ),
       ),
 
@@ -215,10 +221,12 @@ class ProfileView extends GetView<ProfileController> {
                       onTap: () => Get.toNamed(Routes.EDIT_FAMILY_NAME),
                     );
                   }),
-                  _buildSwitchTile(
-                    title: 'Notifikasi Pasangan',
-                    value: controller.isNotificationOn,
-                    onChanged: controller.toggleNotification,
+                  GetBuilder<ProfileController>(
+                    builder: (controller) => _buildSwitchTile(
+                      title: 'Notifikasi Pasangan',
+                      value: controller.isNotificationOn,
+                      onChanged: controller.toggleNotification,
+                    ),
                   ),
                   _buildListTile(
                     title: 'Putuskan Tautan',
@@ -255,11 +263,13 @@ class ProfileView extends GetView<ProfileController> {
                 icon: Icons.security_outlined,
                 title: 'Keamanan & Privasi',
                 children: [
-                  _buildSwitchTile(
-                    title: 'Kunci Aplikasi',
-                    icon: Icons.lock_outline,
-                    value: controller.isAppLockOn,
-                    onChanged: controller.toggleAppLock,
+                  GetBuilder<ProfileController>(
+                    builder: (controller) => _buildSwitchTile(
+                      title: 'Kunci Aplikasi',
+                      icon: Icons.lock_outline,
+                      value: controller.isAppLockOn,
+                      onChanged: controller.toggleAppLock,
+                    ),
                   ),
                   _buildListTile(
                     title: 'Ubah PIN',
@@ -336,34 +346,39 @@ class ProfileView extends GetView<ProfileController> {
     required VoidCallback onTap,
     bool isActive = false,
   }) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: isActive
-            ? const EdgeInsets.symmetric(horizontal: 16, vertical: 8)
-            : null,
-        decoration: isActive
-            ? BoxDecoration(
-                color: bgLightGreen,
-                borderRadius: BorderRadius.circular(20),
-              )
-            : null,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(icon,
-                color: isActive ? primaryColor : Colors.grey[400], size: 24),
-            const SizedBox(height: 4),
-            Text(
-              label,
-              style: TextStyle(
-                fontSize: 8,
-                fontWeight: isActive ? FontWeight.bold : FontWeight.normal,
-                color: isActive ? primaryColor : Colors.grey[500],
+    return Expanded(
+      child: GestureDetector(
+        onTap: onTap,
+        behavior: HitTestBehavior.opaque,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 8.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+                decoration: BoxDecoration(
+                  color: isActive ? bgLightGreen : Colors.transparent,
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Icon(
+                  icon,
+                  color: isActive ? primaryColor : Colors.grey[400],
+                  size: 24,
+                ),
               ),
-            ),
-          ],
+              const SizedBox(height: 4),
+              Text(
+                label,
+                style: TextStyle(
+                  fontSize: 10,
+                  fontWeight: isActive ? FontWeight.bold : FontWeight.w500,
+                  color: isActive ? primaryColor : Colors.grey[500],
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -476,7 +491,7 @@ class ProfileView extends GetView<ProfileController> {
   Widget _buildSwitchTile({
     required String title,
     IconData? icon,
-    required RxBool value,
+    required bool value,
     required Function(bool) onChanged,
   }) {
     return Padding(
@@ -497,15 +512,13 @@ class ProfileView extends GetView<ProfileController> {
               ),
             ),
           ),
-          Obx(
-            () => Switch(
-              value: value.value,
-              onChanged: onChanged,
-              activeColor: Colors.white,
-              activeTrackColor: primaryColor,
-              inactiveThumbColor: Colors.white,
-              inactiveTrackColor: Colors.grey[300],
-            ),
+          Switch(
+            value: value,
+            onChanged: onChanged,
+            activeColor: Colors.white,
+            activeTrackColor: primaryColor,
+            inactiveThumbColor: Colors.white,
+            inactiveTrackColor: Colors.grey[300],
           ),
         ],
       ),
