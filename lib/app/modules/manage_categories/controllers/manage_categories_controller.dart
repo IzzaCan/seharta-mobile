@@ -6,10 +6,10 @@ import '../../add_transaction/controllers/add_transaction_controller.dart';
 class ManageCategoriesController extends GetxController {
   final CategoryProvider _categoryProvider = CategoryProvider();
 
-  var isExpense = true.obs;
-  var selectedCategory = ''.obs;
-  var categories = <Map<String, dynamic>>[].obs; 
-  var isLoading = false.obs;
+  bool isExpense = true;
+  String selectedCategory = '';
+  List<Map<String, dynamic>> categories = []; 
+  bool isLoading = false;
 
   // Tambahkan controller untuk Input Text Form
   final categoryNameController = TextEditingController();
@@ -23,12 +23,13 @@ class ManageCategoriesController extends GetxController {
 
   Future<void> loadCategories() async {
     try {
-      isLoading(true);
+      isLoading = true;
+      update();
       final fetchedCategories = await _categoryProvider.fetchCategories();
       
-      final mappedCategories = fetchedCategories.map((c) {
+      final mappedCategories = fetchedCategories.map<Map<String, dynamic>>((c) {
         final isExp = c.type == 'expense';
-        return {
+        return <String, dynamic>{
           'id': c.id,
           'title': c.name,
           'subtitle': c.isDefault ? 'Kategori Bawaan' : 'Kategori Khusus',
@@ -39,7 +40,7 @@ class ManageCategoriesController extends GetxController {
         };
       }).toList();
 
-      categories.assignAll(mappedCategories);
+      categories = mappedCategories;
     } catch (e) {
       Get.snackbar(
         'Gagal Memuat Kategori',
@@ -49,21 +50,24 @@ class ManageCategoriesController extends GetxController {
         colorText: Colors.red[900],
       );
     } finally {
-      isLoading(false);
+      isLoading = false;
+      update();
     }
   }
 
   void toggleCategoryType(bool expense) {
-    isExpense.value = expense;
-    selectedCategory.value = '';
+    isExpense = expense;
+    selectedCategory = '';
+    update();
   }
 
   void selectCategory(String title) {
-    if (selectedCategory.value == title) {
-      selectedCategory.value = '';
+    if (selectedCategory == title) {
+      selectedCategory = '';
     } else {
-      selectedCategory.value = title;
+      selectedCategory = title;
     }
+    update();
   }
 
   // Ubah fungsi addCategory menjadi seperti ini
@@ -103,7 +107,7 @@ class ManageCategoriesController extends GetxController {
                     ),
                     const SizedBox(height: 24),
                     Text(
-                      'Tambah Kategori Baru (${isExpense.value ? "Pengeluaran" : "Pemasukan"})',
+                      'Tambah Kategori Baru (${isExpense ? "Pengeluaran" : "Pemasukan"})',
                       style: const TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
@@ -167,7 +171,7 @@ class ManageCategoriesController extends GetxController {
     try {
       Get.dialog(const Center(child: CircularProgressIndicator()), barrierDismissible: false);
       
-      final type = isExpense.value ? 'expense' : 'income';
+      final type = isExpense ? 'expense' : 'income';
       await _categoryProvider.createCategory(name, type);
       
       if (Get.isDialogOpen == true) Get.back(); // Tutup loading
@@ -198,7 +202,7 @@ class ManageCategoriesController extends GetxController {
   }
 
   void editCategory(String title) {
-    final category = categories.firstWhere((c) => c['title'] == title, orElse: () => {});
+    final category = categories.firstWhere((c) => c['title'] == title, orElse: () => <String, dynamic>{});
     if (category.isEmpty) return;
     
     if (category['isDefault'] == true) {
@@ -275,7 +279,7 @@ class ManageCategoriesController extends GetxController {
       
       Get.snackbar('Sukses', 'Kategori berhasil diperbarui!', snackPosition: SnackPosition.TOP, backgroundColor: const Color(0xFFE8F5EE), colorText: const Color(0xFF0D2B33));
       
-      selectedCategory.value = ''; // Reset selection
+      selectedCategory = ''; // Reset selection
       await loadCategories();
       _syncAddTransactionController();
       
@@ -286,7 +290,7 @@ class ManageCategoriesController extends GetxController {
   }
 
   void deleteCategory(String title) async {
-    final category = categories.firstWhere((c) => c['title'] == title, orElse: () => {});
+    final category = categories.firstWhere((c) => c['title'] == title, orElse: () => <String, dynamic>{});
     if (category.isEmpty) return;
 
     if (category['isDefault'] == true) {
@@ -303,7 +307,7 @@ class ManageCategoriesController extends GetxController {
       
       Get.snackbar('Sukses', 'Kategori $title berhasil dihapus!', snackPosition: SnackPosition.TOP, backgroundColor: const Color(0xFFE8F5EE), colorText: const Color(0xFF0D2B33));
       
-      if (selectedCategory.value == title) selectedCategory.value = '';
+      if (selectedCategory == title) selectedCategory = '';
       await loadCategories();
       _syncAddTransactionController();
 

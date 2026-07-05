@@ -1,29 +1,28 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'dart:math';
-import '../controllers/analytics_controller.dart';
+import '../../../data/models/analytics_model.dart';
 import '../../../routes/app_pages.dart';
+import '../controllers/analytics_controller.dart';
+
+import '../widgets/overview_grid.dart';
+import '../widgets/cashflow_summary.dart';
+import '../widgets/budget_analysis_card.dart';
+import '../widgets/expense_donut_chart.dart';
+import '../widgets/asset_bento_grid.dart';
+import '../widgets/behavioral_insights.dart';
 
 class AnalyticsView extends GetView<AnalyticsController> {
   const AnalyticsView({Key? key}) : super(key: key);
 
-  // Palet Warna
-  final Color primaryDark = const Color(0xFF0D2B33); // Dark Teal
-  final Color greenAccent = const Color(0xFF4ADE80); // Bright Green
-  final Color greenBright = const Color(0xFF047857); // Chart Green
-  final Color lightBlue = const Color(0xFFA5C5CB); // Rent Color
-  final Color greyAccent = const Color(0xFFE2E8F0); // Others Color
+  final Color primaryDark = const Color(0xFF0D2B33);
   final Color backgroundColor = const Color(0xFFF8F9FF);
-  final Color cardColor = Colors.white;
   final Color borderColor = const Color(0xFFE0E5E9);
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: backgroundColor,
-      
-      // BOTTOM NAVIGATION BAR
-      
+      // FAB & BottomNavigationBar ditambahkan kembali karena aplikasi menggunakan router individu per halaman
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           Get.toNamed(Routes.ADD_TRANSACTION);
@@ -32,801 +31,412 @@ class AnalyticsView extends GetView<AnalyticsController> {
         child: const Icon(Icons.add, color: Colors.white, size: 28),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-      bottomNavigationBar: BottomAppBar(
-        shape: const CircularNotchedRectangle(),
-        notchMargin: 8.0,
-        color: Colors.white,
-        elevation: 10,
-        child: SizedBox(
-          height: 60,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              _buildNavItem(
-                icon: Icons.home_outlined,
-                label: 'HOME',
-                isActive: false,
-                onTap: () => Get.offAllNamed(Routes.HOME),
-              ),
-              _buildNavItem(
-                icon: Icons.account_balance_wallet_outlined,
-                label: 'HARTA',
-                isActive: false,
-                onTap: () => Get.offAllNamed(Routes.HARTA),
-              ),
-              const SizedBox(width: 48), // Ruang kosong untuk FAB
-              // Item Analytics aktif (dengan background hijau pudar)
-              _buildNavItem(
-                icon: Icons.bar_chart_rounded,
-                label: 'ANALYTICS',
-                isActive: true,
-                onTap: () {},
-              ),
-              _buildNavItem(
-                icon: Icons.person_outline,
-                label: 'PROFILE',
-                isActive: false,
-                onTap: () => Get.offAllNamed(Routes.PROFILE),
-              ),
-            ],
-          ),
+      bottomNavigationBar: Container(
+        margin: const EdgeInsets.fromLTRB(12, 0, 12, 10),
+        height: 72,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(24),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.04),
+              blurRadius: 15,
+              offset: const Offset(0, 5),
+            ),
+          ],
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            _buildNavItem(
+              icon: Icons.home_outlined,
+              label: 'Beranda',
+              isActive: false,
+              onTap: () => Get.offAllNamed(Routes.HOME),
+            ),
+            _buildNavItem(
+              icon: Icons.account_balance_wallet_outlined,
+              label: 'Harta',
+              isActive: false,
+              onTap: () => Get.offAllNamed(Routes.HARTA),
+            ),
+            const SizedBox(width: 48), // Spacing for FAB
+            _buildNavItem(
+              icon: Icons.analytics,
+              label: 'Analytics',
+              isActive: true,
+              onTap: () {},
+            ),
+            _buildNavItem(
+              icon: Icons.person_outline,
+              label: 'Profile',
+              isActive: false,
+              onTap: () => Get.offAllNamed(Routes.PROFILE),
+            ),
+          ],
         ),
       ),
-
-      
-      // BODY / KONTEN UTAMA
-      
       body: SafeArea(
         child: RefreshIndicator(
           onRefresh: controller.refreshAnalytics,
+          color: primaryDark,
           child: SingleChildScrollView(
             physics: const AlwaysScrollableScrollPhysics(),
-            padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // 1. Header (Logo & Avatar)
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Row(
-                    children: [
-                      SizedBox(
-                        width: 40,
-                        child: Stack(
-                          children: [
-                            const CircleAvatar(
-                              radius: 12,
-                              backgroundImage: NetworkImage(
-                                'https://ui-avatars.com/api/?name=Anda&background=0D2B33&color=fff',
-                              ),
-                            ),
-                            Positioned(
-                              left: 14,
-                              child: CircleAvatar(
-                                radius: 12,
-                                backgroundColor: Colors.white,
-                                child: const CircleAvatar(
-                                  radius: 10,
-                                  backgroundImage: NetworkImage(
-                                    'https://ui-avatars.com/api/?name=Pasangan&background=1F9975&color=fff',
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      Text(
-                        'Seharta',
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.bold,
-                          color: primaryDark,
-                        ),
-                      ),
-                    ],
-                  ),
-                  Icon(Icons.notifications_none, color: primaryDark, size: 20),
-                ],
-              ),
-              const SizedBox(height: 24),
-
-              // 2. Judul Halaman
-              Text(
-                'Analisis AI & Laporan',
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                  color: primaryDark,
-                ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                'Ringkasan kesehatan finansial keluarga Anda bulan ini.',
-                style: TextStyle(
-                  fontSize: 12,
-                  color: Colors.grey[600],
-                  height: 1.5,
-                ),
-              ),
-              const SizedBox(height: 24),
-
-              // 3. Card Pengeluaran (Pie Chart)
-              Container(
-                padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  color: cardColor,
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: borderColor),
-                ),
-                child: Column(
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          'Pengeluaran',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            color: primaryDark,
-                          ),
-                        ),
-                        Icon(
-                          Icons.pie_chart_outline,
-                          color: Colors.grey[400],
-                          size: 20,
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 32),
-
-                    // Donut Chart Custom
-                    SizedBox(
-                      height: 160,
-                      width: 160,
-                      child: Stack(
-                        alignment: Alignment.center,
-                        children: [
-                          CustomPaint(
-                            size: const Size(160, 160),
-                            painter: DonutChartPainter(
-                              colors: [
-                                primaryDark,
-                                greenAccent,
-                                lightBlue,
-                                greyAccent,
-                              ],
-                              // Persentase: Bills 40%, Food 30%, Rent 15%, Others 15%
-                              percentages: [0.40, 0.30, 0.15, 0.15],
-                            ),
-                          ),
-                          Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Text(
-                                'TOTAL',
-                                style: TextStyle(
-                                  fontSize: 10,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.grey[500],
-                                  letterSpacing: 1,
-                                ),
-                              ),
-                              const SizedBox(height: 4),
-                              Text(
-                                'Rp 8.2M',
-                                style: TextStyle(
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.bold,
-                                  color: primaryDark,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 32),
-
-                    // Legend Grafik
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
-                      children: [
-                        _buildLegendItem(
-                          color: primaryDark,
-                          title: 'Bills',
-                          value: '40%',
-                        ),
-                        _buildLegendItem(
-                          color: greenAccent,
-                          title: 'Food',
-                          value: '30%',
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 16),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
-                      children: [
-                        _buildLegendItem(
-                          color: lightBlue,
-                          title: 'Rent',
-                          value: '15%',
-                        ),
-                        _buildLegendItem(
-                          color: greyAccent,
-                          title: 'Others',
-                          value: '15%',
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 16),
-
-              // 4. Card Tren Bulanan (Line Chart Placeholder)
-              Container(
-                padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  color: cardColor,
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: borderColor),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          'Tren Bulanan',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            color: primaryDark,
-                          ),
-                        ),
-                        // Dropdown Bulan
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 4,
-                          ),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFF0F4F8),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Obx(
-                            () => DropdownButton<String>(
-                              value: controller.selectedMonth.value,
-                              underline: const SizedBox(),
-                              icon: Icon(
-                                Icons.keyboard_arrow_down,
-                                size: 16,
-                                color: primaryDark,
-                              ),
-                              style: TextStyle(
-                                fontSize: 11,
-                                fontWeight: FontWeight.bold,
-                                color: primaryDark,
-                              ),
-                              items: controller.months.map((String value) {
-                                return DropdownMenuItem<String>(
-                                  value: value,
-                                  child: Text(value),
-                                );
-                              }).toList(),
-                              onChanged: controller.changeMonth,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 8),
-                    Row(
-                      children: [
-                        _buildDotLegend(color: primaryDark, label: 'Bulan Ini'),
-                        const SizedBox(width: 16),
-                        _buildDotLegend(
-                          color: Colors.grey[400]!,
-                          label: 'Bulan Lalu',
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 24),
-
-                    // Grid / Area Line Chart Kosong (Sesuai Mockup)
-                    SizedBox(
-                      height: 120,
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Divider(color: Colors.grey[200], thickness: 1),
-                          Divider(color: Colors.grey[200], thickness: 1),
-                          Divider(color: Colors.grey[200], thickness: 1),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    // Sumbu X
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
-                      children: [
-                        Text(
-                          'W1',
-                          style: TextStyle(
-                            fontSize: 10,
-                            color: Colors.grey[500],
-                          ),
-                        ),
-                        Text(
-                          'W2',
-                          style: TextStyle(
-                            fontSize: 10,
-                            color: Colors.grey[500],
-                          ),
-                        ),
-                        Text(
-                          'W3',
-                          style: TextStyle(
-                            fontSize: 10,
-                            color: Colors.grey[500],
-                          ),
-                        ),
-                        Text(
-                          'W4',
-                          style: TextStyle(
-                            fontSize: 10,
-                            color: Colors.grey[500],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 16),
-
-              // 4b. Card Analisis Aset
-              Container(
-                padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  color: cardColor,
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: borderColor),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          'Analisis Aset',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            color: primaryDark,
-                          ),
-                        ),
-                        Icon(
-                          Icons.donut_large,
-                          color: Colors.grey[400],
-                          size: 20,
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 32),
-                    Center(
-                      child: SizedBox(
-                        height: 160,
-                        width: 160,
-                        child: Stack(
-                          alignment: Alignment.center,
-                          children: [
-                            CustomPaint(
-                              size: const Size(160, 160),
-                              painter: DonutChartPainter(
-                                colors: [greenBright, primaryDark],
-                                percentages: [0.923, 0.077],
-                              ),
-                            ),
-                            Column(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Text(
-                                  'KOMPOSISI',
-                                  style: TextStyle(
-                                    fontSize: 9,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.grey[400],
-                                    letterSpacing: 1,
-                                  ),
-                                ),
-                                const SizedBox(height: 4),
-                                Text(
-                                  '92%',
-                                  style: TextStyle(
-                                    fontSize: 22,
-                                    fontWeight: FontWeight.bold,
-                                    color: primaryDark,
-                                  ),
-                                ),
-                                Text(
-                                  'Kendaraan',
-                                  style: TextStyle(
-                                    fontSize: 10,
-                                    color: Colors.grey[500],
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 32),
-                    _buildChartLegendItem(
-                      color: greenBright,
-                      title: 'Kendaraan',
-                      percentage: '92.3%',
-                    ),
-                    const SizedBox(height: 12),
-                    _buildChartLegendItem(
-                      color: primaryDark,
-                      title: 'Emas',
-                      percentage: '7.7%',
-                    ),
-                    const SizedBox(height: 24),
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(8),
-                      child: Image.network(
-                        'https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?auto=format&fit=crop&q=80&w=600',
-                        height: 80,
-                        width: double.infinity,
-                        fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) =>
-                            Container(
-                              height: 80,
-                              color: Colors.grey[200],
-                            ),
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    Text(
-                      '"Cara terbaik untuk memprediksi masa depan adalah dengan menciptakannya."',
-                      style: TextStyle(
-                        fontSize: 11,
-                        fontStyle: FontStyle.italic,
-                        color: Colors.grey[500],
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 16),
-
-              // 5. Card Laporan AI (Warna Gelap)
-              Container(
-                padding: const EdgeInsets.all(24),
-                decoration: BoxDecoration(
-                  color: primaryDark,
-                  borderRadius: BorderRadius.circular(16),
-                  boxShadow: [
-                    BoxShadow(
-                      color: primaryDark.withValues(alpha: 0.3),
-                      blurRadius: 15,
-                      offset: const Offset(0, 8),
-                    ),
-                  ],
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(10),
-                      decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Icon(
-                        Icons.smart_toy_outlined,
-                        color: greenAccent,
-                        size: 24,
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    Text(
-                      'Laporan AI Seharta',
-                      style: TextStyle(
-                        fontSize: 10,
-                        fontWeight: FontWeight.bold,
-                        color: greenAccent,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    const Text(
-                      'Keluarga Anda dalam\nkondisi sehat finansial.',
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                        height: 1.2,
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-
-                    // Paragraf Laporan dengan Highlights
-                    RichText(
-                      text: TextSpan(
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Colors.grey[400],
-                          height: 1.6,
-                        ),
-                        children: [
-                          const TextSpan(
-                            text:
-                                'Analisis otomatis kami menunjukkan penghematan sebesar ',
-                          ),
-                          TextSpan(
-                            text: '12% lebih tinggi ',
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              color: greenAccent,
-                            ),
-                          ),
-                          const TextSpan(
-                            text:
-                                'dibandingkan bulan lalu. Namun, ada lonjakan pada kategori ',
-                          ),
-                          const TextSpan(
-                            text: 'Hiburan ',
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
-                            ),
-                          ),
-                          const TextSpan(
-                            text:
-                                'sebesar 25% di minggu ketiga. Kami menyarankan untuk memindahkan sisa anggaran makan ke dana darurat untuk mencapai target liburan akhir tahun Anda lebih cepat.',
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 24),
-
-                    // Tombol Aksi AI
-                    SizedBox(
-                      width: double.infinity,
-                      height: 48,
-                      child: ElevatedButton(
-                        onPressed: controller.optimizeBudget,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: greenAccent,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          elevation: 0,
-                        ),
-                        child: Text(
-                          'Optimalkan Anggaran',
-                          style: TextStyle(
-                            fontSize: 13,
-                            fontWeight: FontWeight.bold,
-                            color: primaryDark,
-                          ),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    SizedBox(
-                      width: double.infinity,
-                      height: 48,
-                      child: OutlinedButton(
-                        onPressed: controller.viewCategoryDetails,
-                        style: OutlinedButton.styleFrom(
-                          side: BorderSide(color: Colors.grey[600]!),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                        ),
-                        child: const Text(
-                          'Lihat Detail Kategori',
-                          style: TextStyle(
-                            fontSize: 13,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 40), // Padding ekstra untuk Bottom Nav
-            ],
+            padding: const EdgeInsets.fromLTRB(24.0, 16.0, 24.0, 120.0),
+            child: controller.obx(
+              (data) => _buildSuccessState(data!),
+              onLoading: _buildLoadingState(),
+              onError: (error) => _buildErrorState(error),
+            ),
           ),
         ),
       ),
-    ),
-  );
-}
-
-  
-  // WIDGET REUSABLE
-  
-
-  Widget _buildNavItem({
-    required IconData icon,
-    required String label,
-    required VoidCallback onTap,
-    bool isActive = false,
-  }) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: isActive
-            ? const EdgeInsets.symmetric(horizontal: 12, vertical: 6)
-            : null,
-        decoration: isActive
-            ? BoxDecoration(
-                color: const Color(0xFFE8F5EE),
-                borderRadius: BorderRadius.circular(12),
-              )
-            : null,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              icon,
-              color: isActive ? primaryDark : Colors.grey[400],
-              size: 24,
-            ),
-            const SizedBox(height: 4),
-            Text(
-              label,
-              style: TextStyle(
-                fontSize: 8,
-                fontWeight: isActive ? FontWeight.bold : FontWeight.normal,
-                color: isActive ? primaryDark : Colors.grey[500],
-              ),
-            ),
-          ],
-        ),
-      ),
     );
   }
 
-  Widget _buildLegendItem({
-    required Color color,
-    required String title,
-    required String value,
-  }) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
+  Widget _buildSuccessState(AnalyticsResponse data) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Container(
-          width: 8,
-          height: 8,
-          decoration: BoxDecoration(color: color, shape: BoxShape.circle),
-        ),
-        const SizedBox(width: 8),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              title,
-              style: TextStyle(fontSize: 12, color: Colors.grey[600]),
-            ),
-            const SizedBox(height: 2),
-            Text(
-              value,
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.bold,
-                color: primaryDark,
-              ),
-            ),
-          ],
-        ),
+        _buildHeader(),
+        const SizedBox(height: 24),
+        OverviewGrid(overview: data.overview),
+        const SizedBox(height: 24),
+        CashflowSummary(data: data.incomeVsExpense),
+        const SizedBox(height: 24),
+        BudgetAnalysisCard(data: data.budgetAnalysis),
+        const SizedBox(height: 24),
+        ExpenseDonutChart(categoryBreakdown: data.categoryBreakdown),
+        const SizedBox(height: 24),
+        AssetBentoGrid(data: data.assetDistribution),
+        const SizedBox(height: 24),
+        BehavioralInsights(summary: data.behavioralAnalytics.summary),
       ],
     );
   }
 
-  Widget _buildDotLegend({required Color color, required String label}) {
-    return Row(
-      children: [
-        Container(
-          width: 6,
-          height: 6,
-          decoration: BoxDecoration(color: color, shape: BoxShape.circle),
-        ),
-        const SizedBox(width: 6),
-        Text(label, style: TextStyle(fontSize: 10, color: Colors.grey[600])),
-      ],
-    );
-  }
-
-  Widget _buildChartLegendItem({
-    required Color color,
-    required String title,
-    required String percentage,
-  }) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  Widget _buildHeader() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Container(
-              width: 8,
-              height: 8,
-              decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+            Row(
+              children: [
+                Text(
+                  'Seharta',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w900,
+                    color: primaryDark,
+                    letterSpacing: -0.5,
+                  ),
+                ),
+              ],
             ),
-            const SizedBox(width: 12),
-            Text(
-              title,
-              style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+            GestureDetector(
+              onTap: () => _showMonthPicker(Get.context!),
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                decoration: BoxDecoration(
+                  color: primaryDark,
+                  borderRadius: BorderRadius.circular(20),
+                  boxShadow: [
+                    BoxShadow(
+                      color: primaryDark.withOpacity(0.3),
+                      blurRadius: 8,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(Icons.calendar_month_rounded, color: Colors.white, size: 14),
+                    const SizedBox(width: 6),
+                    Obx(() => Text(
+                      controller.currentMonthName,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 12,
+                      ),
+                    )),
+                    const SizedBox(width: 4),
+                    const Icon(Icons.keyboard_arrow_down_rounded, color: Colors.white, size: 16),
+                  ],
+                ),
+              ),
             ),
           ],
         ),
+        const SizedBox(height: 16),
         Text(
-          percentage,
+          'Analisis & Laporan',
           style: TextStyle(
-            fontSize: 12,
+            fontSize: 24,
             fontWeight: FontWeight.bold,
             color: primaryDark,
           ),
         ),
+        const SizedBox(height: 4),
+        Obx(() => Text(
+          'Ringkasan finansial untuk ${controller.currentMonthName}',
+          style: TextStyle(
+            fontSize: 14,
+            color: Colors.grey[600],
+          ),
+        )),
       ],
     );
   }
-}
 
-
-// CUSTOM PAINTER UNTUK DONUT CHART
-
-class DonutChartPainter extends CustomPainter {
-  final List<Color> colors;
-  final List<double> percentages;
-
-  DonutChartPainter({required this.colors, required this.percentages});
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    double strokeWidth = 18.0;
-    Rect rect = Rect.fromLTWH(
-      strokeWidth / 2,
-      strokeWidth / 2,
-      size.width - strokeWidth,
-      size.height - strokeWidth,
+  Widget _buildLoadingState() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            _shimmerBox(width: 120, height: 40),
+            _shimmerBox(width: 24, height: 24),
+          ],
+        ),
+        const SizedBox(height: 24),
+        _shimmerBox(width: 200, height: 28),
+        const SizedBox(height: 8),
+        _shimmerBox(width: 250, height: 16),
+        const SizedBox(height: 24),
+        Row(
+          children: [
+            Expanded(child: _shimmerBox(height: 80, radius: 16)),
+            const SizedBox(width: 12),
+            Expanded(child: _shimmerBox(height: 80, radius: 16)),
+          ],
+        ),
+        const SizedBox(height: 12),
+        Row(
+          children: [
+            Expanded(child: _shimmerBox(height: 80, radius: 16)),
+            const SizedBox(width: 12),
+            Expanded(child: _shimmerBox(height: 80, radius: 16)),
+          ],
+        ),
+        const SizedBox(height: 24),
+        _shimmerBox(height: 150, radius: 20),
+        const SizedBox(height: 24),
+        _shimmerBox(height: 200, radius: 20),
+      ],
     );
-
-    double startAngle = -pi / 2; // Mulai dari arah jam 12
-
-    for (int i = 0; i < percentages.length; i++) {
-      double sweepAngle = percentages[i] * 2 * pi;
-
-      Paint paint = Paint()
-        ..color = colors[i]
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = strokeWidth
-        ..strokeCap = StrokeCap.butt; // Ujung datar seperti mockup
-
-      // Menggambar busur (arc)
-      canvas.drawArc(rect, startAngle, sweepAngle, false, paint);
-
-      // Update titik awal untuk segmen berikutnya
-      startAngle += sweepAngle;
-    }
   }
 
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
+  Widget _buildErrorState(String? error) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const SizedBox(height: 60),
+          Icon(Icons.error_outline, size: 64, color: Colors.grey[400]),
+          const SizedBox(height: 16),
+          Text(
+            'Gagal memuat analitik',
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: primaryDark,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            error ?? 'Terjadi kesalahan tidak terduga',
+            textAlign: TextAlign.center,
+            style: TextStyle(color: Colors.grey[600]),
+          ),
+          const SizedBox(height: 24),
+          ElevatedButton(
+            onPressed: () => controller.fetchAnalytics(),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: primaryDark,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+            child: const Text('Coba Lagi', style: TextStyle(color: Colors.white)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _shimmerBox({double width = double.infinity, double height = 100, double radius = 8}) {
+    return Container(
+      width: width,
+      height: height,
+      decoration: BoxDecoration(
+        color: Colors.grey[300]?.withOpacity(0.5),
+        borderRadius: BorderRadius.circular(radius),
+      ),
+    );
+  }
+
+  void _showMonthPicker(BuildContext context) {
+    int tempYear = controller.selectedYear.value;
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return Material(
+              color: Colors.white,
+              borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
+              child: Padding(
+                padding: const EdgeInsets.all(24),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      width: 40,
+                      height: 5,
+                      decoration: BoxDecoration(
+                        color: Colors.grey[300],
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Pilih Periode',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: primaryDark,
+                          ),
+                        ),
+                        Row(
+                          children: [
+                            IconButton(
+                              icon: Icon(Icons.chevron_left_rounded, color: primaryDark),
+                              onPressed: () => setState(() => tempYear--),
+                            ),
+                            Text(
+                              tempYear.toString(),
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                color: primaryDark,
+                              ),
+                            ),
+                            IconButton(
+                              icon: Icon(Icons.chevron_right_rounded, color: primaryDark),
+                              onPressed: () => setState(() => tempYear++),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 24),
+                    GridView.builder(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 3,
+                        childAspectRatio: 2.2,
+                        crossAxisSpacing: 12,
+                        mainAxisSpacing: 12,
+                      ),
+                      itemCount: 12,
+                      itemBuilder: (context, index) {
+                        final monthNum = index + 1;
+                        final isSelected = monthNum == controller.selectedMonth.value && tempYear == controller.selectedYear.value;
+                        
+                        return GestureDetector(
+                          onTap: () {
+                            controller.changeMonth(monthNum, tempYear);
+                            Get.back();
+                          },
+                          child: Container(
+                            alignment: Alignment.center,
+                            decoration: BoxDecoration(
+                              color: isSelected ? primaryDark : Colors.grey[50],
+                              borderRadius: BorderRadius.circular(16),
+                              border: Border.all(
+                                color: isSelected ? primaryDark : borderColor,
+                              ),
+                              boxShadow: isSelected ? [
+                                BoxShadow(color: primaryDark.withOpacity(0.3), blurRadius: 8, offset: const Offset(0, 4))
+                              ] : [],
+                            ),
+                            child: Text(
+                              controller.monthNames[index].substring(0, 3),
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
+                                color: isSelected ? Colors.white : Colors.grey[600],
+                              ),
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                    const SizedBox(height: 32),
+                  ],
+                ),
+              ),
+            );
+          }
+        );
+      },
+    );
+  }
+
+  Widget _buildNavItem({
+    required IconData icon,
+    required String label,
+    required bool isActive,
+    required VoidCallback onTap,
+  }) {
+    final Color bgLightGreen = const Color(0xFFE8F5EE);
+    return Expanded(
+      child: GestureDetector(
+        onTap: onTap,
+        behavior: HitTestBehavior.opaque,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 8.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+                decoration: BoxDecoration(
+                  color: isActive ? bgLightGreen : Colors.transparent,
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Icon(
+                  icon,
+                  color: isActive ? primaryDark : Colors.grey[400],
+                  size: 24,
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                label,
+                style: TextStyle(
+                  fontSize: 10,
+                  fontWeight: isActive ? FontWeight.bold : FontWeight.w500,
+                  color: isActive ? primaryDark : Colors.grey[500],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 }

@@ -253,4 +253,55 @@ class ApiProvider {
       fileField: 'file',
     );
   }
+
+  // ==========================================
+  // BUDGETING ENDPOINTS
+  // ==========================================
+
+  Future<Map<String, dynamic>> getBudgets({required String token}) async {
+    return await get('/budgets/', token: token);
+  }
+
+  Future<Map<String, dynamic>> storeBudget({
+    required Map<String, dynamic> data,
+    required String token,
+  }) async {
+    return await post('/budgets/', data, token: token);
+  }
+
+  Future<Map<String, dynamic>> updateBudget({
+    required String id,
+    required Map<String, dynamic> data,
+    required String token,
+  }) async {
+    return await put('/budgets/$id', data, token: token);
+  }
+
+  Future<Map<String, dynamic>> deleteBudget({
+    required String id,
+    required String token,
+  }) async {
+    return await delete('/budgets/$id', token: token);
+  }
+
+  // ==========================================
+  // ANALYTICS ENDPOINTS
+  // ==========================================
+
+  Future<Map<String, dynamic>> getAnalyticsData({
+    required String token,
+    int? month,
+    int? year,
+  }) async {
+    String endpoint = '/analytics/';
+    List<String> queryParams = [];
+    if (month != null) queryParams.add('month=$month');
+    if (year != null) queryParams.add('year=$year');
+    
+    if (queryParams.isNotEmpty) {
+      endpoint += '?${queryParams.join('&')}';
+    }
+    
+    return await get(endpoint, token: token);
+  }
 }

@@ -26,41 +26,48 @@ class AddTransactionView extends GetView<AddTransactionController> {
       // BOTTOM NAVIGATION BAR (Sesuai desain)
       
 
-      bottomNavigationBar: BottomAppBar(
-        color: Colors.white,
-        elevation: 10,
-        child: SizedBox(
-          height: 60,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              _buildNavItem(
-                icon: Icons.home_outlined,
-                label: 'HOME',
-                isActive: false,
-                onTap: () => Get.offAllNamed(Routes.HOME),
-              ),
-              _buildNavItem(
-                icon: Icons.account_balance_wallet_outlined,
-                label: 'HARTA',
-                isActive: false,
-                onTap: () => Get.offAllNamed(Routes.HARTA),
-              ),
-
-              _buildNavItem(
-                icon: Icons.bar_chart_rounded,
-                label: 'ANALYTICS',
-                isActive: false,
-                onTap: () => Get.offAllNamed(Routes.ANALYTICS),
-              ),
-              _buildNavItem(
-                icon: Icons.person_outline,
-                label: 'PROFILE',
-                isActive: false,
-                onTap: () => Get.offAllNamed(Routes.PROFILE),
-              ),
-            ],
-          ),
+      bottomNavigationBar: Container(
+        margin: const EdgeInsets.fromLTRB(12, 0, 12, 10),
+        height: 72,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(24),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.04),
+              blurRadius: 15,
+              offset: const Offset(0, 5),
+            ),
+          ],
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            _buildNavItem(
+              icon: Icons.home_outlined,
+              label: 'Beranda',
+              isActive: false,
+              onTap: () => Get.offAllNamed(Routes.HOME),
+            ),
+            _buildNavItem(
+              icon: Icons.account_balance_wallet_outlined,
+              label: 'Harta',
+              isActive: false,
+              onTap: () => Get.offAllNamed(Routes.HARTA),
+            ),
+            _buildNavItem(
+              icon: Icons.analytics_outlined,
+              label: 'Analytics',
+              isActive: false,
+              onTap: () => Get.offAllNamed(Routes.ANALYTICS),
+            ),
+            _buildNavItem(
+              icon: Icons.person_outline,
+              label: 'Profile',
+              isActive: false,
+              onTap: () => Get.offAllNamed(Routes.PROFILE),
+            ),
+          ],
         ),
       ),
 
@@ -246,6 +253,7 @@ class AddTransactionView extends GetView<AddTransactionController> {
                     Expanded(
                       child: TextFormField(
                         controller: controller.amountController,
+                        focusNode: controller.amountFocusNode,
                         keyboardType: TextInputType.number,
                         inputFormatters: [RupiahInputFormatter()],
                         style: TextStyle(
@@ -349,6 +357,7 @@ class AddTransactionView extends GetView<AddTransactionController> {
                 label: 'CATATAN (OPSIONAL)',
                 child: TextFormField(
                   controller: controller.noteController,
+                  focusNode: controller.noteFocusNode,
                   maxLines: 8,
                   minLines: 5,
                   keyboardType: TextInputType.multiline,
@@ -377,7 +386,7 @@ class AddTransactionView extends GetView<AddTransactionController> {
                   ),
                   const SizedBox(width: 8),
                   Text(
-                    'Hari ini, 24 Mei 2024 • 14:20',
+                    _getFormattedRealTimeDate(),
                     style: TextStyle(fontSize: 11, color: Colors.grey[600]),
                   ),
                 ],
@@ -431,24 +440,40 @@ class AddTransactionView extends GetView<AddTransactionController> {
     required VoidCallback onTap,
     bool isActive = false,
   }) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(icon,
-              color: isActive ? primaryColor : Colors.grey[400], size: 24),
-          const SizedBox(height: 4),
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: 8,
-              fontWeight: isActive ? FontWeight.bold : FontWeight.normal,
-              color: isActive ? primaryColor : Colors.grey[500],
-            ),
+    return Expanded(
+      child: GestureDetector(
+        onTap: onTap,
+        behavior: HitTestBehavior.opaque,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 8.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+                decoration: BoxDecoration(
+                  color: isActive ? bgLightGreen : Colors.transparent,
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Icon(
+                  icon,
+                  color: isActive ? primaryColor : Colors.grey[400],
+                  size: 24,
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                label,
+                style: TextStyle(
+                  fontSize: 10,
+                  fontWeight: isActive ? FontWeight.bold : FontWeight.w500,
+                  color: isActive ? primaryColor : Colors.grey[500],
+                ),
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
@@ -555,6 +580,8 @@ class AddTransactionView extends GetView<AddTransactionController> {
 
   // Menampilkan Bottom Sheet pilihan kategori belanja (mengambil data kategori dinamis buatan user)
   void _showCategoryPicker(BuildContext context) {
+    controller.amountFocusNode.unfocus();
+    controller.noteFocusNode.unfocus();
     final categoryController = Get.put(ManageCategoriesController());
     
     Get.bottomSheet(
@@ -631,6 +658,10 @@ class AddTransactionView extends GetView<AddTransactionController> {
                       onTap: () {
                         controller.selectedCategory.value = title;
                         Get.back();
+                        WidgetsBinding.instance.addPostFrameCallback((_) {
+                          controller.amountFocusNode.unfocus();
+                          controller.noteFocusNode.unfocus();
+                        });
                       },
                     );
                   },
@@ -645,6 +676,8 @@ class AddTransactionView extends GetView<AddTransactionController> {
 
   // Menampilkan Bottom Sheet pilihan dompet (mengambil data dompet dinamis buatan user)
   void _showWalletPicker(BuildContext context) {
+    controller.amountFocusNode.unfocus();
+    controller.noteFocusNode.unfocus();
     final walletController = Get.put(ManageWalletsController());
     
     Get.bottomSheet(
@@ -722,6 +755,10 @@ class AddTransactionView extends GetView<AddTransactionController> {
                       onTap: () {
                         controller.selectedWallet.value = title;
                         Get.back();
+                        WidgetsBinding.instance.addPostFrameCallback((_) {
+                          controller.amountFocusNode.unfocus();
+                          controller.noteFocusNode.unfocus();
+                        });
                       },
                     );
                   },
@@ -732,5 +769,14 @@ class AddTransactionView extends GetView<AddTransactionController> {
         ),
       ),
     );
+  }
+
+  String _getFormattedRealTimeDate() {
+    final now = DateTime.now();
+    final months = [
+      'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+      'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
+    ];
+    return "Hari ini, ${now.day} ${months[now.month - 1]} ${now.year}";
   }
 }

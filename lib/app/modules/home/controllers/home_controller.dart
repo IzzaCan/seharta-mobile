@@ -1,5 +1,6 @@
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../../routes/app_pages.dart';
 import '../../../data/services/family_service.dart';
@@ -7,6 +8,19 @@ import '../../../data/services/auth_service.dart';
 import '../../wallet/models/wallet_model.dart';
 import '../../wallet/providers/wallet_provider.dart';
 import '../../../data/providers/api_provider.dart';
+import '../../../data/models/budget_model.dart';
+
+List<WalletModel> _parseWallets(List<dynamic> data) {
+  return data.map((e) => WalletModel.fromJson(e)).toList();
+}
+
+List<TransactionModel> _parseTransactions(List<dynamic> data) {
+  return data.map((e) => TransactionModel.fromJson(e)).toList();
+}
+
+List<BudgetModel> _parseBudgets(List<dynamic> data) {
+  return data.map((e) => BudgetModel.fromJson(e)).toList();
+}
 
 class HomeController extends GetxController {
   final FamilyService _familyService = Get.find<FamilyService>();
@@ -45,12 +59,17 @@ class HomeController extends GetxController {
   var expenseThisMonth = 0.0.obs;
   var isLoadingDashboard = true.obs;
 
+  // State untuk Budgeting
+  var budgets = <BudgetModel>[].obs;
+  var isLoadingBudgets = true.obs;
+
   @override
   void onInit() {
     super.onInit();
     _loadCachedInsight();
     fetchDashboardData();
     fetchAiInsight();
+    fetchBudgets();
   }
 
   Future<void> _loadCachedInsight() async {
@@ -82,10 +101,12 @@ class HomeController extends GetxController {
             : (response['expense_this_month'] ?? 0).toDouble();
 
         final walletsData = response['wallets'] as List? ?? [];
-        wallets.assignAll(walletsData.map((e) => WalletModel.fromJson(e)).toList());
+        final parsedWallets = await compute(_parseWallets, walletsData);
+        wallets.assignAll(parsedWallets);
 
         final txData = response['recent_transactions'] as List? ?? [];
-        transactions.assignAll(txData.map((e) => TransactionModel.fromJson(e)).toList());
+        final parsedTx = await compute(_parseTransactions, txData);
+        transactions.assignAll(parsedTx);
       }
     } catch (e) {
       Get.snackbar(
@@ -133,7 +154,30 @@ class HomeController extends GetxController {
     await Future.wait([
       fetchDashboardData(),
       fetchAiInsight(),
+      fetchBudgets(),
     ]);
+  }
+
+  Future<void> fetchBudgets() async {
+    try {
+      isLoadingBudgets(true);
+      final token = _authService.accessToken.value;
+      if (token.isEmpty) return;
+
+      final response = await _apiProvider.getBudgets(token: token);
+      if (response != null && response['data'] != null) {
+        final data = response['data'] as List;
+        final list = await compute(_parseBudgets, data);
+        
+        final now = DateTime.now();
+        // Filter anggaran hanya untuk bulan dan tahun berjalan
+        budgets.assignAll(list.where((b) => b.month == now.month && b.year == now.year).toList());
+      }
+    } catch (e) {
+      debugPrint("Failed to fetch budgets: $e");
+    } finally {
+      isLoadingBudgets(false);
+    }
   }
 
   void changePage(int index) {
