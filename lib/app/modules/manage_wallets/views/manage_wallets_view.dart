@@ -151,11 +151,8 @@ class ManageWalletsView extends GetView<ManageWalletsController> {
               // 3. List Dompet Dinamis Obx (Slide Actions Built-In)
               Obx(() {
                 if (controller.isLoading.value) {
-                  return const Center(
-                    child: Padding(
-                      padding: EdgeInsets.symmetric(vertical: 24),
-                      child: CircularProgressIndicator(),
-                    ),
+                  return Column(
+                    children: List.generate(3, (index) => _buildShimmerWalletItem()),
                   );
                 }
 
@@ -394,4 +391,56 @@ class ManageWalletsView extends GetView<ManageWalletsController> {
       },
     );
   }
+
+  Widget _buildShimmerWalletItem() {
+    return Container(
+      height: 72,
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: borderColor),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 40,
+            height: 40,
+            decoration: BoxDecoration(
+              color: Colors.grey[200]!.withValues(alpha: 0.5),
+              borderRadius: BorderRadius.circular(8),
+            ),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Container(
+                  width: 120,
+                  height: 14,
+                  decoration: BoxDecoration(
+                    color: Colors.grey[200]!.withValues(alpha: 0.5),
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                ),
+                const SizedBox(height: 6),
+                Container(
+                  width: 80,
+                  height: 10,
+                  decoration: BoxDecoration(
+                    color: Colors.grey[200]!.withValues(alpha: 0.5),
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }
+

@@ -11,7 +11,7 @@ class OverviewGrid extends StatelessWidget {
   }) : super(key: key);
 
   final Color primaryDark = const Color(0xFF0D2B33);
-  final Color cardColor = const Color(0xFF0D2B33);
+  final Color cardColor = Colors.white;
 
   String formatCurrency(double value) {
     if (value >= 1e9) {
@@ -37,25 +37,25 @@ class OverviewGrid extends StatelessWidget {
       childAspectRatio: 1.9,
       children: [
         _buildStatCard(
-          title: 'Net Worth',
+          title: 'Kekayaan Bersih',
           value: formatCurrency(overview.netWorth),
           icon: Icons.account_balance_wallet_outlined,
           iconColor: const Color(0xFFA5C5CB),
         ),
         _buildStatCard(
-          title: 'Liquidity',
+          title: 'Likuiditas',
           value: formatCurrency(overview.totalLiquidity),
           icon: Icons.link_rounded,
           iconColor: const Color(0xFF4ADE80),
         ),
         _buildStatCard(
-          title: 'Total Assets',
+          title: 'Total Aset',
           value: formatCurrency(overview.totalAssetValue),
           icon: Icons.pie_chart_outline_rounded,
           iconColor: const Color(0xFFB39DDB),
         ),
         _buildStatCard(
-          title: 'Savings Rate',
+          title: 'Rasio Tabungan',
           value: '${overview.savingsRatePercentage.toStringAsFixed(1)}%',
           icon: Icons.savings_outlined,
           iconColor: const Color(0xFF047857),
@@ -75,7 +75,7 @@ class OverviewGrid extends StatelessWidget {
       decoration: BoxDecoration(
         color: cardColor,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.white.withOpacity(0.05)),
+        border: Border.all(color: Colors.black.withOpacity(0.05)),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.08),
@@ -95,7 +95,7 @@ class OverviewGrid extends StatelessWidget {
               Text(
                 title,
                 style: const TextStyle(
-                  color: Colors.white70,
+                  color: Colors.black54,
                   fontSize: 12,
                   fontWeight: FontWeight.w500,
                 ),
@@ -107,8 +107,8 @@ class OverviewGrid extends StatelessWidget {
             fit: BoxFit.scaleDown,
             child: Text(
               value,
-              style: const TextStyle(
-                color: Colors.white,
+              style: TextStyle(
+                color: primaryDark,
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
               ),

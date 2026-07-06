@@ -12,7 +12,7 @@ class AssetBentoGrid extends StatelessWidget {
   }) : super(key: key);
 
   final Color primaryDark = const Color(0xFF0D2B33);
-  final Color cardColor = const Color(0xFF0D2B33);
+  final Color cardColor = Colors.white;
 
   // Colors based on the user's design image
   final Color walletsColor = const Color(0xFF3B82F6); // Blue
@@ -84,7 +84,7 @@ class AssetBentoGrid extends StatelessWidget {
             const Icon(Icons.security_rounded, color: Color(0xFFA5C5CB), size: 20),
             const SizedBox(width: 8),
             Text(
-              'Asset Distribution',
+              'Distribusi Aset',
               style: TextStyle(
                 color: primaryDark,
                 fontSize: 16,
@@ -102,13 +102,13 @@ class AssetBentoGrid extends StatelessWidget {
             children: [
               Expanded(
                 child: _buildDonutCard(
-                  title: 'By Type',
+                  title: 'Berdasarkan Tipe',
                   value1: data.byType.wallets,
                   value2: data.byType.physicalAssets,
                   pct1: walletsPct,
                   pct2: physicalPct,
-                  label1: 'Wallets/Banks',
-                  label2: 'Physical Assets',
+                  label1: 'Dompet/Bank',
+                  label2: 'Aset Fisik',
                   color1: walletsColor,
                   color2: physicalAssetsColor,
                 ),
@@ -116,13 +116,13 @@ class AssetBentoGrid extends StatelessWidget {
               const SizedBox(width: 12),
               Expanded(
                 child: _buildDonutCard(
-                  title: 'By Ownership',
+                  title: 'Berdasarkan Kepemilikan',
                   value1: data.byOwnership.personal,
                   value2: data.byOwnership.joint,
                   pct1: personalPct,
                   pct2: jointPct,
-                  label1: 'Personal',
-                  label2: 'Joint',
+                  label1: 'Pribadi',
+                  label2: 'Bersama',
                   color1: personalColor,
                   color2: jointColor,
                 ),
@@ -137,7 +137,7 @@ class AssetBentoGrid extends StatelessWidget {
             decoration: BoxDecoration(
               color: cardColor,
               borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: Colors.white.withOpacity(0.05)),
+              border: Border.all(color: Colors.black.withOpacity(0.05)),
               boxShadow: [
                 BoxShadow(
                   color: Colors.black.withOpacity(0.08),
@@ -149,10 +149,10 @@ class AssetBentoGrid extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  'By Category',
+                Text(
+                  'Berdasarkan Kategori',
                   style: TextStyle(
-                    color: Colors.white,
+                    color: primaryDark,
                     fontSize: 14,
                     fontWeight: FontWeight.bold,
                   ),
@@ -190,7 +190,7 @@ class AssetBentoGrid extends StatelessWidget {
       decoration: BoxDecoration(
         color: cardColor,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: Colors.white.withOpacity(0.05)),
+        border: Border.all(color: Colors.black.withOpacity(0.05)),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.08),
@@ -205,7 +205,7 @@ class AssetBentoGrid extends StatelessWidget {
           Text(
             title,
             style: const TextStyle(
-              color: Colors.white70,
+              color: Colors.black54,
               fontSize: 12,
               fontWeight: FontWeight.w500,
             ),
@@ -213,20 +213,22 @@ class AssetBentoGrid extends StatelessWidget {
           const SizedBox(height: 16),
           SizedBox(
             height: 100,
-            child: PieChart(
-              PieChartData(
-                sectionsSpace: 0,
-                centerSpaceRadius: 30,
-                sections: isEmpty
-                    ? [
-                        PieChartSectionData(color: Colors.white12, value: 1, title: '', radius: 16),
-                      ]
-                    : [
-                        if (value1 > 0)
-                          PieChartSectionData(color: color1, value: value1, title: '', radius: 18),
-                        if (value2 > 0)
-                          PieChartSectionData(color: color2, value: value2, title: '', radius: 18),
-                      ],
+            child: RepaintBoundary(
+              child: PieChart(
+                PieChartData(
+                  sectionsSpace: 0,
+                  centerSpaceRadius: 30,
+                  sections: isEmpty
+                      ? [
+                          PieChartSectionData(color: Colors.white12, value: 1, title: '', radius: 16),
+                        ]
+                      : [
+                          if (value1 > 0)
+                            PieChartSectionData(color: color1, value: value1, title: '', radius: 18),
+                          if (value2 > 0)
+                            PieChartSectionData(color: color2, value: value2, title: '', radius: 18),
+                        ],
+                ),
               ),
             ),
           ),
@@ -257,7 +259,7 @@ class AssetBentoGrid extends StatelessWidget {
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: const TextStyle(
-              color: Colors.white70,
+              color: Colors.black54,
               fontSize: 10,
             ),
           ),
@@ -265,7 +267,7 @@ class AssetBentoGrid extends StatelessWidget {
         Text(
           '${percentage.toStringAsFixed(0)}%',
           style: const TextStyle(
-            color: Colors.white70,
+            color: Colors.black87,
             fontSize: 10,
           ),
         ),
@@ -281,13 +283,13 @@ class AssetBentoGrid extends StatelessWidget {
         children: [
           Row(
             children: [
-              Icon(_getIconForCategory(cat.iconName), color: Colors.white70, size: 16),
+              Icon(_getIconForCategory(cat.iconName), color: Colors.black54, size: 16),
               const SizedBox(width: 8),
               Expanded(
                 child: Text(
                   cat.categoryName,
-                  style: const TextStyle(
-                    color: Colors.white,
+                  style: TextStyle(
+                    color: primaryDark,
                     fontSize: 13,
                     fontWeight: FontWeight.w500,
                   ),
@@ -295,8 +297,8 @@ class AssetBentoGrid extends StatelessWidget {
               ),
               Text(
                 formatCurrency(cat.totalValue),
-                style: const TextStyle(
-                  color: Colors.white,
+                style: TextStyle(
+                  color: primaryDark,
                   fontSize: 13,
                   fontWeight: FontWeight.bold,
                 ),
@@ -308,7 +310,7 @@ class AssetBentoGrid extends StatelessWidget {
             height: 6,
             width: double.infinity,
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.05),
+              color: Colors.black.withOpacity(0.05),
               borderRadius: BorderRadius.circular(3),
             ),
             child: Row(
@@ -336,8 +338,8 @@ class AssetBentoGrid extends StatelessWidget {
             alignment: Alignment.centerRight,
             child: Text(
               '${cat.percentage.toStringAsFixed(0)}%',
-              style: TextStyle(
-                color: Colors.white.withOpacity(0.5),
+              style: const TextStyle(
+                color: Colors.black54,
                 fontSize: 10,
               ),
             ),
@@ -354,16 +356,16 @@ class AssetBentoGrid extends StatelessWidget {
       decoration: BoxDecoration(
         color: cardColor,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: Colors.white.withOpacity(0.05)),
+        border: Border.all(color: Colors.black.withOpacity(0.05)),
       ),
       child: Column(
         children: [
-          Icon(Icons.inventory_2_outlined, color: Colors.white.withOpacity(0.3), size: 48),
+          Icon(Icons.inventory_2_outlined, color: primaryDark.withOpacity(0.3), size: 48),
           const SizedBox(height: 12),
           Text(
             'Belum ada aset tercatat',
             style: TextStyle(
-              color: Colors.white.withOpacity(0.6),
+              color: primaryDark.withOpacity(0.6),
               fontSize: 14,
             ),
           ),

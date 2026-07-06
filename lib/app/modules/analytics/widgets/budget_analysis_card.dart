@@ -11,7 +11,7 @@ class BudgetAnalysisCard extends StatelessWidget {
   }) : super(key: key);
 
   final Color primaryDark = const Color(0xFF0D2B33);
-  final Color cardColor = const Color(0xFF0D2B33);
+  final Color cardColor = Colors.white;
   final Color redAccent = const Color(0xFFF43F5E);
   final Color greenAccent = const Color(0xFF4ADE80);
 
@@ -42,16 +42,16 @@ class BudgetAnalysisCard extends StatelessWidget {
             decoration: BoxDecoration(
               color: cardColor,
               borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: Colors.white.withOpacity(0.05)),
+              border: Border.all(color: Colors.black.withOpacity(0.05)),
             ),
             child: Column(
               children: [
-                Icon(Icons.assignment_outlined, color: Colors.white.withOpacity(0.3), size: 40),
+                Icon(Icons.assignment_outlined, color: primaryDark.withOpacity(0.3), size: 40),
                 const SizedBox(height: 12),
                 Text(
                   'Belum ada anggaran yang dibuat',
                   style: TextStyle(
-                    color: Colors.white.withOpacity(0.6),
+                    color: primaryDark.withOpacity(0.6),
                     fontSize: 14,
                   ),
                 ),
@@ -76,7 +76,7 @@ class BudgetAnalysisCard extends StatelessWidget {
           decoration: BoxDecoration(
             color: cardColor,
             borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: Colors.white.withOpacity(0.05)),
+            border: Border.all(color: Colors.black.withOpacity(0.05)),
             boxShadow: [
               BoxShadow(
                 color: Colors.black.withOpacity(0.08),
@@ -92,9 +92,9 @@ class BudgetAnalysisCard extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _buildTextStat('Total Budget', formatCurrency(data.totalBudgeted)),
+                    _buildTextStat('Total Anggaran', formatCurrency(data.totalBudgeted)),
                     const SizedBox(height: 16),
-                    _buildTextStat('Total Spent', formatCurrency(data.totalSpentOnBudget), 
+                    _buildTextStat('Total Pengeluaran', formatCurrency(data.totalSpentOnBudget), 
                       valueColor: isOverBudget ? redAccent : Colors.white),
                     
                     if (data.overBudgetCategoriesCount > 0) ...[
@@ -112,7 +112,7 @@ class BudgetAnalysisCard extends StatelessWidget {
                             Icon(Icons.info_outline_rounded, color: redAccent, size: 12),
                             const SizedBox(width: 4),
                             Text(
-                              '${data.overBudgetCategoriesCount} Categories Over Budget',
+                              '${data.overBudgetCategoriesCount} Kategori Melebihi Anggaran',
                               style: TextStyle(color: redAccent, fontSize: 10, fontWeight: FontWeight.bold),
                             ),
                           ],
@@ -134,14 +134,14 @@ class BudgetAnalysisCard extends StatelessWidget {
                         CircularProgressIndicator(
                           value: isOverBudget ? 1.0 : (displayPercentage / 100),
                           strokeWidth: 8,
-                          backgroundColor: Colors.white.withOpacity(0.1),
+                          backgroundColor: Colors.black.withOpacity(0.05),
                           color: progressColor,
                         ),
                         Center(
                           child: Text(
                             '${data.overallAdherencePercentage.toStringAsFixed(0)}%',
-                            style: const TextStyle(
-                              color: Colors.white,
+                            style: TextStyle(
+                              color: primaryDark,
                               fontSize: 14,
                               fontWeight: FontWeight.bold,
                             ),
@@ -152,7 +152,7 @@ class BudgetAnalysisCard extends StatelessWidget {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    isOverBudget ? 'Overbudget' : 'On Track',
+                    isOverBudget ? 'Melebihi Anggaran' : 'Sesuai Rencana',
                     style: TextStyle(
                       color: progressColor,
                       fontSize: 10,
@@ -174,7 +174,7 @@ class BudgetAnalysisCard extends StatelessWidget {
         const Icon(Icons.show_chart_rounded, color: Color(0xFFA5C5CB), size: 20),
         const SizedBox(width: 8),
         Text(
-          'Budget Analysis',
+          'Analisis Anggaran',
           style: TextStyle(
             color: primaryDark,
             fontSize: 16,
@@ -191,8 +191,8 @@ class BudgetAnalysisCard extends StatelessWidget {
       children: [
         Text(
           label,
-          style: TextStyle(
-            color: Colors.white.withOpacity(0.7),
+          style: const TextStyle(
+            color: Colors.black54,
             fontSize: 11,
           ),
         ),
@@ -200,7 +200,7 @@ class BudgetAnalysisCard extends StatelessWidget {
         Text(
           value,
           style: TextStyle(
-            color: valueColor ?? Colors.white,
+            color: valueColor ?? primaryDark,
             fontSize: 16,
             fontWeight: FontWeight.bold,
           ),

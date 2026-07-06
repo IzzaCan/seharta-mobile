@@ -95,47 +95,54 @@ class ManageCategoriesView extends GetView<ManageCategoriesController> {
 // 3. List Kategori Dinamis Obx (Diperbarui menggunakan Column Mapping)
                   GetBuilder<ManageCategoriesController>(
                     builder: (controller) {
-                    // Menyaring kategori berdasarkan tipe yang dipilih (Expense/Income)
-                    final filteredCategories = controller.categories
-                        .where((c) => c['isExpense'] == controller.isExpense)
-                        .toList();
+                      if (controller.isLoading) {
+                        return Column(
+                          children: List.generate(4, (index) => _buildShimmerCategoryItem()),
+                        );
+                      }
 
-                    if (filteredCategories.isEmpty) {
-                      return Center(
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 20),
-                          child: Text(
-                            'Belum ada kategori.',
-                            style: TextStyle(
-                              color: Colors.grey[500],
-                              fontSize: 12,
+                      // Menyaring kategori berdasarkan tipe yang dipilih (Expense/Income)
+                      final filteredCategories = controller.categories
+                          .where((c) => c['isExpense'] == controller.isExpense)
+                          .toList();
+
+                      if (filteredCategories.isEmpty) {
+                        return Center(
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 20),
+                            child: Text(
+                              'Belum ada kategori.',
+                              style: TextStyle(
+                                color: Colors.grey[500],
+                                fontSize: 12,
+                              ),
                             ),
                           ),
-                        ),
-                      );
-                    }
-
-                    // Menggunakan Column + Map untuk menjamin kelancaran sistem Gesture/Tap Detector
-                    return Column(
-                      children: filteredCategories.map((category) {
-                        final isSelected = controller.selectedCategory == category['title'];
-
-                        return Padding(
-                          padding: const EdgeInsets.only(bottom: 12.0), // Sebagai pengganti separatorBuilder
-                          child: _buildDynamicCategoryItem(
-                            icon: category['icon'],
-                            iconColor: category['color'],
-                            title: category['title'],
-                            subtitle: category['subtitle'],
-                            isSelected: isSelected,
-                            onTap: () {
-                              controller.selectCategory(category['title']);
-                            },
-                          ),
                         );
-                      }).toList(),
-                    );
-                  }),
+                      }
+
+                      // Menggunakan Column + Map untuk menjamin kelancaran sistem Gesture/Tap Detector
+                      return Column(
+                        children: filteredCategories.map((category) {
+                          final isSelected = controller.selectedCategory == category['title'];
+
+                          return Padding(
+                            padding: const EdgeInsets.only(bottom: 12.0), // Sebagai pengganti separatorBuilder
+                            child: _buildDynamicCategoryItem(
+                              icon: category['icon'],
+                              iconColor: category['color'],
+                              title: category['title'],
+                              subtitle: category['subtitle'],
+                              isSelected: isSelected,
+                              onTap: () {
+                                controller.selectCategory(category['title']);
+                              },
+                            ),
+                          );
+                        }).toList(),
+                      );
+                    },
+                  ),
                   const SizedBox(height: 32),
 
                   // 4. Info Card: Tips Kelola Kategori
@@ -422,4 +429,56 @@ class ManageCategoriesView extends GetView<ManageCategoriesController> {
       },
     );
   }
+
+  Widget _buildShimmerCategoryItem() {
+    return Container(
+      height: 72,
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: borderColor),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 40,
+            height: 40,
+            decoration: BoxDecoration(
+              color: Colors.grey[200]!.withValues(alpha: 0.5),
+              shape: BoxShape.circle,
+            ),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Container(
+                  width: 120,
+                  height: 14,
+                  decoration: BoxDecoration(
+                    color: Colors.grey[200]!.withValues(alpha: 0.5),
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                ),
+                const SizedBox(height: 6),
+                Container(
+                  width: 80,
+                  height: 10,
+                  decoration: BoxDecoration(
+                    color: Colors.grey[200]!.withValues(alpha: 0.5),
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }
+

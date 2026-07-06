@@ -50,113 +50,122 @@ class ManageWalletsController extends GetxController {
     walletBalanceController.clear();
 
     Get.bottomSheet(
-      Container(
-        padding: const EdgeInsets.all(24),
-        decoration: const BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.only(
-            topLeft: Radius.circular(20),
-            topRight: Radius.circular(20),
-          ),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Center(
-              child: Container(
-                width: 40,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: Colors.grey[300],
-                  borderRadius: BorderRadius.circular(10),
+      Builder(
+        builder: (context) {
+          final keyboardHeight = MediaQuery.of(context).viewInsets.bottom;
+          return Align(
+            alignment: Alignment.bottomCenter,
+            child: Container(
+              padding: const EdgeInsets.all(24),
+              decoration: const BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(20),
+                  topRight: Radius.circular(20),
                 ),
               ),
-            ),
-            const SizedBox(height: 24),
-            const Text(
-              'Tambah Dompet Baru',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-                color: Color(0xFF0D2B33),
-              ),
-            ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: walletNameController,
-              decoration: InputDecoration(
-                hintText: 'Nama Dompet (cth: Mandiri, Jago)',
-                hintStyle: TextStyle(color: Colors.grey[400], fontSize: 13),
-                filled: true,
-                fillColor: const Color(0xFFF8F9FF),
-                contentPadding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 14,
-                ),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: const BorderSide(color: Color(0xFFE0E5E9)),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: const BorderSide(
-                    color: Color(0xFF1F9975),
-                    width: 1.5,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Center(
+                    child: Container(
+                      width: 40,
+                      height: 4,
+                      decoration: BoxDecoration(
+                        color: Colors.grey[300],
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
                   ),
-                ),
+                  const SizedBox(height: 24),
+                  const Text(
+                    'Tambah Dompet Baru',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF0D2B33),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  TextField(
+                    controller: walletNameController,
+                    autofocus: true,
+                    decoration: InputDecoration(
+                      hintText: 'Nama Dompet (cth: Mandiri, Jago)',
+                      hintStyle: TextStyle(color: Colors.grey[400], fontSize: 13),
+                      filled: true,
+                      fillColor: const Color(0xFFF8F9FF),
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 14,
+                      ),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: const BorderSide(color: Color(0xFFE0E5E9)),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: const BorderSide(
+                          color: Color(0xFF1F9975),
+                          width: 1.5,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  TextField(
+                    controller: walletBalanceController,
+                    keyboardType: TextInputType.number,
+                    decoration: InputDecoration(
+                      hintText: 'Saldo Awal (cth: 100000)',
+                      hintStyle: TextStyle(color: Colors.grey[400], fontSize: 13),
+                      filled: true,
+                      fillColor: const Color(0xFFF8F9FF),
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 14,
+                      ),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: const BorderSide(color: Color(0xFFE0E5E9)),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: const BorderSide(
+                          color: Color(0xFF1F9975),
+                          width: 1.5,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  SizedBox(
+                    width: double.infinity,
+                    height: 48,
+                    child: ElevatedButton(
+                      onPressed: () => submitNewWallet(),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF0D2B33),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      child: const Text(
+                        'Simpan Dompet',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                ],
               ),
             ),
-            const SizedBox(height: 12),
-            TextField(
-              controller: walletBalanceController,
-              keyboardType: TextInputType.number,
-              decoration: InputDecoration(
-                hintText: 'Saldo Awal (cth: 100000)',
-                hintStyle: TextStyle(color: Colors.grey[400], fontSize: 13),
-                filled: true,
-                fillColor: const Color(0xFFF8F9FF),
-                contentPadding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 14,
-                ),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: const BorderSide(color: Color(0xFFE0E5E9)),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: const BorderSide(
-                    color: Color(0xFF1F9975),
-                    width: 1.5,
-                  ),
-                ),
-              ),
-            ),
-            const SizedBox(height: 24),
-            SizedBox(
-              width: double.infinity,
-              height: 48,
-              child: ElevatedButton(
-                onPressed: () => submitNewWallet(),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF0D2B33),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-                child: const Text(
-                  'Simpan Dompet',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-            ),
-            const SizedBox(height: 12),
-          ],
-        ),
+          );
+        }
       ),
       isScrollControlled: true,
     );

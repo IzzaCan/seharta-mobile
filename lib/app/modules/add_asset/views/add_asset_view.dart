@@ -86,7 +86,7 @@ class AddAssetView extends GetView<AddAssetController> {
                                 ClipRRect(
                                   borderRadius: BorderRadius.circular(12),
                                   child: CachedNetworkImage(
-                                    imageUrl: '${ApiProvider.baseDomain}$existingUrl', 
+                                    imageUrl: ApiProvider.getImageUrl(existingUrl), 
                                     fit: BoxFit.cover,
                                     placeholder: (context, url) => Container(
                                       color: Colors.grey[200],
@@ -316,7 +316,7 @@ class AddAssetView extends GetView<AddAssetController> {
                                   child: ClipRRect(
                                     borderRadius: BorderRadius.circular(8),
                                     child: CachedNetworkImage(
-                                      imageUrl: '${ApiProvider.baseDomain}$url', 
+                                      imageUrl: ApiProvider.getImageUrl(url), 
                                       fit: BoxFit.cover,
                                       placeholder: (context, url) => Container(
                                         color: Colors.grey[200],

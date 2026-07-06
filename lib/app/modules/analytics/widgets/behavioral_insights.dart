@@ -11,7 +11,7 @@ class BehavioralInsights extends StatelessWidget {
   }) : super(key: key);
 
   final Color primaryDark = const Color(0xFF0D2B33);
-  final Color cardColor = const Color(0xFF0D2B33);
+  final Color cardColor = Colors.white;
 
   String formatCurrency(double value) {
     if (value >= 1e9) {
@@ -40,7 +40,7 @@ class BehavioralInsights extends StatelessWidget {
             const Icon(Icons.psychology_outlined, color: Color(0xFFA5C5CB), size: 20),
             const SizedBox(width: 8),
             Text(
-              'Behavioral Insights',
+              'Wawasan Perilaku',
               style: TextStyle(
                 color: primaryDark,
                 fontSize: 16,
@@ -55,7 +55,7 @@ class BehavioralInsights extends StatelessWidget {
             if (summary.highestSpender != null)
               Expanded(
                 child: _buildInsightCard(
-                  title: 'HIGHEST SPENDER',
+                  title: 'PENGELUAR TERBANYAK',
                   name: summary.highestSpender!.userName,
                   subtitle: formatCurrency(summary.highestSpender!.totalSpent),
                   avatarColor: const Color(0xFF3B82F6),
@@ -66,9 +66,9 @@ class BehavioralInsights extends StatelessWidget {
             if (summary.mostActiveMember != null)
               Expanded(
                 child: _buildInsightCard(
-                  title: 'MOST ACTIVE',
+                  title: 'PALING AKTIF',
                   name: summary.mostActiveMember!.userName,
-                  subtitle: '${summary.mostActiveMember!.transactionCount} Trx',
+                  subtitle: '${summary.mostActiveMember!.transactionCount} Transaksi',
                   avatarColor: const Color(0xFF8B5CF6),
                 ),
               ),
@@ -100,7 +100,7 @@ class BehavioralInsights extends StatelessWidget {
       decoration: BoxDecoration(
         color: cardColor,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: Colors.white.withOpacity(0.05)),
+        border: Border.all(color: Colors.black.withOpacity(0.05)),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.08),
@@ -115,7 +115,7 @@ class BehavioralInsights extends StatelessWidget {
           Text(
             title,
             style: const TextStyle(
-              color: Colors.white70,
+              color: Colors.black54,
               fontSize: 10,
               fontWeight: FontWeight.bold,
               letterSpacing: 0.5,
@@ -145,8 +145,8 @@ class BehavioralInsights extends StatelessWidget {
                       name,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                        color: Colors.white,
+                      style: TextStyle(
+                        color: primaryDark,
                         fontSize: 13,
                         fontWeight: FontWeight.bold,
                       ),

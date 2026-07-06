@@ -11,7 +11,7 @@ class CashflowSummary extends StatelessWidget {
   }) : super(key: key);
 
   final Color primaryDark = const Color(0xFF0D2B33);
-  final Color cardColor = const Color(0xFF0D2B33);
+  final Color cardColor = Colors.white;
   final Color greenAccent = const Color(0xFF4ADE80);
   final Color redAccent = const Color(0xFFF43F5E);
 
@@ -45,7 +45,7 @@ class CashflowSummary extends StatelessWidget {
             const Icon(Icons.swap_horiz_rounded, color: Color(0xFFA5C5CB), size: 20),
             const SizedBox(width: 8),
             Text(
-              'Cash Flow',
+              'Arus Kas',
               style: TextStyle(
                 color: primaryDark,
                 fontSize: 16,
@@ -60,7 +60,7 @@ class CashflowSummary extends StatelessWidget {
           decoration: BoxDecoration(
             color: cardColor,
             borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: Colors.white.withOpacity(0.05)),
+            border: Border.all(color: Colors.black.withOpacity(0.05)),
             boxShadow: [
               BoxShadow(
                 color: Colors.black.withOpacity(0.08),
@@ -80,9 +80,9 @@ class CashflowSummary extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Net Surplus',
-                        style: TextStyle(
-                          color: Colors.white.withOpacity(0.7),
+                        'Surplus Bersih',
+                        style: const TextStyle(
+                          color: Colors.black54,
                           fontSize: 12,
                           fontWeight: FontWeight.w500,
                         ),
@@ -106,9 +106,9 @@ class CashflowSummary extends StatelessWidget {
                           Icon(Icons.circle, color: greenAccent, size: 8),
                           const SizedBox(width: 4),
                           Text(
-                            'Income',
-                            style: TextStyle(
-                              color: Colors.white.withOpacity(0.7),
+                            'Pemasukan',
+                            style: const TextStyle(
+                              color: Colors.black54,
                               fontSize: 10,
                             ),
                           ),
@@ -120,9 +120,9 @@ class CashflowSummary extends StatelessWidget {
                           Icon(Icons.circle, color: redAccent, size: 8),
                           const SizedBox(width: 4),
                           Text(
-                            'Expense',
-                            style: TextStyle(
-                              color: Colors.white.withOpacity(0.7),
+                            'Pengeluaran',
+                            style: const TextStyle(
+                              color: Colors.black54,
                               fontSize: 10,
                             ),
                           ),
@@ -138,7 +138,7 @@ class CashflowSummary extends StatelessWidget {
                 height: 12,
                 width: double.infinity,
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.1),
+                  color: Colors.black.withOpacity(0.05),
                   borderRadius: BorderRadius.circular(6),
                 ),
                 child: Row(
@@ -183,15 +183,15 @@ class CashflowSummary extends StatelessWidget {
                 children: [
                   Text(
                     formatCurrency(data.totalIncome),
-                    style: TextStyle(
-                      color: Colors.white.withOpacity(0.6),
+                    style: const TextStyle(
+                      color: Colors.black54,
                       fontSize: 11,
                     ),
                   ),
                   Text(
                     formatCurrency(data.totalExpense),
-                    style: TextStyle(
-                      color: Colors.white.withOpacity(0.6),
+                    style: const TextStyle(
+                      color: Colors.black54,
                       fontSize: 11,
                     ),
                   ),
