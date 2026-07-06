@@ -54,6 +54,9 @@ import '../modules/budgeting/bindings/budgeting_binding.dart';
 import '../modules/budgeting/views/budgeting_view.dart';
 import '../modules/budget_detail/bindings/budget_detail_binding.dart';
 import '../modules/budget_detail/views/budget_detail_view.dart';
+import '../modules/all_transactions/bindings/all_transactions_binding.dart';
+import '../modules/all_transactions/views/all_transactions_view.dart';
+import '../modules/profile/views/help_center_view.dart';
 
 part 'app_routes.dart';
 
@@ -68,6 +71,11 @@ class AppPages {
       page: () => const HomeView(),
       binding: HomeBinding(),
       transition: Transition.noTransition,
+    ),
+    GetPage(
+      name: _Paths.ALL_TRANSACTIONS,
+      page: () => const AllTransactionsView(),
+      binding: AllTransactionsBinding(),
     ),
     GetPage(
       name: _Paths.LOGIN,
@@ -201,6 +209,11 @@ class AppPages {
       name: _Paths.BUDGET_DETAIL,
       page: () => const BudgetDetailView(),
       binding: BudgetDetailBinding(),
+    ),
+    GetPage(
+      name: _Paths.HELP_CENTER,
+      page: () => const HelpCenterView(),
+      binding: ProfileBinding(),
     ),
   ];
 }

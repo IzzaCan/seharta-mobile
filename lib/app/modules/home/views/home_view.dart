@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 import '../controllers/home_controller.dart';
 import '../../../routes/app_pages.dart';
 import '../../../data/providers/api_provider.dart';
@@ -39,8 +40,8 @@ class HomeView extends GetView<HomeController> {
           boxShadow: [
             BoxShadow(
               color: Colors.black.withOpacity(0.04),
-              blurRadius: 15,
-              offset: const Offset(0, 5),
+              blurRadius: 24,
+              offset: const Offset(0, 4),
             ),
           ],
         ),
@@ -126,7 +127,7 @@ class HomeView extends GetView<HomeController> {
                             Obx(() => CircleAvatar(
                               radius: 14,
                               backgroundImage: controller.avatarUrl != null
-                                  ? NetworkImage('${ApiProvider.baseDomain}${controller.avatarUrl!}')
+                                  ? NetworkImage(ApiProvider.getImageUrl(controller.avatarUrl))
                                   : const NetworkImage('https://ui-avatars.com/api/?name=Anda&background=0D2B33&color=fff'),
                             )),
                             Positioned(
@@ -137,7 +138,7 @@ class HomeView extends GetView<HomeController> {
                                 child: CircleAvatar(
                                   radius: 12,
                                   backgroundImage: controller.partnerAvatarUrl != null
-                                      ? NetworkImage('${ApiProvider.baseDomain}${controller.partnerAvatarUrl!}')
+                                      ? NetworkImage(ApiProvider.getImageUrl(controller.partnerAvatarUrl))
                                       : NetworkImage(
                                           'https://ui-avatars.com/api/?name=${controller.partnerName ?? "Pasangan"}&background=1F9975&color=fff',
                                         ),
@@ -178,18 +179,18 @@ class HomeView extends GetView<HomeController> {
               }),
               const SizedBox(height: 20),
 
-              // 3. Card Total Aset
+              // 3. Card Total Aset (Redesigned)
               Container(
                 width: double.infinity,
-                padding: const EdgeInsets.all(20),
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 28),
                 decoration: BoxDecoration(
                   color: primaryColor,
-                  borderRadius: BorderRadius.circular(16),
+                  borderRadius: BorderRadius.circular(24),
                   boxShadow: [
                     BoxShadow(
-                      color: primaryColor.withValues(alpha: 0.2),
-                      blurRadius: 10,
-                      offset: const Offset(0, 4),
+                      color: primaryColor.withValues(alpha: 0.15),
+                      blurRadius: 24,
+                      offset: const Offset(0, 12),
                     ),
                   ],
                 ),
@@ -200,51 +201,74 @@ class HomeView extends GetView<HomeController> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          'TOTAL SALDO BERSAMA',
+                          'Total Saldo Bersama',
                           style: TextStyle(
                             color: Colors.white.withOpacity(0.7),
-                            fontSize: 10,
-                            fontWeight: FontWeight.bold,
-                            letterSpacing: 1,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
                           ),
                         ),
                         GestureDetector(
                           onTap: controller.toggleAssetVisibility,
-                          child: Obx(
-                            () => Icon(
-                              controller.isAssetVisible.value
-                                  ? Icons.visibility_outlined
-                                  : Icons.visibility_off_outlined,
-                              color: Colors.white.withOpacity(0.7),
-                              size: 18,
+                          behavior: HitTestBehavior.opaque,
+                          child: Container(
+                            padding: const EdgeInsets.all(6),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withOpacity(0.1),
+                              shape: BoxShape.circle,
+                            ),
+                            child: Obx(
+                              () => Icon(
+                                controller.isAssetVisible.value
+                                    ? Icons.visibility_outlined
+                                    : Icons.visibility_off_outlined,
+                                color: Colors.white,
+                                size: 16,
+                              ),
                             ),
                           ),
                         ),
                       ],
                     ),
-                    const SizedBox(height: 12),
+                    const SizedBox(height: 16),
                     Obx(
-                      () => Text(
-                        controller.isAssetVisible.value
-                            ? controller.formatRupiah(controller.totalSaldoBersama).replaceAll('Rp ', 'Rp\n')
-                            : 'Rp\n••••••••',
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 32,
-                          fontWeight: FontWeight.bold,
-                          height: 1.1,
-                        ),
+                      () => Row(
+                        crossAxisAlignment: CrossAxisAlignment.baseline,
+                        textBaseline: TextBaseline.alphabetic,
+                        children: [
+                          if (controller.isAssetVisible.value)
+                            const Text(
+                              'Rp ',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          Text(
+                            controller.isAssetVisible.value
+                                ? controller.formatRupiah(controller.totalSaldoBersama).replaceAll('Rp ', '')
+                                : 'Rp ••••••••',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 32,
+                              fontWeight: FontWeight.w800,
+                              letterSpacing: -0.5,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                     const SizedBox(height: 6),
                     Text(
-                      'Seluruh dompet · ${_getFormattedMonth()}',
+                      'Seluruh dompet • ${_getFormattedMonth()}',
                       style: TextStyle(
-                        color: Colors.white.withOpacity(0.7),
+                        color: Colors.white.withOpacity(0.6),
                         fontSize: 11,
+                        fontWeight: FontWeight.w500,
                       ),
                     ),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 24),
                     Obx(() {
                       if (controller.isLoadingDashboard.value) {
                         return Row(
@@ -252,20 +276,10 @@ class HomeView extends GetView<HomeController> {
                             Container(
                               width: 12,
                               height: 12,
-                              decoration: BoxDecoration(
-                                color: Colors.white.withOpacity(0.3),
-                                shape: BoxShape.circle,
-                              ),
+                              decoration: BoxDecoration(color: Colors.white.withOpacity(0.3), shape: BoxShape.circle),
                             ),
                             const SizedBox(width: 8),
-                            Container(
-                              width: 80,
-                              height: 10,
-                              decoration: BoxDecoration(
-                                color: Colors.white.withOpacity(0.3),
-                                borderRadius: BorderRadius.circular(4),
-                              ),
-                            ),
+                            Container(width: 80, height: 10, decoration: BoxDecoration(color: Colors.white.withOpacity(0.3), borderRadius: BorderRadius.circular(4))),
                           ],
                         );
                       }
@@ -276,77 +290,94 @@ class HomeView extends GetView<HomeController> {
                       return Row(
                         children: [
                           Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Row(
-                                  children: [
-                                    Container(
-                                      width: 6,
-                                      height: 6,
-                                      decoration: BoxDecoration(
-                                        color: greenAccent,
-                                        shape: BoxShape.circle,
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                              decoration: BoxDecoration(
+                                color: Colors.white.withOpacity(0.05),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    children: [
+                                      Container(
+                                        padding: const EdgeInsets.all(4),
+                                        decoration: BoxDecoration(
+                                          color: greenAccent.withOpacity(0.2),
+                                          shape: BoxShape.circle,
+                                        ),
+                                        child: Icon(Icons.arrow_downward, color: greenAccent, size: 10),
                                       ),
-                                    ),
-                                    const SizedBox(width: 6),
-                                    Text(
-                                      'Pemasukan',
-                                      style: TextStyle(
-                                        color: Colors.white.withOpacity(0.7),
-                                        fontSize: 11,
-                                        fontWeight: FontWeight.w500,
+                                      const SizedBox(width: 6),
+                                      Text(
+                                        'Pemasukan',
+                                        style: TextStyle(
+                                          color: Colors.white.withOpacity(0.7),
+                                          fontSize: 10,
+                                          fontWeight: FontWeight.w500,
+                                        ),
                                       ),
-                                    ),
-                                  ],
-                                ),
-                                const SizedBox(height: 4),
-                                Text(
-                                  '+${controller.formatRupiah(income)}',
-                                  style: TextStyle(
-                                    color: greenAccent,
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.bold,
+                                    ],
                                   ),
-                                ),
-                              ],
+                                  const SizedBox(height: 6),
+                                  Text(
+                                    '+${controller.formatRupiah(income)}',
+                                    style: TextStyle(
+                                      color: greenAccent,
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.bold,
+                                      letterSpacing: -0.5,
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
+                          const SizedBox(width: 12),
                           Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Row(
-                                  children: [
-                                    Container(
-                                      width: 6,
-                                      height: 6,
-                                      decoration: const BoxDecoration(
-                                        color: Colors.redAccent,
-                                        shape: BoxShape.circle,
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                              decoration: BoxDecoration(
+                                color: Colors.white.withOpacity(0.05),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    children: [
+                                      Container(
+                                        padding: const EdgeInsets.all(4),
+                                        decoration: BoxDecoration(
+                                          color: Colors.redAccent.withOpacity(0.2),
+                                          shape: BoxShape.circle,
+                                        ),
+                                        child: const Icon(Icons.arrow_upward, color: Colors.redAccent, size: 10),
                                       ),
-                                    ),
-                                    const SizedBox(width: 6),
-                                    Text(
-                                      'Pengeluaran',
-                                      style: TextStyle(
-                                        color: Colors.white.withOpacity(0.7),
-                                        fontSize: 11,
-                                        fontWeight: FontWeight.w500,
+                                      const SizedBox(width: 6),
+                                      Text(
+                                        'Pengeluaran',
+                                        style: TextStyle(
+                                          color: Colors.white.withOpacity(0.7),
+                                          fontSize: 10,
+                                          fontWeight: FontWeight.w500,
+                                        ),
                                       ),
-                                    ),
-                                  ],
-                                ),
-                                const SizedBox(height: 4),
-                                Text(
-                                  '-${controller.formatRupiah(expense)}',
-                                  style: const TextStyle(
-                                    color: Colors.redAccent,
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.bold,
+                                    ],
                                   ),
-                                ),
-                              ],
+                                  const SizedBox(height: 6),
+                                  Text(
+                                    '-${controller.formatRupiah(expense)}',
+                                    style: const TextStyle(
+                                      color: Colors.redAccent,
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.bold,
+                                      letterSpacing: -0.5,
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
                         ],
@@ -357,13 +388,12 @@ class HomeView extends GetView<HomeController> {
               ),
               const SizedBox(height: 16),
 
-              // 4. Banner AI Insight
+              // 4. Banner AI Insight (Redesigned)
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: cardBackgroundColor,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: borderColor),
+                  color: bgLightGreen,
+                  borderRadius: BorderRadius.circular(16),
                 ),
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -371,8 +401,8 @@ class HomeView extends GetView<HomeController> {
                     Container(
                       padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
-                        color: bgLightGreen,
-                        borderRadius: BorderRadius.circular(8),
+                        color: Colors.white,
+                        shape: BoxShape.circle,
                       ),
                       child: Icon(
                         Icons.lightbulb_outline,
@@ -380,7 +410,7 @@ class HomeView extends GetView<HomeController> {
                         size: 20,
                       ),
                     ),
-                    const SizedBox(width: 12),
+                    const SizedBox(width: 16),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -393,16 +423,15 @@ class HomeView extends GetView<HomeController> {
                               fontSize: 13,
                             ),
                           ),
-                          const SizedBox(height: 4),
+                          const SizedBox(height: 6),
                           Obx(() {
                             if (controller.isLoadingInsight.value) {
                               return Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  const SizedBox(height: 4),
-                                  Container(width: double.infinity, height: 12, decoration: BoxDecoration(color: Colors.grey[200], borderRadius: BorderRadius.circular(4))),
+                                  Container(width: double.infinity, height: 12, decoration: BoxDecoration(color: Colors.white.withOpacity(0.5), borderRadius: BorderRadius.circular(4))),
                                   const SizedBox(height: 6),
-                                  Container(width: 200, height: 12, decoration: BoxDecoration(color: Colors.grey[200], borderRadius: BorderRadius.circular(4))),
+                                  Container(width: 200, height: 12, decoration: BoxDecoration(color: Colors.white.withOpacity(0.5), borderRadius: BorderRadius.circular(4))),
                                 ],
                               );
                             }
@@ -411,7 +440,8 @@ class HomeView extends GetView<HomeController> {
                               style: TextStyle(
                                 fontSize: 12,
                                 color: Colors.grey[700],
-                                height: 1.4,
+                                height: 1.5,
+                                fontWeight: FontWeight.w500,
                               ),
                             );
                           }),
@@ -583,14 +613,7 @@ class HomeView extends GetView<HomeController> {
                         decoration: BoxDecoration(
                           color: cardBackgroundColor,
                           borderRadius: BorderRadius.circular(16),
-                          border: Border.all(color: borderColor),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.03),
-                              blurRadius: 10,
-                              offset: const Offset(0, 4),
-                            ),
-                          ],
+                          border: Border.all(color: borderColor, width: 0.8),
                         ),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -634,9 +657,9 @@ class HomeView extends GetView<HomeController> {
                               borderRadius: BorderRadius.circular(6),
                               child: LinearProgressIndicator(
                                 value: progressClamped,
-                                backgroundColor: Colors.grey[200],
+                                backgroundColor: Colors.grey[100],
                                 color: isOverBudget ? Colors.orange : greenAccent,
-                                minHeight: 10,
+                                minHeight: 8,
                               ),
                             ),
                             const SizedBox(height: 12),
@@ -679,7 +702,8 @@ class HomeView extends GetView<HomeController> {
               // 6. Section: Riwayat Transaksi
               _buildSectionHeader(
                 title: 'Riwayat Transaksi',
-                actionText: 'Filter',
+                actionText: 'Lihat Semua →',
+                onTap: () => Get.toNamed(Routes.ALL_TRANSACTIONS),
               ),
               const SizedBox(height: 12),
 
@@ -732,34 +756,15 @@ class HomeView extends GetView<HomeController> {
                     ),
                   );
                 }
+                final displayTransactions = controller.transactions.take(5).toList();
                 return ListView.separated(
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),
-                  itemCount: controller.transactions.length,
+                  itemCount: displayTransactions.length,
                   separatorBuilder: (_, __) => const SizedBox(height: 12),
                   itemBuilder: (context, index) {
-                    final tx = controller.transactions[index];
-                    final isExpense = tx.transactionType.toUpperCase() == 'EXPENSE' || tx.transactionType.toUpperCase() == 'TRANSFER';
-                    final isTransfer = tx.transactionType.toUpperCase() == 'TRANSFER';
-                    return _buildTransactionItem(
-                      icon: isTransfer
-                          ? Icons.swap_horiz
-                          : (isExpense ? Icons.shopping_basket_outlined : Icons.account_balance_wallet_outlined),
-                      title: tx.notes != null && tx.notes!.isNotEmpty 
-                          ? tx.notes! 
-                          : (isTransfer ? 'Transfer Goal' : (isExpense ? 'Pengeluaran' : 'Pemasukan')),
-                      category: isTransfer ? 'Transfer' : (isExpense ? 'Pengeluaran' : 'Pemasukan'),
-                      amount: '${isExpense ? "- " : "+ "}Rp ${tx.amount.toStringAsFixed(0).replaceAllMapped(RegExp(r"(\d{1,3})(?=(\d{3})+(?!\d))"), (Match m) => "${m[1]}.")}',
-                      wallet: tx.walletName != null && tx.walletName!.isNotEmpty
-                          ? tx.walletName!
-                          : controller.wallets
-                              .firstWhere((w) => w.id == tx.walletId, orElse: () => WalletModel(id: '', walletName: 'Dompet', balance: 0, isActive: false))
-                              .walletName,
-                      avatarUrl: tx.creatorAvatarUrl != null
-                          ? '${ApiProvider.baseDomain}${tx.creatorAvatarUrl}'
-                          : 'https://ui-avatars.com/api/?name=${tx.creatorName ?? "User"}&background=1F9975&color=fff',
-                      isExpense: isExpense,
-                    );
+                    final tx = displayTransactions[index];
+                    return _buildTransactionItem(tx, context);
                   },
                 );
               }),
@@ -867,21 +872,21 @@ class HomeView extends GetView<HomeController> {
         decoration: BoxDecoration(
           color: cardBackgroundColor,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: borderColor),
+          border: Border.all(color: borderColor, width: 0.8),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Container(
-              padding: const EdgeInsets.all(6),
+              padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: backgroundColor,
+                color: const Color(0xFF1F9975).withOpacity(0.1),
                 borderRadius: BorderRadius.circular(8),
               ),
-              child: Icon(icon, color: primaryColor, size: 20),
+              child: Icon(icon, color: const Color(0xFF1F9975), size: 20),
             ),
             const Spacer(),
-            Text(title, style: TextStyle(fontSize: 11, color: Colors.grey[600])),
+            Text(title, style: TextStyle(fontSize: 11, color: Colors.grey[600], fontWeight: FontWeight.w500)),
             const SizedBox(height: 4),
             Text(
               balance,
@@ -889,6 +894,7 @@ class HomeView extends GetView<HomeController> {
                 fontSize: 14,
                 fontWeight: FontWeight.bold,
                 color: primaryColor,
+                letterSpacing: -0.5,
               ),
             ),
           ],
@@ -897,100 +903,375 @@ class HomeView extends GetView<HomeController> {
     );
   }
 
-  Widget _buildTransactionItem({
-    required IconData icon,
-    required String title,
-    required String category,
-    required String amount,
-    required String wallet,
-    required String avatarUrl,
-    required bool isExpense,
-  }) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: cardBackgroundColor,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: borderColor),
-      ),
-      child: Row(
-        children: [
-          // Icon Box dengan Contributor Avatar Badge
-          SizedBox(
-            width: 46,
-            height: 46,
-            child: Stack(
-              children: [
-                Container(
-                  width: 40,
-                  height: 40,
-                  decoration: BoxDecoration(
-                    color: backgroundColor,
-                    shape: BoxShape.circle,
-                  ),
-                  child: Icon(icon, color: primaryColor, size: 20),
-                ),
-                Positioned(
-                  bottom: 0,
-                  right: 0,
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      shape: BoxShape.circle,
-                      border: Border.all(color: Colors.white, width: 2),
-                    ),
-                    child: CircleAvatar(
-                      radius: 8,
-                      backgroundImage: NetworkImage(avatarUrl),
-                    ),
-                  ),
-                ),
-              ],
-            ),
+  Widget _buildTransactionItem(TransactionModel tx, BuildContext context) {
+    final isExpense = tx.transactionType.toUpperCase() == 'EXPENSE' || tx.transactionType.toUpperCase() == 'TRANSFER';
+    final isTransfer = tx.transactionType.toUpperCase() == 'TRANSFER';
+    
+    final icon = isTransfer
+        ? Icons.swap_horiz
+        : (isExpense ? Icons.shopping_basket_outlined : Icons.account_balance_wallet_outlined);
+        
+    final title = tx.notes != null && tx.notes!.isNotEmpty 
+        ? tx.notes! 
+        : (isTransfer ? 'Transfer Goal' : (isExpense ? 'Pengeluaran' : 'Pemasukan'));
+        
+    final category = isTransfer ? 'Transfer' : (isExpense ? 'Pengeluaran' : 'Pemasukan');
+    
+    final amount = '${isExpense ? "- " : "+ "}Rp ${tx.amount.toStringAsFixed(0).replaceAllMapped(RegExp(r"(\d{1,3})(?=(\d{3})+(?!\d))"), (Match m) => "${m[1]}.")}';
+    
+    final wallet = tx.walletName != null && tx.walletName!.isNotEmpty
+        ? tx.walletName!
+        : controller.wallets
+            .firstWhere((w) => w.id == tx.walletId, orElse: () => WalletModel(id: '', walletName: 'Dompet', balance: 0, isActive: false))
+            .walletName;
+            
+    final avatarUrl = tx.creatorAvatarUrl != null
+        ? ApiProvider.getImageUrl(tx.creatorAvatarUrl)
+        : 'https://ui-avatars.com/api/?name=${tx.creatorName ?? "User"}&background=1F9975&color=fff';
+
+    return Material(
+      color: cardBackgroundColor,
+      borderRadius: BorderRadius.circular(12),
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: () => _showTransactionDetailBottomSheet(context, tx),
+        child: Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: borderColor, width: 0.8),
           ),
-          const SizedBox(width: 12),
-          // Info Transaksi
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.bold,
-                    color: primaryColor,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  category,
-                  style: TextStyle(fontSize: 10, color: Colors.grey[500]),
-                ),
-              ],
-            ),
-          ),
-          // Nominal & Wallet
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
+          child: Row(
             children: [
-              Text(
-                amount,
-                style: TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.bold,
-                  color: isExpense ? Colors.red : const Color(0xFF1F9975),
+              // Icon Box dengan Contributor Avatar Badge
+              SizedBox(
+                width: 46,
+                height: 46,
+                child: Stack(
+                  children: [
+                    Container(
+                      width: 40,
+                      height: 40,
+                      decoration: const BoxDecoration(
+                        color: Color(0xFFE8F5EE),
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(icon, color: const Color(0xFF1F9975), size: 20),
+                    ),
+                    Positioned(
+                      bottom: 0,
+                      right: 0,
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          shape: BoxShape.circle,
+                          border: Border.all(color: Colors.white, width: 2),
+                        ),
+                        child: CircleAvatar(
+                          radius: 8,
+                          backgroundImage: NetworkImage(avatarUrl),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
-              const SizedBox(height: 4),
-              Text(
-                wallet,
-                style: TextStyle(fontSize: 10, color: Colors.grey[400]),
+              const SizedBox(width: 12),
+              // Info Transaksi
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.bold,
+                        color: primaryColor,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      category,
+                      style: TextStyle(fontSize: 10, color: Colors.grey[500]),
+                    ),
+                  ],
+                ),
+              ),
+              // Nominal & Wallet
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Text(
+                    amount,
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.bold,
+                      color: isExpense ? Colors.red : const Color(0xFF1F9975),
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    wallet,
+                    style: TextStyle(fontSize: 10, color: Colors.grey[400]),
+                  ),
+                ],
               ),
             ],
           ),
-        ],
+        ),
       ),
+    );
+  }
+
+  void _showTransactionDetailBottomSheet(BuildContext context, TransactionModel tx) {
+    final isExpense = tx.transactionType.toUpperCase() == 'EXPENSE' || tx.transactionType.toUpperCase() == 'TRANSFER';
+    final isTransfer = tx.transactionType.toUpperCase() == 'TRANSFER';
+    
+    final typeText = isTransfer 
+        ? 'Transfer' 
+        : (isExpense ? 'Pengeluaran' : 'Pemasukan');
+    final typeColor = isTransfer 
+        ? const Color(0xFF007AFF) 
+        : (isExpense ? Colors.red : const Color(0xFF1F9975));
+
+    final amountText = '${isExpense ? "- " : "+ "}Rp ${tx.amount.toStringAsFixed(0).replaceAllMapped(RegExp(r"(\d{1,3})(?=(\d{3})+(?!\d))"), (Match m) => "${m[1]}.")}';
+    final formattedDate = DateFormat('dd MMMM yyyy, HH:mm').format(DateTime.tryParse(tx.transactionDate) ?? DateTime.now());
+    
+    final avatarUrl = tx.creatorAvatarUrl != null
+        ? ApiProvider.getImageUrl(tx.creatorAvatarUrl)
+        : 'https://ui-avatars.com/api/?name=${tx.creatorName ?? "User"}&background=1F9975&color=fff';
+
+    final walletName = tx.walletName != null && tx.walletName!.isNotEmpty
+        ? tx.walletName!
+        : controller.wallets
+            .firstWhere((w) => w.id == tx.walletId, orElse: () => WalletModel(id: '', walletName: 'Dompet', balance: 0, isActive: false))
+            .walletName;
+
+    Get.bottomSheet(
+      SafeArea(
+        top: false,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+          child: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Drag Handle
+                Center(
+                  child: Container(
+                    width: 40,
+                    height: 4,
+                    margin: const EdgeInsets.only(bottom: 20),
+                    decoration: BoxDecoration(
+                      color: Colors.grey[300],
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
+                ),
+
+                // Header
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Detail Transaksi',
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.w800,
+                        color: primaryColor,
+                        letterSpacing: -0.5,
+                      ),
+                    ),
+                    InkWell(
+                      onTap: () => Get.back(),
+                      borderRadius: BorderRadius.circular(20),
+                      child: Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: Colors.grey[100],
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(Icons.close, size: 20, color: Colors.grey[600]),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 24),
+
+                // Amount Display Card
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
+                  decoration: BoxDecoration(
+                    color: typeColor.withOpacity(0.05),
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(color: typeColor.withOpacity(0.15), width: 1.5),
+                  ),
+                  child: Column(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                        decoration: BoxDecoration(
+                          color: typeColor.withOpacity(0.15),
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Text(
+                          typeText,
+                          style: TextStyle(
+                            color: typeColor,
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      Text(
+                        amountText,
+                        style: TextStyle(
+                          fontSize: 28,
+                          fontWeight: FontWeight.w900,
+                          color: typeColor,
+                          letterSpacing: -0.5,
+                        ),
+                      ),
+                      if (tx.notes != null && tx.notes!.isNotEmpty) ...[
+                        const SizedBox(height: 8),
+                        Text(
+                          tx.notes!,
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Colors.grey[600],
+                            fontWeight: FontWeight.w500,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 24),
+
+                // Details List Card
+                Container(
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(color: borderColor, width: 0.8),
+                  ),
+                  child: Column(
+                    children: [
+                      _buildDetailRow(
+                        icon: Icons.category_outlined,
+                        label: 'Kategori',
+                        value: tx.categoryName ?? (isTransfer ? 'Transfer' : (isExpense ? 'Pengeluaran' : 'Pemasukan')),
+                      ),
+                      const Divider(height: 24, thickness: 0.5),
+                      _buildDetailRow(
+                        icon: Icons.account_balance_wallet_outlined,
+                        label: 'Dompet',
+                        value: walletName,
+                      ),
+                      const Divider(height: 24, thickness: 0.5),
+                      _buildDetailRow(
+                        icon: Icons.calendar_today_outlined,
+                        label: 'Tanggal',
+                        value: formattedDate,
+                      ),
+                      const Divider(height: 24, thickness: 0.5),
+                      _buildCreatorRow(
+                        avatarUrl: avatarUrl,
+                        name: tx.creatorName ?? 'User',
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(28),
+          topRight: Radius.circular(28),
+        ),
+      ),
+      isScrollControlled: true,
+    );
+  }
+
+  Widget _buildDetailRow({
+    required IconData icon,
+    required String label,
+    required String value,
+  }) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Icon(icon, size: 20, color: Colors.grey[400]),
+        const SizedBox(width: 12),
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: 14,
+            color: Colors.grey[500],
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+        const Spacer(),
+        Text(
+          value,
+          style: TextStyle(
+            fontSize: 14,
+            color: primaryColor,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildCreatorRow({
+    required String avatarUrl,
+    required String name,
+  }) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Icon(Icons.person_outline, size: 20, color: Colors.grey[400]),
+        const SizedBox(width: 12),
+        Text(
+          'Dibuat Oleh',
+          style: TextStyle(
+            fontSize: 14,
+            color: Colors.grey[500],
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+        const Spacer(),
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            CircleAvatar(
+              radius: 12,
+              backgroundImage: NetworkImage(avatarUrl),
+            ),
+            const SizedBox(width: 8),
+            Text(
+              name,
+              style: TextStyle(
+                fontSize: 14,
+                color: primaryColor,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
+        ),
+      ],
     );
   }
 

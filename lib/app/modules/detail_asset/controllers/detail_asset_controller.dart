@@ -35,7 +35,7 @@ class DetailAssetController extends GetxController {
         .split(',')
         .map((e) => e.trim())
         .where((e) => e.isNotEmpty)
-        .map((url) => '${ApiProvider.baseDomain}$url')
+        .map((url) => ApiProvider.getImageUrl(url))
         .toList();
   }
 

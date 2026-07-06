@@ -12,7 +12,7 @@ class ExpenseDonutChart extends StatelessWidget {
   }) : super(key: key);
 
   final Color primaryDark = const Color(0xFF0D2B33);
-  final Color cardColor = const Color(0xFF0D2B33);
+  final Color cardColor = Colors.white;
 
   final List<Color> chartColors = const [
     Color(0xFF3B82F6), // Blue
@@ -41,7 +41,7 @@ class ExpenseDonutChart extends StatelessWidget {
             const Icon(Icons.shopping_bag_outlined, color: Color(0xFFA5C5CB), size: 20),
             const SizedBox(width: 8),
             Text(
-              'Expense Breakdown',
+              'Rincian Pengeluaran',
               style: TextStyle(
                 color: primaryDark,
                 fontSize: 16,
@@ -57,7 +57,7 @@ class ExpenseDonutChart extends StatelessWidget {
           decoration: BoxDecoration(
             color: cardColor,
             borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: Colors.white.withOpacity(0.05)),
+            border: Border.all(color: Colors.black.withOpacity(0.05)),
             boxShadow: [
               BoxShadow(
                 color: Colors.black.withOpacity(0.08),
@@ -74,20 +74,22 @@ class ExpenseDonutChart extends StatelessWidget {
                       height: 180,
                       child: Stack(
                         children: [
-                          PieChart(
-                            PieChartData(
-                              sectionsSpace: 2,
-                              centerSpaceRadius: 50,
-                              sections: categoryBreakdown.asMap().entries.map((entry) {
-                                int idx = entry.key;
-                                var cat = entry.value;
-                                return PieChartSectionData(
-                                  color: chartColors[idx % chartColors.length],
-                                  value: cat.amount,
-                                  title: '',
-                                  radius: 20,
-                                );
-                              }).toList(),
+                          RepaintBoundary(
+                            child: PieChart(
+                              PieChartData(
+                                sectionsSpace: 2,
+                                centerSpaceRadius: 50,
+                                sections: categoryBreakdown.asMap().entries.map((entry) {
+                                  int idx = entry.key;
+                                  var cat = entry.value;
+                                  return PieChartSectionData(
+                                    color: chartColors[idx % chartColors.length],
+                                    value: cat.amount,
+                                    title: '',
+                                    radius: 20,
+                                  );
+                                }).toList(),
+                              ),
                             ),
                           ),
                           Center(
@@ -97,7 +99,7 @@ class ExpenseDonutChart extends StatelessWidget {
                                 Text(
                                   'Total',
                                   style: TextStyle(
-                                    color: Colors.white.withOpacity(0.5),
+                                    color: Colors.black.withOpacity(0.5),
                                     fontSize: 12,
                                   ),
                                 ),
@@ -105,8 +107,8 @@ class ExpenseDonutChart extends StatelessWidget {
                                   fit: BoxFit.scaleDown,
                                   child: Text(
                                     formatCurrencyCompact(totalExpense),
-                                    style: const TextStyle(
-                                      color: Colors.white,
+                                    style: TextStyle(
+                                      color: primaryDark,
                                       fontSize: 14,
                                       fontWeight: FontWeight.bold,
                                     ),
@@ -143,12 +145,12 @@ class ExpenseDonutChart extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 24),
       child: Column(
         children: [
-          Icon(Icons.receipt_long_outlined, color: Colors.white.withOpacity(0.3), size: 48),
+          Icon(Icons.receipt_long_outlined, color: primaryDark.withOpacity(0.3), size: 48),
           const SizedBox(height: 12),
           Text(
             'Belum ada pengeluaran tercatat',
             style: TextStyle(
-              color: Colors.white.withOpacity(0.6),
+              color: primaryDark.withOpacity(0.6),
               fontSize: 14,
             ),
           ),
@@ -184,16 +186,16 @@ class ExpenseDonutChart extends StatelessWidget {
                   title,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    color: Colors.white,
+                  style: TextStyle(
+                    color: primaryDark,
                     fontSize: 13,
                     fontWeight: FontWeight.w500,
                   ),
                 ),
                 Text(
                   '${percentage.toStringAsFixed(0)}%',
-                  style: TextStyle(
-                    color: Colors.white.withOpacity(0.5),
+                  style: const TextStyle(
+                    color: Colors.black54,
                     fontSize: 11,
                   ),
                 ),
@@ -203,8 +205,8 @@ class ExpenseDonutChart extends StatelessWidget {
           const SizedBox(width: 8),
           Text(
             formatCurrency(amount),
-            style: const TextStyle(
-              color: Colors.white,
+            style: TextStyle(
+              color: primaryDark,
               fontSize: 13,
               fontWeight: FontWeight.w600,
             ),

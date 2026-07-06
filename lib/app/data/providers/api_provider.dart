@@ -20,6 +20,18 @@ class ApiProvider {
     return Platform.isAndroid ? 'http://192.168.1.6:8000' : 'http://localhost:8000';
   }
 
+  // Helper untuk mendapatkan URL gambar yang valid secara otomatis (Mencegah Double URL)
+  static String getImageUrl(String? path) {
+    if (path == null || path.isEmpty) return '';
+    // Jika path sudah berupa URL utuh (seperti dari Google Auth), kembalikan langsung
+    if (path.startsWith('http://') || path.startsWith('https://')) {
+      return path;
+    }
+    // Gabungkan domain dengan path relatif
+    final cleanPath = path.startsWith('/') ? path : '/$path';
+    return '$baseDomain$cleanPath';
+  }
+
   // Helper headers
   Map<String, String> _headers(String? token) {
     final headers = {
@@ -49,7 +61,7 @@ class ApiProvider {
         headers: _headers(token),
         body: jsonEncode(body),
       );
-      return _processResponse(response);
+      return await _processResponse(response);
     } catch (e) {
       if (kDebugMode) print('API POST Error: $e');
       throw _handleException(e);
@@ -64,7 +76,7 @@ class ApiProvider {
         print('API GET -> $uri');
       }
       final response = await http.get(uri, headers: _headers(token));
-      return _processResponse(response);
+      return await _processResponse(response);
     } catch (e) {
       if (kDebugMode) print('API GET Error: $e');
       throw _handleException(e);
@@ -88,7 +100,7 @@ class ApiProvider {
         headers: _headers(token),
         body: jsonEncode(body),
       );
-      return _processResponse(response);
+      return await _processResponse(response);
     } catch (e) {
       if (kDebugMode) print('API PUT Error: $e');
       throw _handleException(e);
@@ -103,7 +115,7 @@ class ApiProvider {
         print('API DELETE -> $uri');
       }
       final response = await http.delete(uri, headers: _headers(token));
-      return _processResponse(response);
+      return await _processResponse(response);
     } catch (e) {
       if (kDebugMode) print('API DELETE Error: $e');
       throw _handleException(e);
@@ -143,14 +155,14 @@ class ApiProvider {
       var streamedResponse = await request.send();
       var response = await http.Response.fromStream(streamedResponse);
       
-      return _processResponse(response);
+      return await _processResponse(response);
     } catch (e) {
       if (kDebugMode) print('API MULTIPART Error: $e');
       throw _handleException(e);
     }
   }
   // Proses HTTP Response
-  Map<String, dynamic> _processResponse(http.Response response) {
+  Future<Map<String, dynamic>> _processResponse(http.Response response) async {
     final statusCode = response.statusCode;
     final bodyString = response.body;
 
@@ -161,7 +173,7 @@ class ApiProvider {
 
     dynamic decoded;
     try {
-      decoded = jsonDecode(bodyString);
+      decoded = await compute(jsonDecode, bodyString);
     } catch (_) {
       throw 'Format respons server tidak valid';
     }

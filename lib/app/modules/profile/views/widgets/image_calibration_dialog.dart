@@ -1,8 +1,9 @@
 import 'dart:typed_data';
+import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-class ImageCalibrationDialog extends StatelessWidget {
+class ImageCalibrationDialog extends StatefulWidget {
   final Uint8List imageBytes;
   final GlobalKey cropperKey;
   final VoidCallback onApply;
@@ -15,6 +16,31 @@ class ImageCalibrationDialog extends StatelessWidget {
     required this.onApply,
     required this.isLoading,
   }) : super(key: key);
+
+  @override
+  State<ImageCalibrationDialog> createState() => _ImageCalibrationDialogState();
+}
+
+class _ImageCalibrationDialogState extends State<ImageCalibrationDialog> {
+  double _aspectRatio = 1.0;
+  bool _dimensionsLoaded = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadImageDimensions();
+  }
+
+  void _loadImageDimensions() {
+    ui.decodeImageFromList(widget.imageBytes, (ui.Image img) {
+      if (mounted) {
+        setState(() {
+          _aspectRatio = img.width / img.height;
+          _dimensionsLoaded = true;
+        });
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -49,7 +75,7 @@ class ImageCalibrationDialog extends StatelessWidget {
                 children: [
                   // Latar belakang putih & InteractiveViewer (yang akan dicapture)
                   RepaintBoundary(
-                    key: cropperKey,
+                    key: widget.cropperKey,
                     child: Container(
                       width: 300,
                       height: 300,
@@ -60,15 +86,27 @@ class ImageCalibrationDialog extends StatelessWidget {
                       clipBehavior: Clip.hardEdge,
                       child: InteractiveViewer(
                         panEnabled: true,
-                        minScale: 0.5,
+                        minScale: 1.0,
                         maxScale: 5.0,
-                        boundaryMargin: const EdgeInsets.all(double.infinity),
-                        child: Center(
-                          child: Image.memory(
-                            imageBytes,
-                            fit: BoxFit.contain,
-                          ),
-                        ),
+                        boundaryMargin: EdgeInsets.zero,
+                        child: _dimensionsLoaded
+                            ? SizedBox(
+                                width: _aspectRatio > 1.0 ? 300 * _aspectRatio : 300,
+                                height: _aspectRatio > 1.0 ? 300 : 300 / _aspectRatio,
+                                child: Image.memory(
+                                  widget.imageBytes,
+                                  fit: BoxFit.fill,
+                                ),
+                              )
+                            : const SizedBox(
+                                width: 300,
+                                height: 300,
+                                child: Center(
+                                  child: CircularProgressIndicator(
+                                    color: Color(0xFF1F9975),
+                                  ),
+                                ),
+                              ),
                       ),
                     ),
                   ),
@@ -103,7 +141,7 @@ class ImageCalibrationDialog extends StatelessWidget {
                 const SizedBox(width: 16),
                 Expanded(
                   child: Obx(() => ElevatedButton(
-                    onPressed: isLoading.value ? null : onApply,
+                    onPressed: widget.isLoading.value ? null : widget.onApply,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF1F9975),
                       padding: const EdgeInsets.symmetric(vertical: 16),
@@ -111,7 +149,7 @@ class ImageCalibrationDialog extends StatelessWidget {
                         borderRadius: BorderRadius.circular(12),
                       ),
                     ),
-                    child: isLoading.value 
+                    child: widget.isLoading.value 
                         ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
                         : const Text('Terapkan', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
                   )),

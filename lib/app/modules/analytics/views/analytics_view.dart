@@ -69,7 +69,7 @@ class AnalyticsView extends GetView<AnalyticsController> {
             ),
             _buildNavItem(
               icon: Icons.person_outline,
-              label: 'Profile',
+              label: 'Profil',
               isActive: false,
               onTap: () => Get.offAllNamed(Routes.PROFILE),
             ),
@@ -240,7 +240,7 @@ class AnalyticsView extends GetView<AnalyticsController> {
           Icon(Icons.error_outline, size: 64, color: Colors.grey[400]),
           const SizedBox(height: 16),
           Text(
-            'Gagal memuat analitik',
+            'Gagal memuat analytics',
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,

@@ -12,6 +12,11 @@ class AnalyticsController extends GetxController with StateMixin<AnalyticsRespon
   final ApiProvider _apiProvider = ApiProvider();
   final AuthService _authService = Get.find<AuthService>();
 
+  // Static cache to persist data across controller recreation (tab switching)
+  static AnalyticsResponse? _cachedAnalytics;
+  static int? _cachedMonth;
+  static int? _cachedYear;
+
   // State untuk Dropdown Bulan
   var selectedMonth = DateTime.now().month.obs;
   var selectedYear = DateTime.now().year.obs;
@@ -27,6 +32,17 @@ class AnalyticsController extends GetxController with StateMixin<AnalyticsRespon
   @override
   void onInit() {
     super.onInit();
+    // Load cache instantly if available to prevent any transition jank/shimmer
+    if (_cachedAnalytics != null && 
+        _cachedMonth == selectedMonth.value && 
+        _cachedYear == selectedYear.value) {
+      change(_cachedAnalytics, status: RxStatus.success());
+    }
+  }
+
+  @override
+  void onReady() {
+    super.onReady();
     fetchAnalytics();
   }
 
@@ -37,11 +53,20 @@ class AnalyticsController extends GetxController with StateMixin<AnalyticsRespon
   }
 
   Future<void> fetchAnalytics() async {
-    change(null, status: RxStatus.loading());
+    final hasCache = _cachedAnalytics != null && 
+        _cachedMonth == selectedMonth.value && 
+        _cachedYear == selectedYear.value;
+
+    if (!hasCache) {
+      change(null, status: RxStatus.loading());
+    }
+
     try {
       final token = _authService.accessToken.value;
       if (token.isEmpty) {
-        change(null, status: RxStatus.error('Token tidak tersedia. Silakan login kembali.'));
+        if (!hasCache) {
+          change(null, status: RxStatus.error('Token tidak tersedia. Silakan login kembali.'));
+        }
         return;
       }
 
@@ -52,10 +77,18 @@ class AnalyticsController extends GetxController with StateMixin<AnalyticsRespon
       );
 
       final analyticsData = await compute(_parseAnalyticsResponse, response as Map<String, dynamic>);
+      
+      // Update cache
+      _cachedAnalytics = analyticsData;
+      _cachedMonth = selectedMonth.value;
+      _cachedYear = selectedYear.value;
+
       change(analyticsData, status: RxStatus.success());
     } catch (e) {
       if (kDebugMode) print('Error fetching analytics: $e');
-      change(null, status: RxStatus.error(e.toString()));
+      if (!hasCache) {
+        change(null, status: RxStatus.error(e.toString()));
+      }
     }
   }
 
