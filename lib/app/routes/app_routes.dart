@@ -32,6 +32,7 @@ abstract class Routes {
   static const BUDGET_DETAIL = _Paths.BUDGET_DETAIL;
   static const ALL_TRANSACTIONS = _Paths.ALL_TRANSACTIONS;
   static const HELP_CENTER = _Paths.HELP_CENTER;
+  static const NOTIFICATIONS = _Paths.NOTIFICATIONS;
 }
 
 abstract class _Paths {
@@ -65,4 +66,5 @@ abstract class _Paths {
   static const BUDGET_DETAIL = '/budget-detail';
   static const ALL_TRANSACTIONS = '/all-transactions';
   static const HELP_CENTER = '/help-center';
+  static const NOTIFICATIONS = '/notifications';
 }

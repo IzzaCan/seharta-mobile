@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'app/data/services/auth_service.dart';
 import 'app/data/services/family_service.dart';
 import 'app/routes/app_pages.dart';
+import 'app/modules/notifications/controllers/notification_controller.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -11,6 +12,7 @@ void main() async {
   // Inject Services globally
   await Get.putAsync(() => AuthService().init());
   await Get.putAsync(() => FamilyService().init());
+  Get.put(NotificationController(), permanent: true);
 
   runApp(
     GetMaterialApp(

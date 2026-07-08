@@ -4,6 +4,7 @@ import 'package:image_picker/image_picker.dart';
 import '../controllers/profile_controller.dart';
 import '../../../routes/app_pages.dart';
 import '../../../data/providers/api_provider.dart';
+import '../../notifications/controllers/notification_controller.dart';
 
 class ProfileView extends GetView<ProfileController> {
   const ProfileView({Key? key}) : super(key: key);
@@ -233,6 +234,17 @@ class ProfileView extends GetView<ProfileController> {
                       iconColor: secondaryColor,
                       onTap: () => Get.toNamed(Routes.HELP_CENTER),
                     ),
+                    Obx(() {
+                      final notifController = Get.find<NotificationController>();
+                      return _buildSwitchTile(
+                        title: 'Pengaturan Notifikasi',
+                        icon: Icons.notifications_active_outlined,
+                        iconBgColor: accentColor.withValues(alpha: 0.1),
+                        iconColor: accentColor,
+                        value: notifController.isPushEnabled.value,
+                        onChanged: (val) => notifController.togglePushSetting(val),
+                      );
+                    }),
                     _buildListTile(
                       title: 'Keluar',
                       icon: Icons.logout,
