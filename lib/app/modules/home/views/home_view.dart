@@ -5,6 +5,10 @@ import '../controllers/home_controller.dart';
 import '../../../routes/app_pages.dart';
 import '../../../data/providers/api_provider.dart';
 import '../../wallet/models/wallet_model.dart';
+import '../../notifications/controllers/notification_controller.dart';
+import '../../../data/models/notification_model.dart';
+import '../../../utils/time_ago.dart';
+import '../../../utils/notification_parser.dart';
 class HomeView extends GetView<HomeController> {
   const HomeView({Key? key}) : super(key: key);
 
@@ -17,6 +21,8 @@ class HomeView extends GetView<HomeController> {
 
   @override
   Widget build(BuildContext context) {
+    final notificationController = Get.find<NotificationController>();
+    
     return Scaffold(
       backgroundColor: backgroundColor,
       
@@ -113,10 +119,50 @@ class HomeView extends GetView<HomeController> {
                   ),
                   Row(
                     children: [
-                      Icon(
-                        Icons.notifications_none,
-                        color: Colors.grey[600],
-                        size: 24,
+                      GestureDetector(
+                        onTap: () => _showNotificationDropdown(context, notificationController),
+                        child: Obx(() {
+                          final hasUnread = notificationController.hasUnread.value;
+                          final unreadCount = notificationController.unreadCount.value;
+                          
+                          return Stack(
+                            clipBehavior: Clip.none,
+                            children: [
+                              Icon(
+                                Icons.notifications_none,
+                                color: Colors.grey[600],
+                                size: 24,
+                              ),
+                              if (hasUnread)
+                                Positioned(
+                                  right: -2,
+                                  top: -2,
+                                  child: Container(
+                                    padding: const EdgeInsets.all(4),
+                                    decoration: const BoxDecoration(
+                                      color: Colors.redAccent,
+                                      shape: BoxShape.circle,
+                                    ),
+                                    constraints: const BoxConstraints(
+                                      minWidth: 14,
+                                      minHeight: 14,
+                                    ),
+                                    child: Center(
+                                      child: Text(
+                                        unreadCount > 9 ? '9+' : unreadCount.toString(),
+                                        style: const TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 8,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                        textAlign: TextAlign.center,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                            ],
+                          );
+                        }),
                       ),
                       const SizedBox(width: 16),
                       // Stack Avatar Pasangan
@@ -779,7 +825,603 @@ class HomeView extends GetView<HomeController> {
   );
 }
 
-  
+  void _showNotificationDropdown(BuildContext context, NotificationController notifController) {
+    showDialog(
+      context: context,
+      barrierColor: Colors.black12,
+      builder: (context) {
+        return Align(
+          alignment: Alignment.topRight,
+          child: Container(
+            width: 320,
+            margin: const EdgeInsets.only(top: 70, right: 20),
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.1),
+                  blurRadius: 20,
+                  offset: const Offset(0, 10),
+                ),
+              ],
+            ),
+            child: Material(
+              color: Colors.transparent,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Notifikasi Terakhir',
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                          color: primaryColor,
+                        ),
+                      ),
+                      Obx(() {
+                        if (notifController.hasUnread.value) {
+                          return GestureDetector(
+                            onTap: () {
+                              notifController.markAllAsRead();
+                            },
+                            child: Text(
+                              'Tandai Dibaca',
+                              style: TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w500,
+                                color: greenAccent,
+                              ),
+                            ),
+                          );
+                        }
+                        return const SizedBox.shrink();
+                      }),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  Obx(() {
+                    if (notifController.isLoadingRecent.value && notifController.recentNotifications.isEmpty) {
+                      return const Center(
+                        child: Padding(
+                          padding: EdgeInsets.all(20.0),
+                          child: CircularProgressIndicator(),
+                        ),
+                      );
+                    }
+                    
+                    if (notifController.recentNotifications.isEmpty) {
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 24),
+                        child: Center(
+                          child: Text(
+                            'Belum ada notifikasi.',
+                            style: TextStyle(
+                              fontSize: 13,
+                              color: Colors.grey.shade500,
+                            ),
+                          ),
+                        ),
+                      );
+                    }
+                    
+                    return Column(
+                      children: notifController.recentNotifications.take(3).map((notif) {
+                        final isUnread = !notif.isRead;
+                        return InkWell(
+                          onTap: () {
+                            if (isUnread) notifController.markAsRead(notif.id);
+                            Navigator.of(context).pop();
+                            _showNotificationDetail(context, notif);
+                          },
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(vertical: 12),
+                            decoration: BoxDecoration(
+                              border: Border(
+                                bottom: BorderSide(color: Colors.grey.shade100),
+                              ),
+                            ),
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Container(
+                                  margin: const EdgeInsets.only(top: 2),
+                                  width: 8,
+                                  height: 8,
+                                  decoration: BoxDecoration(
+                                    color: isUnread ? greenAccent : Colors.transparent,
+                                    shape: BoxShape.circle,
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        notif.title,
+                                        style: TextStyle(
+                                          fontWeight: isUnread ? FontWeight.w600 : FontWeight.w500,
+                                          fontSize: 13,
+                                          color: isUnread ? Colors.black87 : Colors.black54,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 2),
+                                      Text(
+                                        notif.message,
+                                        maxLines: 2,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: TextStyle(
+                                          fontSize: 12,
+                                          color: isUnread ? Colors.black87 : Colors.black54,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 4),
+                                      Text(
+                                        formatTimeAgo(notif.createdAt),
+                                        style: TextStyle(
+                                          fontSize: 10,
+                                          color: Colors.grey.shade400,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      }).toList(),
+                    );
+                  }),
+                  const SizedBox(height: 8),
+                  InkWell(
+                    onTap: () {
+                      Navigator.of(context).pop();
+                      Get.toNamed(Routes.NOTIFICATIONS);
+                    },
+                    borderRadius: BorderRadius.circular(8),
+                    child: Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      alignment: Alignment.center,
+                      child: Text(
+                        'Lihat Semua Notifikasi →',
+                        style: TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
+                          color: primaryColor,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  void _showNotificationDetail(BuildContext context, NotificationResponse item) {
+    final parsed = parseNotification(item);
+    final theme = Theme.of(context);
+    final accentColor = theme.colorScheme.secondary;
+    
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) {
+        return Container(
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+          ),
+          padding: const EdgeInsets.fromLTRB(24, 16, 24, 32),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Center(
+                child: Container(
+                  width: 36,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade300,
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 24),
+              
+              _buildModalHeader(theme, accentColor, parsed, item),
+              const SizedBox(height: 20),
+              const Divider(height: 1),
+              const SizedBox(height: 20),
+              
+              _buildModalBody(theme, accentColor, parsed),
+              
+              const SizedBox(height: 32),
+              
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: theme.primaryColor,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    elevation: 0,
+                  ),
+                  child: const Text(
+                    'Selesai',
+                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildModalHeader(ThemeData theme, Color accentColor, ParsedNotification parsed, NotificationResponse item) {
+    IconData iconData = Icons.notifications_none_rounded;
+    Color iconColor = theme.primaryColor;
+    Color bgColor = theme.primaryColor.withOpacity(0.1);
+    
+    switch (parsed.categoryType) {
+      case 'TRANSACTION':
+        iconData = Icons.receipt_long_rounded;
+        iconColor = accentColor;
+        bgColor = accentColor.withOpacity(0.1);
+        break;
+      case 'OCR':
+        iconData = Icons.document_scanner_rounded;
+        iconColor = Colors.blue.shade700;
+        bgColor = Colors.blue.shade50;
+        break;
+      case 'BUDGET':
+        iconData = parsed.isOverBudget ? Icons.error_outline_rounded : Icons.warning_amber_rounded;
+        iconColor = parsed.isOverBudget ? Colors.red.shade700 : Colors.amber.shade700;
+        bgColor = parsed.isOverBudget ? Colors.red.shade50 : Colors.amber.shade50;
+        break;
+      case 'WALLET':
+        iconData = Icons.account_balance_wallet_rounded;
+        iconColor = accentColor;
+        bgColor = accentColor.withOpacity(0.1);
+        break;
+    }
+    
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          width: 48,
+          height: 48,
+          decoration: BoxDecoration(
+            color: bgColor,
+            shape: BoxShape.circle,
+          ),
+          child: Icon(iconData, color: iconColor, size: 24),
+        ),
+        const SizedBox(width: 14),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                parsed.title,
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: theme.primaryColor,
+                  height: 1.3,
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                formatFullDateTime(item.createdAt),
+                style: TextStyle(
+                  fontSize: 11,
+                  color: Colors.grey.shade500,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildModalBody(ThemeData theme, Color accentColor, ParsedNotification parsed) {
+    switch (parsed.categoryType) {
+      case 'TRANSACTION':
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            if (parsed.amount != null) ...[
+              Center(
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                  decoration: BoxDecoration(
+                    color: theme.primaryColor.withOpacity(0.04),
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: Column(
+                    children: [
+                      Text(
+                        parsed.transactionType == 'INCOME' ? 'Pemasukan' : 'Pengeluaran',
+                        style: TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.bold,
+                          color: parsed.transactionType == 'INCOME' ? accentColor : Colors.redAccent,
+                          letterSpacing: 0.8,
+                        ),
+                      ),
+                      const SizedBox(height: 6),
+                      Text(
+                        parsed.amount!,
+                        style: TextStyle(
+                          fontSize: 28,
+                          fontWeight: FontWeight.w800,
+                          color: theme.primaryColor,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(height: 24),
+            ],
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: const Color(0xFFF8FAFC),
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: Colors.grey.shade100),
+              ),
+              child: Column(
+                children: [
+                  _buildNotificationDetailRow('Kategori', parsed.categoryName ?? 'Umum'),
+                  _buildNotificationDetailRow('Dompet', parsed.walletName ?? 'Dompet Bersama'),
+                  _buildNotificationDetailRow('Keterangan', parsed.description ?? '-'),
+                ],
+              ),
+            ),
+          ],
+        );
+        
+      case 'OCR':
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Center(
+              child: Container(
+                width: 80,
+                height: 80,
+                decoration: BoxDecoration(
+                  color: Colors.blue.shade50,
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(Icons.document_scanner_rounded, size: 40, color: Colors.blue.shade700),
+              ),
+            ),
+            const SizedBox(height: 20),
+            Text(
+              parsed.message,
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                fontSize: 15,
+                color: Colors.black87,
+                height: 1.5,
+              ),
+            ),
+            if (parsed.ocrMerchant != null || parsed.ocrTotal != null) ...[
+              const SizedBox(height: 20),
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF8FAFC),
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: Colors.grey.shade100),
+                ),
+                child: Column(
+                  children: [
+                    if (parsed.ocrMerchant != null)
+                      _buildNotificationDetailRow('Merchant', parsed.ocrMerchant!),
+                    if (parsed.ocrTotal != null)
+                      _buildNotificationDetailRow('Total Dideteksi', parsed.ocrTotal!),
+                  ],
+                ),
+              ),
+            ],
+          ],
+        );
+        
+      case 'BUDGET':
+        final Color alertColor = parsed.isOverBudget ? Colors.red.shade700 : Colors.amber.shade700;
+        final Color alertBg = parsed.isOverBudget ? Colors.red.shade50 : Colors.amber.shade50;
+        
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: alertBg,
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: alertColor.withOpacity(0.2)),
+              ),
+              child: Row(
+                children: [
+                  Icon(
+                    parsed.isOverBudget ? Icons.error_outline_rounded : Icons.warning_amber_rounded,
+                    color: alertColor,
+                    size: 24,
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      parsed.isOverBudget ? 'Segera evaluasi pengeluaran bersama!' : 'Hampir mencapai batas anggaran keluarga.',
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                        color: alertColor,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 20),
+            Text(
+              parsed.message,
+              style: const TextStyle(
+                fontSize: 14,
+                color: Colors.black87,
+                height: 1.5,
+              ),
+            ),
+            if (parsed.budgetPercentage != null || parsed.budgetRemaining != null) ...[
+              const SizedBox(height: 20),
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF8FAFC),
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: Colors.grey.shade100),
+                ),
+                child: Column(
+                  children: [
+                    if (parsed.budgetPercentage != null)
+                      _buildNotificationDetailRow('Penggunaan', parsed.budgetPercentage!),
+                    if (parsed.budgetRemaining != null)
+                      _buildNotificationDetailRow('Sisa Anggaran', parsed.budgetRemaining!),
+                  ],
+                ),
+              ),
+            ],
+          ],
+        );
+        
+      case 'WALLET':
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(24),
+              decoration: BoxDecoration(
+                color: theme.primaryColor,
+                borderRadius: BorderRadius.circular(20),
+                boxShadow: [
+                  BoxShadow(
+                    color: theme.primaryColor.withOpacity(0.2),
+                    blurRadius: 15,
+                    offset: const Offset(0, 5),
+                  ),
+                ],
+              ),
+              child: const Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Icon(Icons.account_balance_wallet_rounded, color: Colors.white, size: 28),
+                  SizedBox(height: 24),
+                  Text(
+                    'Dompet Bersama Keluarga',
+                    style: TextStyle(
+                      color: Colors.white70,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  SizedBox(height: 4),
+                  Text(
+                    'Saldo Terupdate',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 24),
+            Text(
+              parsed.message,
+              style: const TextStyle(
+                fontSize: 14,
+                color: Colors.black87,
+                height: 1.5,
+              ),
+            ),
+          ],
+        );
+        
+      default:
+        return Text(
+          parsed.message,
+          style: const TextStyle(
+            fontSize: 14,
+            color: Colors.black87,
+            height: 1.5,
+          ),
+        );
+    }
+  }
+
+  Widget _buildNotificationDetailRow(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 10),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Expanded(
+            child: Text(
+              label,
+              style: TextStyle(
+                fontSize: 13,
+                color: Colors.grey.shade600,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
+          const SizedBox(width: 8),
+          Flexible(
+            flex: 2,
+            child: Text(
+              value,
+              style: const TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+                color: Colors.black87,
+              ),
+              textAlign: TextAlign.end,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   // REUSABLE WIDGETS
   
 

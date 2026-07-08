@@ -107,6 +107,30 @@ class ApiProvider {
     }
   }
 
+  // PATCH Request
+  Future<Map<String, dynamic>> patch(
+    String endpoint,
+    Map<String, dynamic> body, {
+    String? token,
+  }) async {
+    final uri = Uri.parse('$baseUrl$endpoint');
+    try {
+      if (kDebugMode) {
+        print('API PATCH -> $uri');
+        print('API Body -> ${jsonEncode(body)}');
+      }
+      final response = await http.patch(
+        uri,
+        headers: _headers(token),
+        body: jsonEncode(body),
+      );
+      return await _processResponse(response);
+    } catch (e) {
+      if (kDebugMode) print('API PATCH Error: $e');
+      throw _handleException(e);
+    }
+  }
+
   // DELETE Request
   Future<Map<String, dynamic>> delete(String endpoint, {String? token}) async {
     final uri = Uri.parse('$baseUrl$endpoint');
@@ -305,7 +329,7 @@ class ApiProvider {
     int? month,
     int? year,
   }) async {
-    String endpoint = '/analytics/';
+    String endpoint = '/analytics';
     List<String> queryParams = [];
     if (month != null) queryParams.add('month=$month');
     if (year != null) queryParams.add('year=$year');
@@ -315,5 +339,41 @@ class ApiProvider {
     }
     
     return await get(endpoint, token: token);
+  }
+
+  // ==========================================
+  // NOTIFICATIONS ENDPOINTS
+  // ==========================================
+
+  Future<Map<String, dynamic>> getNotifications({
+    required String token,
+    String? type,
+    int limit = 100,
+    int offset = 0,
+  }) async {
+    String endpoint = '/notifications?limit=$limit&offset=$offset';
+    if (type != null) {
+      endpoint += '&type=$type';
+    }
+    return await get(endpoint, token: token);
+  }
+
+  Future<Map<String, dynamic>> getNotificationUnreadCount({
+    required String token,
+  }) async {
+    return await get('/notifications/unread-count', token: token);
+  }
+
+  Future<Map<String, dynamic>> markAllNotificationsAsRead({
+    required String token,
+  }) async {
+    return await patch('/notifications/read-all', {}, token: token);
+  }
+
+  Future<Map<String, dynamic>> markNotificationAsRead({
+    required String notificationId,
+    required String token,
+  }) async {
+    return await patch('/notifications/$notificationId/read', {}, token: token);
   }
 }

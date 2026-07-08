@@ -57,6 +57,8 @@ import '../modules/budget_detail/views/budget_detail_view.dart';
 import '../modules/all_transactions/bindings/all_transactions_binding.dart';
 import '../modules/all_transactions/views/all_transactions_view.dart';
 import '../modules/profile/views/help_center_view.dart';
+import '../modules/notifications/bindings/notifications_binding.dart';
+import '../modules/notifications/views/notifications_view.dart';
 
 part 'app_routes.dart';
 
@@ -214,6 +216,11 @@ class AppPages {
       name: _Paths.HELP_CENTER,
       page: () => const HelpCenterView(),
       binding: ProfileBinding(),
+    ),
+    GetPage(
+      name: _Paths.NOTIFICATIONS,
+      page: () => const NotificationsView(),
+      binding: NotificationsBinding(),
     ),
   ];
 }
