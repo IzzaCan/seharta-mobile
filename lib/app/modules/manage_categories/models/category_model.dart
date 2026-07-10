@@ -20,7 +20,7 @@ class CategoryModel {
       id: json['id'] ?? '',
       familyId: json['family_id'],
       name: json['name'] ?? '',
-      type: json['type'] ?? 'expense',
+      type: (json['type'] as String?)?.toLowerCase() ?? 'expense',
       iconName: json['icon_name'],
       isDefault: json['is_default'] ?? false,
     );

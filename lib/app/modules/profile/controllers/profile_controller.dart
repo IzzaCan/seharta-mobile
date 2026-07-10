@@ -13,7 +13,7 @@ import '../../../data/services/family_service.dart';
 import '../../../data/services/auth_service.dart';
 import '../../../data/models/user_model.dart';
 import '../../../data/providers/api_provider.dart';
-import '../../wallet/models/wallet_model.dart';
+import '../../../data/models/wallet_model.dart';
 import 'dart:ui' as ui;
 import 'package:flutter/rendering.dart';
 import 'dart:typed_data';
@@ -310,14 +310,7 @@ class ProfileController extends GetxController {
   }
 
   // State untuk Switch (Toggle)
-  bool isNotificationOn = true;
   bool isAppLockOn = false;
-
-  // Fungsi toggle
-  void toggleNotification(bool value) {
-    isNotificationOn = value;
-    update();
-  }
 
   void toggleAppLock(bool value) async {
     final prefs = await SharedPreferences.getInstance();

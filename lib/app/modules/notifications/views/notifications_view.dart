@@ -222,6 +222,16 @@ class NotificationsView extends GetView<NotificationsPageController> {
         iconColor = accentColor;
         bgColor = accentColor.withOpacity(0.1);
         break;
+      case 'ASSET':
+        iconData = Icons.home_work_rounded;
+        iconColor = Colors.indigo.shade700;
+        bgColor = Colors.indigo.shade50;
+        break;
+      case 'GOAL':
+        iconData = Icons.track_changes_rounded;
+        iconColor = Colors.deepPurple.shade700;
+        bgColor = Colors.deepPurple.shade50;
+        break;
     }
     
     return Row(
@@ -325,32 +335,11 @@ class NotificationsView extends GetView<NotificationsPageController> {
         );
         
       case 'OCR':
+        final hasDetail = parsed.ocrMerchant != null || parsed.ocrTotal != null;
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Center(
-              child: Container(
-                width: 80,
-                height: 80,
-                decoration: BoxDecoration(
-                  color: Colors.blue.shade50,
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(Icons.document_scanner_rounded, size: 40, color: Colors.blue.shade700),
-              ),
-            ),
-            const SizedBox(height: 20),
-            Text(
-              parsed.message,
-              textAlign: TextAlign.center,
-              style: const TextStyle(
-                fontSize: 15,
-                color: Colors.black87,
-                height: 1.5,
-              ),
-            ),
-            if (parsed.ocrMerchant != null || parsed.ocrTotal != null) ...[
-              const SizedBox(height: 20),
+            if (hasDetail)
               Container(
                 width: double.infinity,
                 padding: const EdgeInsets.all(16),
@@ -368,47 +357,7 @@ class NotificationsView extends GetView<NotificationsPageController> {
                   ],
                 ),
               ),
-            ],
-          ],
-        );
-        
-      case 'BUDGET':
-        final Color alertColor = parsed.isOverBudget ? Colors.red.shade700 : Colors.amber.shade700;
-        final Color alertBg = parsed.isOverBudget ? Colors.red.shade50 : Colors.amber.shade50;
-        
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: alertBg,
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: alertColor.withOpacity(0.2)),
-              ),
-              child: Row(
-                children: [
-                  Icon(
-                    parsed.isOverBudget ? Icons.error_outline_rounded : Icons.warning_amber_rounded,
-                    color: alertColor,
-                    size: 24,
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Text(
-                      parsed.isOverBudget ? 'Segera evaluasi pengeluaran bersama!' : 'Hampir mencapai batas anggaran keluarga.',
-                      style: TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w600,
-                        color: alertColor,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 20),
+            if (hasDetail) const SizedBox(height: 16),
             Text(
               parsed.message,
               style: const TextStyle(
@@ -417,8 +366,18 @@ class NotificationsView extends GetView<NotificationsPageController> {
                 height: 1.5,
               ),
             ),
-            if (parsed.budgetPercentage != null || parsed.budgetRemaining != null) ...[
-              const SizedBox(height: 20),
+          ],
+        );
+
+      case 'BUDGET':
+        final hasDetail = parsed.budgetPercentage != null ||
+            parsed.budgetRemaining != null ||
+            parsed.budgetAmount != null ||
+            parsed.budgetCategory != null;
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            if (hasDetail)
               Container(
                 width: double.infinity,
                 padding: const EdgeInsets.all(16),
@@ -429,6 +388,10 @@ class NotificationsView extends GetView<NotificationsPageController> {
                 ),
                 child: Column(
                   children: [
+                    if (parsed.budgetAmount != null)
+                      _buildNotificationDetailRow('Jumlah Anggaran', parsed.budgetAmount!),
+                    if (parsed.budgetCategory != null)
+                      _buildNotificationDetailRow('Kategori', parsed.budgetCategory!),
                     if (parsed.budgetPercentage != null)
                       _buildNotificationDetailRow('Penggunaan', parsed.budgetPercentage!),
                     if (parsed.budgetRemaining != null)
@@ -436,55 +399,7 @@ class NotificationsView extends GetView<NotificationsPageController> {
                   ],
                 ),
               ),
-            ],
-          ],
-        );
-        
-      case 'WALLET':
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Card wallet mock visual
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(24),
-              decoration: BoxDecoration(
-                color: theme.primaryColor,
-                borderRadius: BorderRadius.circular(20),
-                boxShadow: [
-                  BoxShadow(
-                    color: theme.primaryColor.withOpacity(0.2),
-                    blurRadius: 15,
-                    offset: const Offset(0, 5),
-                  ),
-                ],
-              ),
-              child: const Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Icon(Icons.account_balance_wallet_rounded, color: Colors.white, size: 28),
-                  SizedBox(height: 24),
-                  Text(
-                    'Dompet Bersama Keluarga',
-                    style: TextStyle(
-                      color: Colors.white70,
-                      fontSize: 12,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                  SizedBox(height: 4),
-                  Text(
-                    'Saldo Terupdate',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 24),
+            if (hasDetail) const SizedBox(height: 16),
             Text(
               parsed.message,
               style: const TextStyle(
@@ -495,7 +410,110 @@ class NotificationsView extends GetView<NotificationsPageController> {
             ),
           ],
         );
-        
+
+      case 'WALLET':
+        final hasDetail = parsed.walletName != null;
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            if (hasDetail)
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF8FAFC),
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: Colors.grey.shade100),
+                ),
+                child: Column(
+                  children: [
+                    _buildNotificationDetailRow('Dompet', parsed.walletName!),
+                  ],
+                ),
+              ),
+            if (hasDetail) const SizedBox(height: 16),
+            Text(
+              parsed.message,
+              style: const TextStyle(
+                fontSize: 14,
+                color: Colors.black87,
+                height: 1.5,
+              ),
+            ),
+          ],
+        );
+
+      case 'ASSET':
+        final hasDetail = parsed.assetName != null;
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            if (hasDetail)
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF8FAFC),
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: Colors.grey.shade100),
+                ),
+                child: Column(
+                  children: [
+                    _buildNotificationDetailRow('Nama Aset', parsed.assetName!),
+                  ],
+                ),
+              ),
+            if (hasDetail) const SizedBox(height: 16),
+            Text(
+              parsed.message,
+              style: const TextStyle(
+                fontSize: 14,
+                color: Colors.black87,
+                height: 1.5,
+              ),
+            ),
+          ],
+        );
+
+      case 'GOAL':
+        final hasDetail = parsed.goalName != null ||
+            parsed.goalTarget != null ||
+            parsed.goalDeposit != null;
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            if (hasDetail)
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF8FAFC),
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: Colors.grey.shade100),
+                ),
+                child: Column(
+                  children: [
+                    if (parsed.goalName != null)
+                      _buildNotificationDetailRow('Nama Goal', parsed.goalName!),
+                    if (parsed.goalTarget != null)
+                      _buildNotificationDetailRow('Target', parsed.goalTarget!),
+                    if (parsed.goalDeposit != null)
+                      _buildNotificationDetailRow('Deposit', parsed.goalDeposit!),
+                  ],
+                ),
+              ),
+            if (hasDetail) const SizedBox(height: 16),
+            Text(
+              parsed.message,
+              style: const TextStyle(
+                fontSize: 14,
+                color: Colors.black87,
+                height: 1.5,
+              ),
+            ),
+          ],
+        );
+
       default:
         return Text(
           parsed.message,

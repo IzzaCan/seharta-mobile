@@ -192,29 +192,6 @@ class CreateGroupView extends GetView<CreateGroupController> {
                               ),
                             ),
                             const SizedBox(height: 24),
-                            // QR Code Placeholder
-                            Container(
-                              width: 150,
-                              height: 150,
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                border: Border.all(color: borderColor),
-                                borderRadius: BorderRadius.circular(12),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: primaryColor.withOpacity(0.05),
-                                    blurRadius: 10,
-                                    offset: const Offset(0, 2),
-                                  ),
-                                ],
-                              ),
-                              child: Icon(
-                                Icons.qr_code_2,
-                                size: 100,
-                                color: primaryColor,
-                              ),
-                            ),
-                            const SizedBox(height: 24),
                             ElevatedButton.icon(
                               onPressed: controller.copyCode,
                               icon: const Icon(

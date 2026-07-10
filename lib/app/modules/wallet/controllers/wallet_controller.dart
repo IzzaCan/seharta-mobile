@@ -1,7 +1,7 @@
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
-import '../models/wallet_model.dart';
-import '../providers/wallet_provider.dart';
+import '../../../data/models/wallet_model.dart';
+import '../../../data/providers/wallet_provider.dart';
 
 class WalletController extends GetxController {
   final WalletProvider _walletProvider = Get.find<WalletProvider>();

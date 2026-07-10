@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../data/models/budget_model.dart';
 import '../../../data/providers/api_provider.dart';
 import '../../../data/services/auth_service.dart';
-import '../../wallet/models/wallet_model.dart';
+import '../../../data/models/wallet_model.dart';
 
 class BudgetDetailController extends GetxController {
   final ApiProvider _apiProvider = ApiProvider();

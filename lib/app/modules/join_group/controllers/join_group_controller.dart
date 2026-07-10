@@ -3,7 +3,6 @@ import 'package:get/get.dart';
 import '../../../data/providers/family_provider.dart';
 import '../../../data/services/auth_service.dart';
 import '../../../routes/app_pages.dart';
-import '../views/scan_qr_view.dart';
 
 class JoinGroupController extends GetxController {
   final FamilyProvider _familyProvider = FamilyProvider();
@@ -79,20 +78,6 @@ class JoinGroupController extends GetxController {
       );
     } finally {
       isLoading.value = false;
-    }
-  }
-
-  void scanQR() async {
-    final result = await Get.to(() => const ScanQrView());
-    if (result != null && result is String) {
-      codeController.text = result;
-      Get.snackbar(
-        'Berhasil',
-        'Kode QR berhasil di-scan',
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.green[100],
-        colorText: Colors.green[900],
-      );
     }
   }
 }

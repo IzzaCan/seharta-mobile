@@ -129,6 +129,7 @@ class ManageCategoriesView extends GetView<ManageCategoriesController> {
                           return Padding(
                             padding: const EdgeInsets.only(bottom: 12.0), // Sebagai pengganti separatorBuilder
                             child: _buildDynamicCategoryItem(
+                              id: category['id'],
                               icon: category['icon'],
                               iconColor: category['color'],
                               title: category['title'],
@@ -268,6 +269,7 @@ class ManageCategoriesView extends GetView<ManageCategoriesController> {
   }
 
   Widget _buildDynamicCategoryItem({
+    required String id,
     required IconData icon,
     required Color iconColor,
     required String title,
@@ -305,7 +307,7 @@ class ManageCategoriesView extends GetView<ManageCategoriesController> {
                     Expanded(
                       child: GestureDetector(
                         onTap: () {
-                          controller.editCategory(title);
+                          controller.editCategory(id, title);
                         },
                         behavior: HitTestBehavior.opaque,
                         child: Container(
@@ -324,7 +326,7 @@ class ManageCategoriesView extends GetView<ManageCategoriesController> {
                     Expanded(
                       child: GestureDetector(
                         onTap: () {
-                          controller.deleteCategory(title);
+                          controller.deleteCategory(id);
                         },
                         behavior: HitTestBehavior.opaque,
                         child: Container(

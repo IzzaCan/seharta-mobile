@@ -6,18 +6,12 @@ import 'package:http/http.dart' as http;
 class ApiProvider {
   // Gunakan IP 10.0.2.2 untuk Android emulator, atau IP PC Anda (misal: 192.168.1.4) jika run di HP fisik
   static String get baseUrl {
-    if (kIsWeb) {
-      return 'http://localhost:8000/api/v1';
-    }
-    return Platform.isAndroid
-        ? 'http://192.168.1.6:8000/api/v1'
-        : 'http://localhost:8000/api/v1';
+  return 'https://api.seharta.web.id/api/v1';
   }
 
   // Domain utama untuk load static files (seperti avatar)
   static String get baseDomain {
-    if (kIsWeb) return 'http://localhost:8000';
-    return Platform.isAndroid ? 'http://192.168.1.6:8000' : 'http://localhost:8000';
+  return 'https://api.seharta.web.id';
   }
 
   // Helper untuk mendapatkan URL gambar yang valid secara otomatis (Mencegah Double URL)
@@ -351,7 +345,7 @@ class ApiProvider {
     int limit = 100,
     int offset = 0,
   }) async {
-    String endpoint = '/notifications?limit=$limit&offset=$offset';
+    String endpoint = '/notifications/?limit=$limit&offset=$offset';
     if (type != null) {
       endpoint += '&type=$type';
     }

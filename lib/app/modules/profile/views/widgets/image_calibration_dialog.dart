@@ -95,7 +95,7 @@ class _ImageCalibrationDialogState extends State<ImageCalibrationDialog> {
                                 height: _aspectRatio > 1.0 ? 300 : 300 / _aspectRatio,
                                 child: Image.memory(
                                   widget.imageBytes,
-                                  fit: BoxFit.fill,
+                                  fit: BoxFit.cover,
                                 ),
                               )
                             : const SizedBox(

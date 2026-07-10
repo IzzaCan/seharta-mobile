@@ -185,6 +185,7 @@ class ManageWalletsView extends GetView<ManageWalletsController> {
                         iconColor: const Color(0xFF1F9975),
                         title: wallet.walletName,
                         balance: formattedBalance,
+                        rawBalance: wallet.balance,
                         isSelected: isSelected,
                         onTap: () => controller.selectWallet(wallet.id),
                       ),
@@ -235,6 +236,7 @@ class ManageWalletsView extends GetView<ManageWalletsController> {
     required IconData icon,
     required String title,
     required String balance,
+    required double rawBalance,
     Color? iconBgColor,
     Color? iconColor,
     required bool isSelected,
@@ -246,7 +248,7 @@ class ManageWalletsView extends GetView<ManageWalletsController> {
       builder: (context, constraints) {
         double width = constraints.maxWidth;
         double actionsWidth =
-            width * 0.4; // Lebar porsi tombol aksi di sisi kanan
+            width * 0.5; // Lebar porsi tombol aksi (3 slot: Edit | Saldo | Hapus)
 
         return Container(
           height: itemHeight,
@@ -276,6 +278,23 @@ class ManageWalletsView extends GetView<ManageWalletsController> {
                             child: Icon(
                               Icons.edit_outlined,
                               color: Color(0xFF4A5568),
+                              size: 20,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    // Tombol Sesuaikan Saldo
+                    Expanded(
+                      child: GestureDetector(
+                        onTap: () => controller.adjustBalance(id, rawBalance),
+                        behavior: HitTestBehavior.opaque,
+                        child: Container(
+                          color: const Color(0xFFE2E8F0),
+                          child: const Center(
+                            child: Icon(
+                              Icons.tune,
+                              color: Color(0xFF1F9975),
                               size: 20,
                             ),
                           ),

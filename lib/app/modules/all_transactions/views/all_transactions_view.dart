@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import '../controllers/all_transactions_controller.dart';
-import '../../wallet/models/wallet_model.dart';
+import '../../../data/models/wallet_model.dart';
 import '../../../data/providers/api_provider.dart';
 
 class AllTransactionsView extends GetView<AllTransactionsController> {
@@ -230,9 +230,7 @@ class AllTransactionsView extends GetView<AllTransactionsController> {
     final icon = isTransfer
         ? Icons.swap_horiz
         : (isExpense ? Icons.shopping_basket_outlined : Icons.account_balance_wallet_outlined);
-    final title = tx.notes != null && tx.notes!.isNotEmpty 
-        ? tx.notes! 
-        : (isTransfer ? 'Transfer' : (isExpense ? 'Pengeluaran' : 'Pemasukan'));
+    final title = _shortTitle(tx, isExpense, isTransfer);
     final category = tx.categoryName ?? 'Transfer';
     final amount = '${isExpense ? "-" : "+"} ${controller.formatRupiah(tx.amount)}';
     final wallet = tx.walletName ?? 'Dompet';
@@ -337,6 +335,28 @@ class AllTransactionsView extends GetView<AllTransactionsController> {
         ),
       ),
     );
+  }
+
+  // Helper: judul pendek untuk kartu list (merchant dari hasil OCR),
+  // menyembunyikan dump notes panjang agar tidak tampil di list.
+  String _shortTitle(TransactionModel tx, bool isExpense, bool isTransfer) {
+    final notes = tx.notes;
+    if (notes != null && notes.isNotEmpty) {
+      if (notes.startsWith('DETAIL SCAN STRUK')) {
+        // Dump hasil OCR: ambil "Merchant : <nama>" sebagai judul singkat.
+        final merchantMatch =
+            RegExp(r'Merchant[ \t]*:[ \t]*([^\n]+)', caseSensitive: false).firstMatch(notes);
+        if (merchantMatch != null) {
+          final merchant = merchantMatch.group(1)!.trim();
+          if (merchant.isNotEmpty) return merchant;
+        }
+      } else {
+        // Catatan biasa (bukan dump OCR): gunakan baris pertamanya.
+        final firstLine = notes.split('\n').first.trim();
+        if (firstLine.isNotEmpty) return firstLine;
+      }
+    }
+    return isTransfer ? 'Transfer' : (isExpense ? 'Pengeluaran' : 'Pemasukan');
   }
 
   void _showTransactionDetailBottomSheet(BuildContext context, TransactionModel tx) {
