@@ -139,16 +139,17 @@ class ProfileView extends GetView<ProfileController> {
                         onTap: () => Get.toNamed(Routes.EDIT_FAMILY_NAME),
                       );
                     }),
-                    GetBuilder<ProfileController>(
-                      builder: (controller) => _buildSwitchTile(
-                        title: 'Notifikasi Pasangan',
+                    Obx(() {
+                      final notifController = Get.find<NotificationController>();
+                      return _buildSwitchTile(
+                        title: 'Pengaturan Notifikasi',
                         icon: Icons.notifications_active_outlined,
                         iconBgColor: greenAccent.withValues(alpha: 0.1),
                         iconColor: greenAccent,
-                        value: controller.isNotificationOn,
-                        onChanged: controller.toggleNotification,
-                      ),
-                    ),
+                        value: notifController.isPushEnabled.value,
+                        onChanged: (val) => notifController.togglePushSetting(val),
+                      );
+                    }),
                   ],
                 ),
                 const SizedBox(height: 24),
@@ -212,8 +213,8 @@ class ProfileView extends GetView<ProfileController> {
                   children: [
                     GetBuilder<ProfileController>(
                       builder: (controller) => _buildSwitchTile(
-                        title: 'Kunci Aplikasi (Biometrik)',
-                        icon: Icons.fingerprint_outlined,
+                        title: 'Kunci Aplikasi (PIN)',
+                        icon: Icons.lock_outline,
                         iconBgColor: secondaryColor.withValues(alpha: 0.1),
                         iconColor: secondaryColor,
                         value: controller.isAppLockOn,
@@ -234,17 +235,6 @@ class ProfileView extends GetView<ProfileController> {
                       iconColor: secondaryColor,
                       onTap: () => Get.toNamed(Routes.HELP_CENTER),
                     ),
-                    Obx(() {
-                      final notifController = Get.find<NotificationController>();
-                      return _buildSwitchTile(
-                        title: 'Pengaturan Notifikasi',
-                        icon: Icons.notifications_active_outlined,
-                        iconBgColor: accentColor.withValues(alpha: 0.1),
-                        iconColor: accentColor,
-                        value: notifController.isPushEnabled.value,
-                        onChanged: (val) => notifController.togglePushSetting(val),
-                      );
-                    }),
                     _buildListTile(
                       title: 'Keluar',
                       icon: Icons.logout,

@@ -310,14 +310,7 @@ class ProfileController extends GetxController {
   }
 
   // State untuk Switch (Toggle)
-  bool isNotificationOn = true;
   bool isAppLockOn = false;
-
-  // Fungsi toggle
-  void toggleNotification(bool value) {
-    isNotificationOn = value;
-    update();
-  }
 
   void toggleAppLock(bool value) async {
     final prefs = await SharedPreferences.getInstance();
