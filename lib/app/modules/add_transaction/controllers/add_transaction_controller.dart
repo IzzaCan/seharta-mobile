@@ -3,10 +3,10 @@ import 'package:get/get.dart';
 import '../../../routes/app_pages.dart';
 import '../../manage_categories/controllers/manage_categories_controller.dart';
 import '../../manage_wallets/controllers/manage_wallets_controller.dart';
-import '../../wallet/providers/wallet_provider.dart';
+import '../../../data/providers/wallet_provider.dart';
 import '../../home/controllers/home_controller.dart';
 import '../../wallet/controllers/wallet_controller.dart';
-import '../../wallet/models/wallet_model.dart';
+import '../../../data/models/wallet_model.dart';
 
 class AddTransactionController extends GetxController {
   // State untuk Tab Pengeluaran vs Pemasukan (True = Pengeluaran)

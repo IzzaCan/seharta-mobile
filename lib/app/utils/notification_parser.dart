@@ -24,7 +24,17 @@ class ParsedNotification {
   // Budget specific
   final String? budgetPercentage;
   final String? budgetRemaining;
+  final String? budgetAmount;
+  final String? budgetCategory;
   final bool isOverBudget;
+
+  // Asset specific
+  final String? assetName;
+
+  // Goal specific
+  final String? goalName;
+  final String? goalTarget;
+  final String? goalDeposit;
 
   ParsedNotification({
     required this.categoryType,
@@ -40,7 +50,13 @@ class ParsedNotification {
     this.ocrMerchant,
     this.budgetPercentage,
     this.budgetRemaining,
+    this.budgetAmount,
+    this.budgetCategory,
     this.isOverBudget = false,
+    this.assetName,
+    this.goalName,
+    this.goalTarget,
+    this.goalDeposit,
   });
 }
 
@@ -93,9 +109,24 @@ ParsedNotification parseNotification(NotificationResponse item) {
     if (remMatch != null) {
       remaining = remMatch.group(1);
     }
-    
+
+    // Budget amount + category (covers "Anggaran Dibuat" / created notifications)
+    String? amount;
+    final amtRegex = RegExp(r'sebesar\s+(\d[\d.,]*)', caseSensitive: false);
+    final amtMatch = amtRegex.firstMatch(messageText);
+    if (amtMatch != null) {
+      amount = 'Rp ${amtMatch.group(1)}';
+    }
+
+    String? category;
+    final catRegex = RegExp(r"kategori\s+'([^']+)'", caseSensitive: false);
+    final catMatch = catRegex.firstMatch(messageText);
+    if (catMatch != null) {
+      category = catMatch.group(1)?.trim();
+    }
+
     // Extract category name if any e.g. "Kategori Makanan"
-    String titleCategory = 'Umum';
+    String titleCategory = category ?? 'Umum';
     final catTitleRegex = RegExp(r'\((?:Kategori\s+)?([A-Za-z0-9 &]+)\)', caseSensitive: false);
     final catTitleMatch = catTitleRegex.firstMatch(item.title);
     if (catTitleMatch != null) {
@@ -108,16 +139,75 @@ ParsedNotification parseNotification(NotificationResponse item) {
       message: messageText,
       budgetPercentage: percentage,
       budgetRemaining: remaining,
+      budgetAmount: amount,
+      budgetCategory: category,
       isOverBudget: isOver,
     );
   }
-  
+
+  // 2b. Check if it's Asset (created/edited)
+  if (titleLower.contains('aset') || messageLower.contains("' telah ditambahkan") || messageLower.contains("' telah diperbarui")) {
+    String? asset;
+    final assetRegex = RegExp(r"'([^']+)'\s+(telah ditambahkan|telah diperbarui)", caseSensitive: false);
+    final assetMatch = assetRegex.firstMatch(messageText);
+    if (assetMatch != null) {
+      asset = assetMatch.group(1)?.trim();
+    }
+
+    return ParsedNotification(
+      categoryType: 'ASSET',
+      title: '🏠 Aset Dibuat',
+      message: messageText,
+      assetName: asset,
+    );
+  }
+
+  // 2c. Check if it's Goal (created) or Goal Contribution
+  if (titleLower.contains('goal') || messageLower.contains('goal')) {
+    String? gName;
+    String? gTarget;
+    String? gDeposit;
+
+    final nameRegex = RegExp(r"Goal\s+'([^']+)'", caseSensitive: false);
+    final nameMatch = nameRegex.firstMatch(messageText);
+    if (nameMatch != null) gName = nameMatch.group(1)?.trim();
+
+    final targetRegex = RegExp(r"target\s+(\d[\d.,]*)", caseSensitive: false);
+    final targetMatch = targetRegex.firstMatch(messageText);
+    if (targetMatch != null) gTarget = 'Rp ${targetMatch.group(1)!.trim()}';
+
+    final depositRegex = RegExp(r"Deposit\s+(?:sebesar\s+)?(\d[\d.,]*)", caseSensitive: false);
+    final depositMatch = depositRegex.firstMatch(messageText);
+    if (depositMatch != null) gDeposit = 'Rp ${depositMatch.group(1)!.trim()}';
+
+    final isContribution = messageLower.contains('deposit') || messageLower.contains('kontribusi');
+
+    return ParsedNotification(
+      categoryType: 'GOAL',
+      title: isContribution ? '🎯 Kontribusi Goal (Deposit)' : '🎯 Goal Dibuat',
+      message: messageText,
+      goalName: gName,
+      goalTarget: gTarget,
+      goalDeposit: gDeposit,
+    );
+  }
+
   // 3. Check if it's Wallet Updates
   if (titleLower.contains('saldo') || titleLower.contains('dompet') || (item.metadataPayload != null && item.metadataPayload!.containsKey('wallet_id') && !item.metadataPayload!.containsKey('transaction_id'))) {
+    String? wName;
+    final wNameRegex = RegExp(r"Dompet\s+'([^']+)'", caseSensitive: false);
+    final wNameMatch = wNameRegex.firstMatch(messageText);
+    if (wNameMatch != null) {
+      wName = wNameMatch.group(1)?.trim();
+    }
+    // fallback to payload
+    wName ??= item.metadataPayload?['wallet_name'];
+
     return ParsedNotification(
       categoryType: 'WALLET',
       title: '💰 Pembaruan Saldo Dompet Bersama',
       message: messageText,
+      walletName: wName,
     );
   }
   

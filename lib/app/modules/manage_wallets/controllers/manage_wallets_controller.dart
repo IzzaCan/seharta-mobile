@@ -1,7 +1,7 @@
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
-import '../../wallet/models/wallet_model.dart';
-import '../../wallet/providers/wallet_provider.dart';
+import '../../../data/models/wallet_model.dart';
+import '../../../data/providers/wallet_provider.dart';
 import '../../wallet/controllers/wallet_controller.dart';
 import '../../../utils/rupiah_formatter.dart';
 
@@ -212,8 +212,298 @@ class ManageWalletsController extends GetxController {
   }
 
   void editWallet(String id, String currentName) {
-    print("Mengedit dompet: $currentName");
-    // TODO: Implementasi form dialog atau bottom sheet edit dompet
+    walletNameController.text = currentName;
+    walletBalanceController.clear();
+
+    Get.bottomSheet(
+      Builder(
+        builder: (context) {
+          final keyboardHeight = MediaQuery.of(context).viewInsets.bottom;
+          return Align(
+            alignment: Alignment.bottomCenter,
+            child: SingleChildScrollView(
+              child: Container(
+                padding: EdgeInsets.only(
+                  left: 24,
+                  right: 24,
+                  top: 24,
+                  bottom: 24 + keyboardHeight,
+                ),
+                decoration: const BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(20),
+                    topRight: Radius.circular(20),
+                  ),
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Center(
+                      child: Container(
+                        width: 40,
+                        height: 4,
+                        decoration: BoxDecoration(
+                          color: Colors.grey[300],
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+                    const Text(
+                      'Edit Nama Dompet',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF0D2B33),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    TextField(
+                      controller: walletNameController,
+                      autofocus: true,
+                      decoration: InputDecoration(
+                        hintText: 'Nama Dompet (cth: Mandiri, Jago)',
+                        hintStyle: TextStyle(color: Colors.grey[400], fontSize: 13),
+                        filled: true,
+                        fillColor: const Color(0xFFF8F9FF),
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 14,
+                        ),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: const BorderSide(color: Color(0xFFE0E5E9)),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: const BorderSide(
+                            color: Color(0xFF1F9975),
+                            width: 1.5,
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+                    SizedBox(
+                      width: double.infinity,
+                      height: 48,
+                      child: ElevatedButton(
+                        onPressed: () => submitEditWallet(id),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF0D2B33),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        child: const Text(
+                          'Simpan Perubahan',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                  ],
+                ),
+              ),
+            ),
+          );
+        },
+      ),
+      isScrollControlled: true,
+    );
+  }
+
+  Future<void> submitEditWallet(String id) async {
+    final name = walletNameController.text.trim();
+    if (name.isEmpty) {
+      Get.snackbar('Error', 'Nama dompet tidak boleh kosong',
+          backgroundColor: const Color(0xFFFFEBEE), colorText: const Color(0xFFD32F2F));
+      return;
+    }
+
+    try {
+      Get.back(); // Tutup bottom sheet
+      await _walletProvider.updateWallet(id, name);
+
+      Get.snackbar(
+        'Sukses',
+        'Dompet berhasil diubah menjadi $name',
+        backgroundColor: const Color(0xFFE8F5EE),
+        colorText: const Color(0xFF0D2B33),
+      );
+
+      await fetchWallets(); // Refresh data diri sendiri
+
+      // Refresh WalletController agar UI utama ikut terupdate
+      if (Get.isRegistered<WalletController>()) {
+        Get.find<WalletController>().loadWalletData();
+      }
+    } catch (e) {
+      Get.snackbar('Error', 'Gagal mengubah dompet: $e',
+          backgroundColor: const Color(0xFFFFEBEE), colorText: const Color(0xFFD32F2F));
+    }
+  }
+
+  void adjustBalance(String id, double currentBalance) {
+    // Isi saldo saat ini (tanpa formatter titik) agar mudah diedit
+    walletBalanceController.text = currentBalance
+        .toStringAsFixed(0)
+        .replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (m) => '${m[1]}.');
+    walletNameController.clear();
+
+    Get.bottomSheet(
+      Builder(
+        builder: (context) {
+          final keyboardHeight = MediaQuery.of(context).viewInsets.bottom;
+          return Align(
+            alignment: Alignment.bottomCenter,
+            child: SingleChildScrollView(
+              child: Container(
+                padding: EdgeInsets.only(
+                  left: 24,
+                  right: 24,
+                  top: 24,
+                  bottom: 24 + keyboardHeight,
+                ),
+                decoration: const BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(20),
+                    topRight: Radius.circular(20),
+                  ),
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Center(
+                      child: Container(
+                        width: 40,
+                        height: 4,
+                        decoration: BoxDecoration(
+                          color: Colors.grey[300],
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+                    const Text(
+                      'Sesuaikan Saldo Dompet',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF0D2B33),
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    const Text(
+                      'Masukkan saldo kas riil dompet. Perubahan akan dicatat sebagai transaksi Balance Adjustment.',
+                      style: TextStyle(fontSize: 12, color: Color(0xFF64748B), height: 1.5),
+                    ),
+                    const SizedBox(height: 16),
+                    TextField(
+                      controller: walletBalanceController,
+                      autofocus: true,
+                      keyboardType: TextInputType.number,
+                      inputFormatters: [RupiahInputFormatter()],
+                      decoration: InputDecoration(
+                        hintText: 'Saldo riil (cth: 1.200.000)',
+                        hintStyle: TextStyle(color: Colors.grey[400], fontSize: 13),
+                        filled: true,
+                        fillColor: const Color(0xFFF8F9FF),
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 14,
+                        ),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: const BorderSide(color: Color(0xFFE0E5E9)),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: const BorderSide(
+                            color: Color(0xFF1F9975),
+                            width: 1.5,
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+                    SizedBox(
+                      width: double.infinity,
+                      height: 48,
+                      child: ElevatedButton(
+                        onPressed: () => submitAdjustBalance(id),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF0D2B33),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        child: const Text(
+                          'Simpan Saldo',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                  ],
+                ),
+              ),
+            ),
+          );
+        },
+      ),
+      isScrollControlled: true,
+    );
+  }
+
+  Future<void> submitAdjustBalance(String id) async {
+    final balanceText = walletBalanceController.text.trim();
+    if (balanceText.isEmpty) {
+      Get.snackbar('Error', 'Saldo tidak boleh kosong',
+          backgroundColor: const Color(0xFFFFEBEE), colorText: const Color(0xFFD32F2F));
+      return;
+    }
+
+    final clean = balanceText.replaceAll('.', '').replaceAll(',', '');
+    final target = double.tryParse(clean);
+    if (target == null || target < 0) {
+      Get.snackbar('Error', 'Saldo harus berupa angka valid',
+          backgroundColor: const Color(0xFFFFEBEE), colorText: const Color(0xFFD32F2F));
+      return;
+    }
+
+    try {
+      Get.back(); // Tutup bottom sheet
+      // Panggil endpoint adjust-balance via WalletProvider
+      await _walletProvider.adjustBalance(id, target);
+
+      Get.snackbar(
+        'Sukses',
+        'Saldo dompet berhasil disesuaikan.',
+        backgroundColor: const Color(0xFFE8F5EE),
+        colorText: const Color(0xFF0D2B33),
+      );
+
+      await fetchWallets(); // Refresh data diri sendiri
+
+      // Refresh WalletController agar UI utama ikut terupdate
+      if (Get.isRegistered<WalletController>()) {
+        Get.find<WalletController>().loadWalletData();
+      }
+    } catch (e) {
+      Get.snackbar('Error', 'Gagal menyelaraskan saldo: $e',
+          backgroundColor: const Color(0xFFFFEBEE), colorText: const Color(0xFFD32F2F));
+    }
   }
 
   Future<void> deleteWallet(String id, String name) async {

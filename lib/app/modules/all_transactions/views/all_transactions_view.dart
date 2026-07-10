@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import '../controllers/all_transactions_controller.dart';
-import '../../wallet/models/wallet_model.dart';
+import '../../../data/models/wallet_model.dart';
 import '../../../data/providers/api_provider.dart';
 
 class AllTransactionsView extends GetView<AllTransactionsController> {

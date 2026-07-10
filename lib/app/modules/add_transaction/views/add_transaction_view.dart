@@ -5,7 +5,7 @@ import '../../../routes/app_pages.dart';
 import '../../../utils/rupiah_formatter.dart';
 import '../../manage_categories/controllers/manage_categories_controller.dart';
 import '../../manage_wallets/controllers/manage_wallets_controller.dart';
-import '../../wallet/models/wallet_model.dart';
+import '../../../data/models/wallet_model.dart';
 
 class AddTransactionView extends GetView<AddTransactionController> {
   const AddTransactionView({Key? key}) : super(key: key);

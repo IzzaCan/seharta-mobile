@@ -1,6 +1,6 @@
 import 'package:get/get.dart';
 import '../controllers/wallet_controller.dart';
-import '../providers/wallet_provider.dart';
+import '../../../data/providers/wallet_provider.dart';
 
 class WalletBinding extends Bindings {
   @override

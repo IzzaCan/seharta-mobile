@@ -1,8 +1,8 @@
 import 'package:get/get.dart';
-import '../../../data/providers/api_provider.dart';
-import '../../../data/services/auth_service.dart';
+import './api_provider.dart';
+import '../services/auth_service.dart';
 import '../models/wallet_model.dart';
-import '../../harta/models/goal_model.dart';
+import '../../modules/harta/models/goal_model.dart';
 
 class WalletProvider {
   final ApiProvider _apiProvider = ApiProvider();
@@ -41,6 +41,28 @@ class WalletProvider {
 
     final response = await _apiProvider.post('/wallets/', payload, token: token);
     return WalletModel.fromJson(response);
+  }
+
+  Future<WalletModel> updateWallet(String walletId, String walletName) async {
+    final token = _authService.accessToken.value;
+    if (token.isEmpty) throw Exception('Sesi telah habis, silakan login kembali.');
+
+    // Backend PUT /wallets/{id} accepts partial updates; we only rename here.
+    final payload = {'wallet_name': walletName};
+
+    final response = await _apiProvider.put('/wallets/$walletId', payload, token: token);
+    return WalletModel.fromJson(response);
+  }
+
+  Future<void> adjustBalance(String walletId, double targetBalance) async {
+    final token = _authService.accessToken.value;
+    if (token.isEmpty) throw Exception('Sesi telah habis, silakan login kembali.');
+
+    // Backend POST /wallets/{id}/adjust-balance records a Balance Adjustment
+    // transaction so the balance change has an audit trail.
+    final payload = {'target_balance': targetBalance};
+
+    await _apiProvider.post('/wallets/$walletId/adjust-balance', payload, token: token);
   }
 
   Future<void> deleteWallet(String walletId) async {

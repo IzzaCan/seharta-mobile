@@ -4,7 +4,7 @@ import 'package:intl/intl.dart';
 import '../controllers/home_controller.dart';
 import '../../../routes/app_pages.dart';
 import '../../../data/providers/api_provider.dart';
-import '../../wallet/models/wallet_model.dart';
+import '../../../data/models/wallet_model.dart';
 import '../../notifications/controllers/notification_controller.dart';
 import '../../../data/models/notification_model.dart';
 import '../../../utils/time_ago.dart';

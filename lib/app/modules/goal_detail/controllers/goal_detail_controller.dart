@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
-import '../../wallet/providers/wallet_provider.dart';
+import '../../../data/providers/wallet_provider.dart';
 import '../../harta/models/goal_model.dart';
 import '../../harta/controllers/harta_controller.dart';
 import '../../../utils/rupiah_formatter.dart';
