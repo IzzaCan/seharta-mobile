@@ -80,51 +80,14 @@ class AddTransactionView extends GetView<AddTransactionController> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // 1. Header (Identitas Pasangan)
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Row(
-                    children: [
-                      SizedBox(
-                        width: 40,
-                        child: Stack(
-                          children: [
-                            const CircleAvatar(
-                              radius: 12,
-                              backgroundImage: NetworkImage(
-                                'https://ui-avatars.com/api/?name=Anda&background=0D2B33&color=fff',
-                              ),
-                            ),
-                            Positioned(
-                              left: 14,
-                              child: CircleAvatar(
-                                radius: 12,
-                                backgroundColor: Colors.white,
-                                child: const CircleAvatar(
-                                  radius: 10,
-                                  backgroundImage: NetworkImage(
-                                    'https://ui-avatars.com/api/?name=Pasangan&background=1F9975&color=fff',
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      Text(
-                        'Seharta',
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.bold,
-                          color: primaryColor,
-                        ),
-                      ),
-                    ],
-                  ),
-                  Icon(Icons.notifications_none, color: primaryColor, size: 20),
-                ],
+              // 1. Header (Identitas Aplikasi)
+              Text(
+                'Seharta',
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.bold,
+                  color: primaryColor,
+                ),
               ),
               const SizedBox(height: 32),
 

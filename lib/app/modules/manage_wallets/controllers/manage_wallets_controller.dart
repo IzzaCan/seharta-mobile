@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../wallet/models/wallet_model.dart';
 import '../../wallet/providers/wallet_provider.dart';
 import '../../wallet/controllers/wallet_controller.dart';
+import '../../../utils/rupiah_formatter.dart';
 
 class ManageWalletsController extends GetxController {
   final WalletProvider _walletProvider = WalletProvider();
@@ -117,8 +118,9 @@ class ManageWalletsController extends GetxController {
                   TextField(
                     controller: walletBalanceController,
                     keyboardType: TextInputType.number,
+                    inputFormatters: [RupiahInputFormatter()],
                     decoration: InputDecoration(
-                      hintText: 'Saldo Awal (cth: 100000)',
+                      hintText: 'Saldo Awal (cth: 100.000)',
                       hintStyle: TextStyle(color: Colors.grey[400], fontSize: 13),
                       filled: true,
                       fillColor: const Color(0xFFF8F9FF),
@@ -176,7 +178,9 @@ class ManageWalletsController extends GetxController {
     String balanceText = walletBalanceController.text.trim();
 
     if (name.isNotEmpty && balanceText.isNotEmpty) {
-      double? balance = double.tryParse(balanceText);
+      // Bersihkan pemisah ribuan (titik) dari RupiahInputFormatter sebelum parse
+      final cleanBalance = balanceText.replaceAll('.', '').replaceAll(',', '');
+      double? balance = double.tryParse(cleanBalance);
       if (balance == null) {
         Get.snackbar('Error', 'Saldo harus berupa angka valid',
             backgroundColor: const Color(0xFFFFEBEE), colorText: const Color(0xFFD32F2F));

@@ -198,8 +198,8 @@ class ManageCategoriesController extends GetxController {
     }
   }
 
-  void editCategory(String title) {
-    final category = categories.firstWhere((c) => c['title'] == title, orElse: () => <String, dynamic>{});
+  void editCategory(String id, String title) {
+    final category = categories.firstWhere((c) => c['id'] == id, orElse: () => <String, dynamic>{});
     if (category.isEmpty) return;
     
     if (category['isDefault'] == true) {
@@ -283,8 +283,8 @@ class ManageCategoriesController extends GetxController {
     }
   }
 
-  void deleteCategory(String title) async {
-    final category = categories.firstWhere((c) => c['title'] == title, orElse: () => <String, dynamic>{});
+  void deleteCategory(String id) async {
+    final category = categories.firstWhere((c) => c['id'] == id, orElse: () => <String, dynamic>{});
     if (category.isEmpty) return;
 
     if (category['isDefault'] == true) {
@@ -299,9 +299,9 @@ class ManageCategoriesController extends GetxController {
       
       if (Get.isDialogOpen == true) Get.back(); // Tutup loading
       
-      Get.snackbar('Sukses', 'Kategori $title berhasil dihapus!', snackPosition: SnackPosition.TOP, backgroundColor: const Color(0xFFE8F5EE), colorText: const Color(0xFF0D2B33));
+      Get.snackbar('Sukses', 'Kategori ${category['title']} berhasil dihapus!', snackPosition: SnackPosition.TOP, backgroundColor: const Color(0xFFE8F5EE), colorText: const Color(0xFF0D2B33));
       
-      if (selectedCategory == title) selectedCategory = '';
+      if (selectedCategory == category['title']) selectedCategory = '';
       await loadCategories();
       _syncAddTransactionController();
 
