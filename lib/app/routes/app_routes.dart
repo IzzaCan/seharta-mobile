@@ -33,6 +33,7 @@ abstract class Routes {
   static const ALL_TRANSACTIONS = _Paths.ALL_TRANSACTIONS;
   static const HELP_CENTER = _Paths.HELP_CENTER;
   static const NOTIFICATIONS = _Paths.NOTIFICATIONS;
+  static const DISCONNECT_CONFIRMATION = _Paths.DISCONNECT_CONFIRMATION;
 }
 
 abstract class _Paths {
@@ -67,4 +68,5 @@ abstract class _Paths {
   static const ALL_TRANSACTIONS = '/all-transactions';
   static const HELP_CENTER = '/help-center';
   static const NOTIFICATIONS = '/notifications';
+  static const DISCONNECT_CONFIRMATION = '/disconnect-confirmation';
 }

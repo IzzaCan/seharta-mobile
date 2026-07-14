@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import '../../../data/models/analytics_model.dart';
 import '../../../data/providers/api_provider.dart';
 import '../../../data/services/auth_service.dart';
+import '../../harta/controllers/gold_controller.dart';
 
 AnalyticsResponse _parseAnalyticsResponse(Map<String, dynamic> json) {
   return AnalyticsResponse.fromJson(json);
@@ -11,6 +12,9 @@ AnalyticsResponse _parseAnalyticsResponse(Map<String, dynamic> json) {
 class AnalyticsController extends GetxController with StateMixin<AnalyticsResponse> {
   final ApiProvider _apiProvider = ApiProvider();
   final AuthService _authService = Get.find<AuthService>();
+
+  // Gold controller for trend chart data
+  GoldController get goldController => Get.find<GoldController>();
 
   // Static cache to persist data across controller recreation (tab switching)
   static AnalyticsResponse? _cachedAnalytics;
@@ -44,6 +48,9 @@ class AnalyticsController extends GetxController with StateMixin<AnalyticsRespon
   void onReady() {
     super.onReady();
     fetchAnalytics();
+    // Fetch gold price history for trend chart
+    goldController.fetchGoldPrice();
+    goldController.fetchGoldHistory(limit: 30);
   }
 
   void changeMonth(int month, int year) {
@@ -93,6 +100,10 @@ class AnalyticsController extends GetxController with StateMixin<AnalyticsRespon
   }
 
   Future<void> refreshAnalytics() async {
-    await fetchAnalytics();
+    await Future.wait([
+      fetchAnalytics(),
+      goldController.fetchGoldPrice(),
+      goldController.fetchGoldHistory(limit: 30),
+    ]);
   }
 }

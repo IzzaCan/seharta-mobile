@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'dart:math';
 import '../controllers/harta_controller.dart';
+import '../controllers/gold_controller.dart';
 import '../models/asset_model.dart';
 import '../../../routes/app_pages.dart';
 import '../../../utils/asset_helper.dart';
@@ -194,7 +195,11 @@ class HartaView extends GetView<HartaController> {
                   ],
                 ),
               ),
-              const SizedBox(height: 24),
+              const SizedBox(height: 16),
+
+              // GOLD PRICE TICKER BANNER
+              _buildGoldTickerBanner(),
+              const SizedBox(height: 16),
 
               // 3. Segmented Control Navigasi
               Container(
@@ -318,44 +323,73 @@ class HartaView extends GetView<HartaController> {
                       delegate: SliverChildBuilderDelegate(
                         (context, index) {
                           final asset = controller.assets[index];
+                          final isGold = controller.isGoldAsset(asset);
+                          final displayValue = controller.getGoldAssetValue(asset);
+                          final gram = controller.getGoldGram(asset);
+                          final formattedValue = 'Rp ${displayValue.toStringAsFixed(0).replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]}.')}';
+
                           return Padding(
                             padding: const EdgeInsets.only(bottom: 12),
                             child: _buildAssetItem(
                               id: asset.id,
                               icon: _getCategoryIcon(asset.categoryName),
                               title: asset.assetName,
-                              subtitle: RichText(
-                                text: TextSpan(
-                                  style: const TextStyle(
-                                    fontSize: 10,
-                                    height: 1.4,
+                              subtitle: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  RichText(
+                                    text: TextSpan(
+                                      style: const TextStyle(
+                                        fontSize: 10,
+                                        height: 1.4,
+                                      ),
+                                      children: [
+                                        TextSpan(
+                                          text: translateAssetCategory(asset.categoryName),
+                                          style: TextStyle(
+                                            color: Colors.blueGrey[600],
+                                            fontWeight: FontWeight.w500,
+                                          ),
+                                        ),
+                                        const TextSpan(
+                                          text: '  •  ',
+                                          style: TextStyle(color: Colors.grey),
+                                        ),
+                                        TextSpan(
+                                          text: asset.ownershipType == 'PERSONAL' ? asset.ownerName : 'Bersama',
+                                          style: TextStyle(
+                                            color: asset.ownershipType == 'PERSONAL'
+                                                ? const Color(0xFF1F9975)
+                                                : const Color(0xFFD97706),
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
                                   ),
-                                  children: [
-                                    TextSpan(
-                                      text: translateAssetCategory(asset.categoryName),
-                                      style: TextStyle(
-                                        color: Colors.blueGrey[600],
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                    ),
-                                    const TextSpan(
-                                      text: '  •  ',
-                                      style: TextStyle(color: Colors.grey),
-                                    ),
-                                    TextSpan(
-                                      text: asset.ownershipType == 'PERSONAL' ? asset.ownerName : 'Bersama',
-                                      style: TextStyle(
-                                        color: asset.ownershipType == 'PERSONAL'
-                                            ? const Color(0xFF1F9975)
-                                            : const Color(0xFFD97706),
-                                        fontWeight: FontWeight.bold,
-                                      ),
+                                  // Gold asset: show gram breakdown
+                                  if (isGold && gram != null) ...[
+                                    const SizedBox(height: 4),
+                                    Row(
+                                      children: [
+                                        Icon(Icons.hexagon_outlined, size: 10, color: const Color(0xFFD4A843)),
+                                        const SizedBox(width: 4),
+                                        Text(
+                                          '${gram.toStringAsFixed(1)} gr × Rp ${controller.goldController.latestPrice.value?.shortSellPrice ?? "-"} (Jual)',
+                                          style: TextStyle(
+                                            fontSize: 9,
+                                            color: const Color(0xFFD4A843),
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
+                                      ],
                                     ),
                                   ],
-                                ),
+                                ],
                               ),
-                              amount: 'Rp ${asset.purchasePrice.toStringAsFixed(0).replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]}.')}',
+                              amount: formattedValue,
                               asset: asset,
+                              isGold: isGold && gram != null,
                               canEdit: asset.ownershipType == 'JOINT' || controller.currentUserId == asset.ownerUserId,
                             ),
                           );
@@ -674,6 +708,242 @@ class HartaView extends GetView<HartaController> {
     );
   }
 
+  /// Gold price ticker banner — Dark Teal gradient with live price + indicator
+  Widget _buildGoldTickerBanner() {
+    final goldCtrl = Get.find<GoldController>();
+    return Obx(() {
+      // Loading state
+      if (goldCtrl.isLoading.value) {
+        return Container(
+          width: double.infinity,
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          decoration: BoxDecoration(
+            gradient: const LinearGradient(
+              colors: [Color(0xFF004D40), Color(0xFF00695C)],
+              begin: Alignment.centerLeft,
+              end: Alignment.centerRight,
+            ),
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: const Icon(Icons.hexagon_outlined, color: Color(0xFFFFD54F), size: 20),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(width: 120, height: 10, decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.2), borderRadius: BorderRadius.circular(4))),
+                    const SizedBox(height: 6),
+                    Container(width: 160, height: 14, decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.15), borderRadius: BorderRadius.circular(4))),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        );
+      }
+
+      // No data available at all
+      if (goldCtrl.latestPrice.value == null) {
+        return Container(
+          width: double.infinity,
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          decoration: BoxDecoration(
+            gradient: const LinearGradient(
+              colors: [Color(0xFF004D40), Color(0xFF00695C)],
+              begin: Alignment.centerLeft,
+              end: Alignment.centerRight,
+            ),
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: const Icon(Icons.hexagon_outlined, color: Color(0xFFFFD54F), size: 20),
+              ),
+              const SizedBox(width: 12),
+              Text(
+                'Harga emas tidak tersedia',
+                style: TextStyle(
+                  color: Colors.white.withValues(alpha: 0.7),
+                  fontSize: 12,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ],
+          ),
+        );
+      }
+
+      // Data available — show ticker
+      final price = goldCtrl.latestPrice.value!;
+      final changePercent = goldCtrl.priceChangePercent;
+      final isUp = goldCtrl.isUp;
+      final isCached = goldCtrl.isUsingCache.value;
+
+      return Container(
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        decoration: BoxDecoration(
+          gradient: const LinearGradient(
+            colors: [Color(0xFF004D40), Color(0xFF00695C)],
+            begin: Alignment.centerLeft,
+            end: Alignment.centerRight,
+          ),
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(
+              color: const Color(0xFF004D40).withValues(alpha: 0.25),
+              blurRadius: 12,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Row(
+          children: [
+            // Gold icon
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.12),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: const Icon(Icons.hexagon_outlined, color: Color(0xFFFFD54F), size: 20),
+            ),
+            const SizedBox(width: 12),
+            // Price info
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Text(
+                        'Harga Emas Hari Ini',
+                        style: TextStyle(
+                          color: Colors.white.withValues(alpha: 0.7),
+                          fontSize: 10,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                      if (isCached) ...[
+                        const SizedBox(width: 6),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withValues(alpha: 0.15),
+                            borderRadius: BorderRadius.circular(3),
+                          ),
+                          child: Text(
+                            'cached',
+                            style: TextStyle(
+                              color: Colors.white.withValues(alpha: 0.6),
+                              fontSize: 7,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                  const SizedBox(height: 6),
+                  Row(
+                    children: [
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Beli',
+                            style: TextStyle(
+                              color: Colors.white.withValues(alpha: 0.6),
+                              fontSize: 8,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                          Text(
+                            '${price.formattedBuyPrice}',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 13,
+                              fontWeight: FontWeight.w800,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(width: 16),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Jual (Buyback)',
+                            style: TextStyle(
+                              color: Colors.white.withValues(alpha: 0.6),
+                              fontSize: 8,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                          Text(
+                            '${price.formattedSellPrice}',
+                            style: const TextStyle(
+                              color: Color(0xFFFFD54F),
+                              fontSize: 13,
+                              fontWeight: FontWeight.w800,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            // Change indicator
+            if (changePercent != 0.0)
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                decoration: BoxDecoration(
+                  color: (isUp ? const Color(0xFF00C853) : const Color(0xFFFF1744)).withValues(alpha: 0.2),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      isUp ? Icons.arrow_upward_rounded : Icons.arrow_downward_rounded,
+                      color: isUp ? const Color(0xFF00C853) : const Color(0xFFFF1744),
+                      size: 12,
+                    ),
+                    const SizedBox(width: 2),
+                    Text(
+                      '${changePercent.abs().toStringAsFixed(1)}%',
+                      style: TextStyle(
+                        color: isUp ? const Color(0xFF00C853) : const Color(0xFFFF1744),
+                        fontSize: 11,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+          ],
+        ),
+      );
+    });
+  }
+
   Widget _buildShimmerAssetItem() {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
@@ -798,6 +1068,7 @@ class HartaView extends GetView<HartaController> {
     required String amount,
     required AssetModel asset,
     required bool canEdit,
+    bool isGold = false,
   }) {
     return GestureDetector(
       onTap: () => Get.toNamed(Routes.DETAIL_ASSET, arguments: asset),
@@ -852,7 +1123,39 @@ class HartaView extends GetView<HartaController> {
                   letterSpacing: -0.5,
                 ),
               ),
-              const SizedBox(height: 6),
+              if (isGold) ...[
+                const SizedBox(height: 4),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF004D40).withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Container(
+                        width: 5,
+                        height: 5,
+                        decoration: const BoxDecoration(
+                          color: Color(0xFF00C853),
+                          shape: BoxShape.circle,
+                        ),
+                      ),
+                      const SizedBox(width: 4),
+                      const Text(
+                        'Live',
+                        style: TextStyle(
+                          fontSize: 8,
+                          fontWeight: FontWeight.w700,
+                          color: Color(0xFF004D40),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ] else
+                const SizedBox(height: 6),
               if (canEdit)
                 GestureDetector(
                   onTap: () {

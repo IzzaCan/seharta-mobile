@@ -4,7 +4,9 @@ import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import '../../../data/providers/api_provider.dart';
 import '../../../data/services/auth_service.dart';
+import '../../../data/models/gold_model.dart';
 import '../../harta/controllers/harta_controller.dart';
+import '../../harta/controllers/gold_controller.dart';
 import '../../harta/models/asset_model.dart';
 
 import 'package:intl/intl.dart';
@@ -19,6 +21,29 @@ class AddAssetController extends GetxController {
   final priceController = TextEditingController();
   final dateController = TextEditingController();
   final notesController = TextEditingController();
+  final gramController = TextEditingController();
+
+  /// Whether the currently selected category is a gold/precious metals type
+  bool get isGoldCategory {
+    if (selectedCategoryId.value == null) return false;
+    final cat = categories.firstWhereOrNull((c) => c.id == selectedCategoryId.value);
+    if (cat == null) return false;
+    final name = translateAssetCategory(cat.name).toLowerCase();
+    return name.contains('emas') || name.contains('gold') || name.contains('logam mulia');
+  }
+
+  /// Estimated gold value based on gram input and live price (using buy price for initial purchase cost)
+  double get estimatedGoldValue {
+    final gramText = gramController.text.replaceAll(RegExp(r'[^0-9.]'), '');
+    final gram = double.tryParse(gramText) ?? 0.0;
+    if (gram <= 0) return 0.0;
+    try {
+      final goldCtrl = Get.find<GoldController>();
+      return gram * goldCtrl.currentBuyPrice.toDouble();
+    } catch (_) {
+      return 0.0;
+    }
+  }
 
   // Image Picker & Photo States
   final ImagePicker _picker = ImagePicker();
@@ -126,7 +151,17 @@ class AddAssetController extends GetxController {
         selectedCategoryId.value = asset.categoryId;
         selectedOwnership.value = asset.ownershipType;
         selectedAcquisition.value = asset.acquisitionType;
-        notesController.text = asset.notes ?? '';
+        
+        // Handle gold category values
+        if (isGoldCategory) {
+          final gram = GoldGramHelper.extractGram(asset.notes);
+          if (gram != null) {
+            gramController.text = gram.toString();
+          }
+          notesController.text = GoldGramHelper.removeGram(asset.notes);
+        } else {
+          notesController.text = asset.notes ?? '';
+        }
 
         if (asset.purchaseDate != null) {
           dateController.text = asset.purchaseDate!.toIso8601String().split('T').first;
@@ -195,8 +230,19 @@ class AddAssetController extends GetxController {
   }
 
   Future<void> submit() async {
-    if (nameController.text.isEmpty || priceController.text.isEmpty || selectedCategoryId.value == null) {
-      Get.snackbar('Error', 'Nama, harga, dan kategori aset wajib diisi', backgroundColor: Colors.red[100], colorText: Colors.red[900]);
+    final bool isPriceOrGramEmpty = isGoldCategory 
+        ? gramController.text.isEmpty 
+        : priceController.text.isEmpty;
+
+    if (nameController.text.isEmpty || isPriceOrGramEmpty || selectedCategoryId.value == null) {
+      Get.snackbar(
+        'Error',
+        isGoldCategory
+            ? 'Nama, berat emas, dan kategori aset wajib diisi'
+            : 'Nama, harga, dan kategori aset wajib diisi',
+        backgroundColor: Colors.red[100],
+        colorText: Colors.red[900],
+      );
       return;
     }
 
@@ -251,15 +297,32 @@ class AddAssetController extends GetxController {
 
       // Bersihkan pemisah ribuan sebelum di-parse ke double
       final rawPrice = priceController.text.replaceAll(RegExp(r'[^0-9]'), '');
-      
+
+      // Gold mode (Opsi A): purchase_price = rupiah value, gram embedded in notes
+      double finalPrice;
+      String finalNotes = notesController.text;
+
+      if (isGoldCategory && gramController.text.isNotEmpty) {
+        final gramText = gramController.text.replaceAll(RegExp(r'[^0-9.]'), '');
+        final gram = double.tryParse(gramText) ?? 0.0;
+        // If user entered their own purchase price, use it; otherwise fallback to auto-estimate (today's buy price)
+        finalPrice = rawPrice.isNotEmpty
+            ? (double.tryParse(rawPrice) ?? 0.0)
+            : (estimatedGoldValue > 0 ? estimatedGoldValue : 0.0);
+        // Embed gram weight in notes
+        finalNotes = GoldGramHelper.embedGram(finalNotes, gram);
+      } else {
+        finalPrice = double.tryParse(rawPrice) ?? 0.0;
+      }
+
       final data = {
         'asset_name': nameController.text,
-        'purchase_price': double.tryParse(rawPrice) ?? 0.0,
+        'purchase_price': finalPrice,
         'category_id': selectedCategoryId.value,
         'ownership_type': selectedOwnership.value,
         'acquisition_type': selectedAcquisition.value,
         'purchase_date': dateController.text.isNotEmpty ? '${dateController.text}T00:00:00Z' : null,
-        'notes': notesController.text,
+        'notes': finalNotes,
         'photo_url': photoUrlString,
       };
 

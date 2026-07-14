@@ -382,7 +382,7 @@ class ProfileView extends GetView<ProfileController> {
               ),
               // Unlink Button directly inside the card for better UX
               TextButton(
-                onPressed: controller.unpairAccount,
+                onPressed: () => Get.toNamed(Routes.DISCONNECT_CONFIRMATION),
                 style: TextButton.styleFrom(
                   backgroundColor: redAccent.withValues(alpha: 0.1),
                   foregroundColor: redAccent,

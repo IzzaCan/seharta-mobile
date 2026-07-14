@@ -2,16 +2,18 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
+import 'package:get/get.dart';
+import 'package:seharta/app/data/services/auth_service.dart';
 
 class ApiProvider {
   // Gunakan IP 10.0.2.2 untuk Android emulator, atau IP PC Anda (misal: 192.168.1.4) jika run di HP fisik
   static String get baseUrl {
-  return 'https://api.seharta.web.id/api/v1';
+    return 'http://192.168.1.6:8000/api/v1';
   }
 
   // Domain utama untuk load static files (seperti avatar)
   static String get baseDomain {
-  return 'https://api.seharta.web.id';
+    return 'http://192.168.1.6:8000';
   }
 
   // Helper untuk mendapatkan URL gambar yang valid secara otomatis (Mencegah Double URL)
@@ -369,5 +371,35 @@ class ApiProvider {
     required String token,
   }) async {
     return await patch('/notifications/$notificationId/read', {}, token: token);
+  }
+
+  // ==========================================
+  // GOLD PRICE ENDPOINTS (Public — no auth)
+  // ==========================================
+
+  Future<Map<String, dynamic>> getGoldLatestPrice() async {
+    return await get('/gold/latest');
+  }
+
+  Future<Map<String, dynamic>> getGoldHistory({
+    int page = 1,
+    int limit = 30,
+  }) async {
+    return await get('/gold/history?page=$page&limit=$limit');
+  }
+
+  // ==========================================
+  // FAMILY ENDPOINTS
+  // ==========================================
+  
+  Future<Map<String, dynamic>?> unlinkFamilyAccount() async {
+    try {
+      final authService = Get.find<AuthService>();
+      final token = authService.accessToken.value;
+      if (token.isEmpty) return null;
+      return await post('/family/unlink', {}, token: token);
+    } catch (e) {
+      rethrow;
+    }
   }
 }

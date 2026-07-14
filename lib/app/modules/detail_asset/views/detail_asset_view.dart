@@ -5,6 +5,7 @@ import '../controllers/detail_asset_controller.dart';
 import '../../harta/models/asset_model.dart';
 import '../../../routes/app_pages.dart';
 import '../../../utils/asset_helper.dart';
+import '../../../data/models/gold_model.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
 class DetailAssetView extends GetView<DetailAssetController> {
@@ -110,6 +111,35 @@ class DetailAssetView extends GetView<DetailAssetController> {
           _buildInfoRow('Harga Pembelian', formattedPrice, valueColor: primaryDark, isBold: true),
           const Divider(height: 24, color: Color(0xFFE0E5E9)),
           _buildInfoRow('Tanggal Pembelian', asset.purchaseDate != null ? DateFormat('dd MMM yyyy').format(asset.purchaseDate!) : '-'),
+          if (controller.isGold) ...[
+            const Divider(height: 24, color: Color(0xFFE0E5E9)),
+            _buildInfoRow(
+              'Berat Emas',
+              '${controller.goldGram?.toStringAsFixed(2) ?? "0.00"} Gram',
+              valueColor: const Color(0xFFD4A843),
+              isBold: true,
+            ),
+            const Divider(height: 24, color: Color(0xFFE0E5E9)),
+            _buildInfoRow(
+              'Nilai Saat Ini (Valuasi)',
+              'Rp ${controller.currentGoldValue.toStringAsFixed(0).replaceAllMapped(RegExp(r"(\d{1,3})(?=(\d{3})+(?!\d))"), (Match m) => "${m[1]}.")}',
+              valueColor: primaryDark,
+              isBold: true,
+            ),
+            const Divider(height: 24, color: Color(0xFFE0E5E9)),
+            Builder(builder: (_) {
+              final profitLoss = controller.profitLossAmount;
+              final isProfit = profitLoss >= 0;
+              final formattedProfitLoss = 'Rp ${profitLoss.abs().toStringAsFixed(0).replaceAllMapped(RegExp(r"(\d{1,3})(?=(\d{3})+(?!\d))"), (Match m) => "${m[1]}.")}';
+              final pct = controller.profitLossPercentage.abs().toStringAsFixed(1);
+              return _buildInfoRow(
+                isProfit ? 'Estimasi Keuntungan' : 'Estimasi Kerugian',
+                '${isProfit ? "+" : "-"}$formattedProfitLoss ($pct%)',
+                valueColor: isProfit ? const Color(0xFF00C853) : const Color(0xFFFF1744),
+                isBold: true,
+              );
+            }),
+          ],
         ],
       ),
     );
@@ -218,8 +248,9 @@ class DetailAssetView extends GetView<DetailAssetController> {
   }
 
   Widget _buildNotesSection() {
-    final notes = controller.asset.notes;
-    final hasNotes = notes != null && notes.trim().isNotEmpty;
+    final rawNotes = controller.asset.notes;
+    final notes = GoldGramHelper.removeGram(rawNotes);
+    final hasNotes = notes.trim().isNotEmpty;
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16),
       child: Column(
@@ -235,7 +266,7 @@ class DetailAssetView extends GetView<DetailAssetController> {
               borderRadius: BorderRadius.circular(12),
             ),
             child: Text(
-              hasNotes ? notes! : 'Belum ada catatan untuk aset ini.',
+              hasNotes ? notes : 'Belum ada catatan untuk aset ini.',
               style: TextStyle(
                 color: hasNotes ? Colors.white : Colors.grey[400],
                 fontStyle: hasNotes ? FontStyle.normal : FontStyle.italic,

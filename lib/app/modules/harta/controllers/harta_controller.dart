@@ -5,9 +5,11 @@ import '../models/goal_model.dart';
 import '../models/asset_model.dart';
 import '../../../data/providers/wallet_provider.dart';
 import '../../../data/models/wallet_model.dart';
+import '../../../data/models/gold_model.dart';
 import '../../../data/providers/api_provider.dart';
 import '../../../data/services/auth_service.dart';
 import '../../../routes/app_pages.dart';
+import 'gold_controller.dart';
 
 List<AssetModel> _parseAssets(List<dynamic> data) {
   return data.map((json) => AssetModel.fromJson(json)).toList();
@@ -17,6 +19,9 @@ class HartaController extends GetxController {
   final WalletProvider _walletProvider = WalletProvider();
   final ApiProvider _apiProvider = ApiProvider();
   final AuthService _authService = Get.find<AuthService>();
+
+  // Gold controller for live price integration
+  GoldController get goldController => Get.find<GoldController>();
 
   // 0 = Aset Tetap, 1 = Goals
   var activeTab = 0.obs;
@@ -33,16 +38,55 @@ class HartaController extends GetxController {
   var isLoadingWallets = false.obs;
 
   double get totalKekayaan {
-    double totalAssets = assets.fold(0.0, (sum, item) => sum + item.purchasePrice);
+    double totalAssets = assets.fold(0.0, (sum, item) {
+      // Auto-valuation for gold assets
+      if (_isGoldAsset(item)) {
+        final gram = GoldGramHelper.extractGram(item.notes);
+        if (gram != null && goldController.currentSellPrice > 0) {
+          return sum + goldController.calculateGoldValue(gram);
+        }
+      }
+      return sum + item.purchasePrice;
+    });
     double totalWallets = wallets.fold(0.0, (sum, item) => item.isActive ? sum + item.balance : sum);
     return totalAssets + totalWallets;
   }
+
+  /// Check if an asset is a gold/precious metals category
+  bool _isGoldAsset(AssetModel asset) {
+    final name = (asset.categoryName ?? '').toLowerCase();
+    return name.contains('emas') ||
+        name.contains('gold') ||
+        name.contains('logam mulia') ||
+        name.contains('precious');
+  }
+
+  /// Get the current gold value for a specific asset (for display)
+  double getGoldAssetValue(AssetModel asset) {
+    if (!_isGoldAsset(asset)) return asset.purchasePrice;
+    final gram = GoldGramHelper.extractGram(asset.notes);
+    if (gram != null && goldController.currentSellPrice > 0) {
+      return goldController.calculateGoldValue(gram);
+    }
+    return asset.purchasePrice;
+  }
+
+  /// Get the gram weight for a gold asset (or null)
+  double? getGoldGram(AssetModel asset) {
+    if (!_isGoldAsset(asset)) return null;
+    return GoldGramHelper.extractGram(asset.notes);
+  }
+
+  /// Check if asset is gold type (public)
+  bool isGoldAsset(AssetModel asset) => _isGoldAsset(asset);
 
   @override
   void onInit() {
     super.onInit();
     fetchAssets();
     fetchWallets();
+    // Trigger gold price fetch on page open
+    goldController.fetchGoldPrice();
   }
 
   void switchTab(int index) {
@@ -133,6 +177,7 @@ class HartaController extends GetxController {
       await Future.wait([
         fetchAssets(),
         fetchWallets(),
+        goldController.fetchGoldPrice(),
       ]);
     } else {
       await fetchGoals();

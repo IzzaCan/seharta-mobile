@@ -59,6 +59,8 @@ import '../modules/all_transactions/views/all_transactions_view.dart';
 import '../modules/profile/views/help_center_view.dart';
 import '../modules/notifications/bindings/notifications_binding.dart';
 import '../modules/notifications/views/notifications_view.dart';
+import '../modules/disconnect_confirmation/bindings/disconnect_confirmation_binding.dart';
+import '../modules/disconnect_confirmation/views/disconnect_confirmation_view.dart';
 
 part 'app_routes.dart';
 
@@ -221,6 +223,11 @@ class AppPages {
       name: _Paths.NOTIFICATIONS,
       page: () => const NotificationsView(),
       binding: NotificationsBinding(),
+    ),
+    GetPage(
+      name: _Paths.DISCONNECT_CONFIRMATION,
+      page: () => const DisconnectConfirmationView(),
+      binding: DisconnectConfirmationBinding(),
     ),
   ];
 }

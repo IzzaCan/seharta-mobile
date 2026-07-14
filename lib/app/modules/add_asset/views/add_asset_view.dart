@@ -146,27 +146,133 @@ class AddAssetView extends GetView<AddAssetController> {
             ),
             const SizedBox(height: 16),
 
-            // Harga / Nilai Aset
-            Text('Nilai Aset (Rp)', style: TextStyle(fontWeight: FontWeight.bold, color: primaryDark)),
-            const SizedBox(height: 8),
-            TextField(
-              controller: controller.priceController,
-              keyboardType: TextInputType.number,
-              inputFormatters: [RupiahInputFormatter()],
-              decoration: InputDecoration(
-                hintText: 'Contoh: 120.000.000',
-                filled: true,
-                fillColor: Colors.white,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: const BorderSide(color: Color(0xFFE0E5E9)),
-                ),
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: const BorderSide(color: Color(0xFFE0E5E9)),
-                ),
-              ),
-            ),
+            // Harga / Nilai Aset — Dynamic: Rupiah or Gram mode
+            Obx(() {
+              // Force reactivity on category change
+              final _ = controller.selectedCategoryId.value;
+              final isGold = controller.isGoldCategory;
+
+              if (isGold) {
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Berat Emas (Gram)', style: TextStyle(fontWeight: FontWeight.bold, color: primaryDark)),
+                    const SizedBox(height: 8),
+                    TextField(
+                      controller: controller.gramController,
+                      keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                      onChanged: (_) => controller.update(),
+                      decoration: InputDecoration(
+                        hintText: 'Contoh: 5.0',
+                        prefixIcon: Icon(Icons.hexagon_outlined, color: const Color(0xFFD4A843), size: 20),
+                        filled: true,
+                        fillColor: Colors.white,
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: const BorderSide(color: Color(0xFFE0E5E9)),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: const BorderSide(color: Color(0xFFE0E5E9)),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide(color: const Color(0xFF004D40), width: 1.5),
+                        ),
+                      ),
+                    ),
+                    // Live price estimation
+                    Builder(builder: (_) {
+                      final estimated = controller.estimatedGoldValue;
+                      if (estimated > 0) {
+                        final formatted = estimated.toStringAsFixed(0).replaceAllMapped(
+                          RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
+                          (Match m) => '${m[1]}.',
+                        );
+                        return Padding(
+                          padding: const EdgeInsets.only(top: 8),
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFF004D40).withOpacity(0.06),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Row(
+                              children: [
+                                const Icon(Icons.auto_awesome, size: 14, color: Color(0xFF004D40)),
+                                const SizedBox(width: 8),
+                                Expanded(
+                                  child: Text(
+                                    '\u2248 Rp $formatted (estimasi harga beli hari ini)',
+                                    style: const TextStyle(
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.w600,
+                                      color: Color(0xFF004D40),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      }
+                      return const SizedBox.shrink();
+                    }),
+                    const SizedBox(height: 16),
+                    Text('Total Harga Beli / Modal Awal (Rp) (Opsional)', style: TextStyle(fontWeight: FontWeight.bold, color: primaryDark)),
+                    const SizedBox(height: 8),
+                    TextField(
+                      controller: controller.priceController,
+                      keyboardType: TextInputType.number,
+                      inputFormatters: [RupiahInputFormatter()],
+                      decoration: InputDecoration(
+                        hintText: 'Contoh: 7.000.000',
+                        helperText: 'Kosongkan jika ingin auto-kalkulasi menggunakan harga beli emas hari ini.',
+                        helperMaxLines: 2,
+                        helperStyle: TextStyle(color: Colors.grey[600], fontSize: 10),
+                        filled: true,
+                        fillColor: Colors.white,
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: const BorderSide(color: Color(0xFFE0E5E9)),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: const BorderSide(color: Color(0xFFE0E5E9)),
+                        ),
+                      ),
+                    ),
+                  ],
+                );
+              }
+
+              // Default: Rupiah input
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('Nilai Aset (Rp)', style: TextStyle(fontWeight: FontWeight.bold, color: primaryDark)),
+                  const SizedBox(height: 8),
+                  TextField(
+                    controller: controller.priceController,
+                    keyboardType: TextInputType.number,
+                    inputFormatters: [RupiahInputFormatter()],
+                    decoration: InputDecoration(
+                      hintText: 'Contoh: 120.000.000',
+                      filled: true,
+                      fillColor: Colors.white,
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: const BorderSide(color: Color(0xFFE0E5E9)),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: const BorderSide(color: Color(0xFFE0E5E9)),
+                      ),
+                    ),
+                  ),
+                ],
+              );
+            }),
             const SizedBox(height: 16),
 
             // Kategori

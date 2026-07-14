@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import '../../../data/models/analytics_model.dart';
 import '../../../routes/app_pages.dart';
 import '../controllers/analytics_controller.dart';
+import '../../harta/controllers/gold_controller.dart';
 
 import '../widgets/overview_grid.dart';
 import '../widgets/cashflow_summary.dart';
@@ -10,6 +11,8 @@ import '../widgets/budget_analysis_card.dart';
 import '../widgets/expense_donut_chart.dart';
 import '../widgets/asset_bento_grid.dart';
 import '../widgets/behavioral_insights.dart';
+import '../widgets/gold_trend_chart.dart';
+import '../widgets/gold_simulator_card.dart';
 
 class AnalyticsView extends GetView<AnalyticsController> {
   const AnalyticsView({Key? key}) : super(key: key);
@@ -109,6 +112,17 @@ class AnalyticsView extends GetView<AnalyticsController> {
         ExpenseDonutChart(categoryBreakdown: data.categoryBreakdown),
         const SizedBox(height: 24),
         AssetBentoGrid(data: data.assetDistribution),
+        const SizedBox(height: 24),
+        // Gold Price Trend Chart
+        Obx(() {
+          final goldCtrl = Get.find<GoldController>();
+          return GoldTrendChart(
+            history: goldCtrl.priceHistory,
+            isLoading: goldCtrl.isLoading.value,
+          );
+        }),
+        const SizedBox(height: 24),
+        const GoldSimulatorCard(),
         const SizedBox(height: 24),
         BehavioralInsights(summary: data.behavioralAnalytics.summary),
       ],
